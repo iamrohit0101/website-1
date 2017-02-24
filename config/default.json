@@ -1,0 +1,16 @@
+{
+  "host": "localhost",
+  "port": 443,
+  "key": "privkey.pem",
+  "cert": "cert.pem",
+  "ca": "fullchain.pem",
+  "public": "../public/",
+  "mongodb": "MONGODB_URI",
+  "auth": {
+    "token": {
+      "secret": "SECRET"
+    },
+    "local": {"usernameField": "username"},
+    "successRedirect": "/profile.html"
+  }
+}
