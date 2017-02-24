@@ -1,10 +1,18 @@
-# angelthump
+<p align="center">
+  <img src="http://i.imgur.com/OsIXQ4E.png">
+</p>
+<h1 align="center">AngelThump Live Streaming</h1>
 
-> Streaming service
+> 
 
 ## About
 
-This project uses [Feathers](http://feathersjs.com). An open source web framework for building modern real-time applications.
+An open source web framework for the AngelThump streaming platform. The web framework is [feathersjs](www.feathersjs.com)
+
+## Donations
+I do not make any profit off of this. All donations will go to server costs and it will be appericated.
+
+[Donate Here](http://www.AngelThump.com/donate)
 
 ## Getting Started
 
@@ -14,7 +22,7 @@ Getting up and running is as easy as 1, 2, 3.
 2. Install your dependencies
     
     ```
-    cd path/to/angelthump; npm install
+    cd path/to/AngelThump; npm install
     ```
 
 3. Start your app
@@ -22,10 +30,6 @@ Getting up and running is as easy as 1, 2, 3.
     ```
     npm start
     ```
-
-## Testing
-
-Simply run `npm test` and all your tests in the `test/` directory will be run.
 
 ## Scaffolding
 
@@ -44,14 +48,26 @@ $ feathers help                           # Show all commands
 
 For more information on all the things you can do with Feathers visit [docs.feathersjs.com](http://docs.feathersjs.com).
 
-## Changelog
-
-__0.1.0__
-
-- Initial release
-
 ## License
 
-Copyright (c) 2016
+MIT License
 
-Licensed under the [MIT license](LICENSE).
+Copyright (c) 2016 AngelThump
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
