@@ -7038,7 +7038,7 @@ var PlaylistLoader = function (_EventHandler) {
         fatal = true;
       } else {
         details = _errors.ErrorDetails.LEVEL_LOAD_ERROR;
-        fatal = false;
+        fatal = true;
       }
       if (this.loader) {
         this.loader.abort();
