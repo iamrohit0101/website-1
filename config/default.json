@@ -11,6 +11,6 @@
       "secret": "SECRET"
     },
     "local": {"usernameField": "username"},
-    "successRedirect": "/profile.html"
+    "successRedirect": "/profile"
   }
 }
