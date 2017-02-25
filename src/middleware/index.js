@@ -42,7 +42,15 @@ module.exports = function() {
     res.status(200).send('ok');
   });
 
-  app.get('/api/:username', api(app));
+  app.get('/api/:username', function(req, res, next){
+    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.header("Pragma", "no-cache");
+    res.header("Expires", -1);
+
+    next();
+  }, api(app));
+
+  //app.get('/api/:username', api(app));
   
   app.use(notFound());
   app.use(logger(app));

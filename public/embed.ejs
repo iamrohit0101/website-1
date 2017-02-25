@@ -1,10 +1,11 @@
 <!DOCTYPE HTML>
-<html>
+<html data-cast-api-enabled="true">
 
 <head>
     <link href="/css/video-js.css" rel="stylesheet">
     <link href="/css/videojs.logobrand.css" rel="stylesheet">
     <link href="/css/videojs-resolution-switcher.css" rel="stylesheet">
+    <link href="/css/videojs-chromecast.css" rel="stylesheet">
     <link rel="shortcut icon" href="/favicon.ico">
 
   <title>
@@ -50,6 +51,8 @@
   <script src="/js/videojs5-hlsjs-source-handler.js"></script>
   <script src="/js/videojs.logobrand.js"></script>
   <script src="/js/videojs-persistvolume.js"></script>
+  <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+  <script src="/js/videojs-chromecast.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.1.4/core.min.js"></script>
   <script type="text/javascript" src="//unpkg.com/feathers-client@^1.0.0/dist/feathers.js"></script>
@@ -74,6 +77,13 @@
                 debug: false
             }
         },
+        chromecast:{
+		     appId: "50E3A992",
+		     metadata: {
+              title: "Title",
+              subtitle: "Subtitle"
+            }
+		  },
         plugins: {
         videoJsResolutionSwitcher: {
           default: 'auto',

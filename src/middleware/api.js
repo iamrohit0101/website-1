@@ -38,11 +38,11 @@ module.exports = function(app) {
 					live: values[0].trim() === '1',
 					title: `${username}'s stream`,
 					// title: title,
-					viewers: count,
+					viewers: parseInt(count, 10),
 					thumbnail: `https://api.angelthump.com/thumbnail/${username}.jpg`,
 				});
 				socket.emit('end');
-	        }).catch(() => res.status(404).send('API Date Not Found'));
+	        }).catch(() => res.status(404).send('API Data Not Found'));
 	    }, 500);
 
       }else{
