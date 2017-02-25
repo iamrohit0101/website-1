@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <link href="/css/video-js.css" rel="stylesheet">
+    <link href="/css/video-js.min.css" rel="stylesheet">
     <link href="/css/videojs.logobrand.css" rel="stylesheet">
     <link href="/css/videojs-resolution-switcher.css" rel="stylesheet">
     <link href="/css/videojs-chromecast.css" rel="stylesheet">
@@ -20,7 +20,7 @@
     overflow: hidden;
   }
 
-  #yee {
+  #player {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -35,8 +35,9 @@
     cursor: none;
   }
 
-  .video-js.vjs-default-skin .vjs-big-play-button { display: none; }
+  .video-js .vjs-progress-control { visibility: hidden; }
 
+  .video-js .vjs-remaining-time-display { visibility: hidden; }
 
   </style>
 
@@ -44,15 +45,15 @@
 
 <body>
 
-  <video id=yee class="video-js vjs-default-skin" autoplay controls preload="auto">
+  <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto">
   </video>
-  <script src="/js/video.js"></script>
+  <script src="/js/video.min.js"></script>
   <script src="/js/videojs-resolution-switcher.js"></script>
   <script src="/js/videojs5-hlsjs-source-handler.js"></script>
   <script src="/js/videojs.logobrand.js"></script>
   <script src="/js/videojs-persistvolume.js"></script>
   <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-  <script src="/js/videojs-chromecast.js"></script>
+  <script src="/js/videojs-chromecast.min.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
   <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v1.9.0/dist/feathers.js"></script>
@@ -94,7 +95,7 @@
       }        
     };
 
-    var player = videojs('yee', options);
+    var player = videojs('player', options);
     player.updateSrc(sources);
     player.currentResolution("auto");
     connect();
@@ -159,42 +160,38 @@
 
     function checkPatreon() {
       var jwtToken = localStorage.getItem("feathers-jwt");
-      if(jwtToken == null) {
-        alert("Login to access this patreon server! Refresh after you login!");
-        window.location = "https://angelthump.com/login.html";
-      }
+      if(jwtToken != null) {
+	      var app = feathers()
+	        .configure(feathers.socketio(socket))
+	        .configure(feathers.hooks())
+	        .configure(feathers.authentication({ storage: window.localStorage }));
+	      app.authenticate({
+	        type: 'token',
+	        'token': jwtToken
+	      }).then(user => {
+	        app.set('user', user);
+	        user = app.get('user');
+	        ifPatreon = user.data.patreon;
+	        if(!ifPatreon) {
+	          player.currentResolution("auto");
+	          alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
+	        }
+	      }).then(function(result){
+	        console.log('Authenticated!');
+	      }).catch(function(error){
+	        alert("Login to access this patreon server! Refresh after you login!");
+	        window.location = "https://angelthump.com/login.html";
+	        console.error('Error authenticating!', error);
+	      });
 
-      // Set up Feathers client side
-      var app = feathers()
-        .configure(feathers.socketio(socket))
-        .configure(feathers.hooks())
-        .configure(feathers.authentication({ storage: window.localStorage }));
-
-      // Authenticating using a token instead
-      app.authenticate({
-        type: 'token',
-        'token': jwtToken
-      }).then(user => {
-        app.set('user', user);
-        user = app.get('user');
-        ifPatreon = user.data.patreon;
-        if(!ifPatreon) {
-          player.currentResolution("auto");
-          alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
-        }
-      }).then(function(result){
-        console.log('Authenticated!');
-      }).catch(function(error){
-        alert("Login to access this patreon server! Refresh after you login!");
-        window.location = "https://angelthump.com/login.html";
-        console.error('Error authenticating!', error);
-      });
-
-      // If the transport changes, you have to call authenticate() again.
-      socket.io.engine.on('upgrade', function(transport) {
-        console.log('transport changed');
-        app.authenticate();
-      });
+	      // If the transport changes, you have to call authenticate() again.
+	      socket.io.engine.on('upgrade', function(transport) {
+	        console.log('transport changed');
+	        app.authenticate();
+	      });
+  		} else {
+  			alert("Login @ AngelThump.com to access this patreon server!");
+  		}
     }
   </script>
 
