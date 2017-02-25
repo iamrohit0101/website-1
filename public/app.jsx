@@ -36,7 +36,7 @@ const Profile = React.createClass({
   },
 
   logout() {
-    app.logout().then(() => window.location.href = '/index.html');
+    app.logout().then(() => window.location.href = '/');
   },
 
   render() {
@@ -142,9 +142,8 @@ const ProfileApp = React.createClass({
 
   componentDidMount() {
     const userService = app.service('users');
-    // const messageService = app.service('messages');
     const cached_user = app.get('user');
-    console.log(cached_user._id);
+    //console.log(cached_user._id);
 
     userService.get(cached_user._id).then(user => this.setState({ user: user }))
     .catch(e => console.error(e));
@@ -175,7 +174,7 @@ app.authenticate().then(() => {
   </div>, document.body);
 }).catch(error => {
   if(error.code === 401) {
-    window.location.href = '/login.html'
+    window.location.href = '/login'
   }
 
   console.error(error);

@@ -19,7 +19,6 @@ const normalize = username => {
 module.exports = function() {
   return function(hook) {
     // Assign the new data with the username
-    console.log(hook.data);
     hook.data = Object.assign({}, hook.data, {
       username: normalize(hook.data.username)
     });

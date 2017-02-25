@@ -42,6 +42,15 @@ module.exports = function() {
   app.get('/tos', function(req, res, next){
     res.sendFile('tos.html', { root: path.join(__dirname, '../../public') });
   });
+  app.get('/profile', function(req, res, next){
+    res.sendFile('profile.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.get('/login', function(req, res, next){
+    res.sendFile('login.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.get('/signup', function(req, res, next){
+    res.sendFile('signup.html', { root: path.join(__dirname, '../../public') });
+  });
 
   app.post('/signup', signup(app));
 
