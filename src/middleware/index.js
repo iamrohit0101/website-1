@@ -5,6 +5,7 @@
 const signup = require('./signup');
 const verify = require('./verify');
 const api = require('./api');
+const path = require('path');
 
 const handler = require('feathers-errors/handler');
 const notFound = require('./not-found-handler');
@@ -17,7 +18,6 @@ module.exports = function() {
   const app = this;
 
   app.set('view engine', 'ejs');
-  console.log(__dirname);
   app.set('views', 'public');
 
   // TODO:
@@ -32,6 +32,16 @@ module.exports = function() {
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
   });*/
+
+  app.get('/dmca', function(req, res, next){
+    res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.get('/privacy', function(req, res, next){
+    res.sendFile('privacy.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.get('/tos', function(req, res, next){
+    res.sendFile('tos.html', { root: path.join(__dirname, '../../public') });
+  });
 
   app.post('/signup', signup(app));
 

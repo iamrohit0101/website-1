@@ -112,7 +112,7 @@ const Profile = React.createClass({
                   }
                 </p>
                 <p>
-                  {this.state.showStreamKey ? user.streamkey : "Stream Key Hidden"}
+                  {this.state.showStreamKey ? user.streamkey : ""}
                 </p>
               </div>
             </div>
