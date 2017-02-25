@@ -7,12 +7,12 @@
 
 ## About
 
-An open source web framework for the AngelThump streaming platform. The web framework is [feathersjs](www.feathersjs.com)
+An open source web framework for the AngelThump streaming platform. The web framework is [feathersjs](http://feathersjs.com)
 
 ## Donations
 I do not make any profit off of this. All donations will go to server costs and it will be appericated.
 
-[Donate Here](http://www.AngelThump.com/donate)
+[Become a patreon](http://www.AngelThump.com/patreon)
 
 ## Getting Started
 
@@ -52,7 +52,7 @@ For more information on all the things you can do with Feathers visit [docs.feat
 
 MIT License
 
-Copyright (c) 2016 AngelThump
+Copyright (c) 2016-2017 AngelThump
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
