@@ -74,7 +74,6 @@
 
     var options = {
     	errorDisplay: false,
-    	loadingSpinner: false,
         html5: {
             hlsjsConfig: {
                 debug: false
@@ -130,7 +129,9 @@
         }
         
         if(running && player.readyState() == 0) {
-          retry();
+        	retry();
+        } else {
+        	player.loadingSpinner.show();
         }
 
     }, requestTime);
@@ -142,6 +143,7 @@
     
     player.on('error', function(e) {
       if (player.error().code == 2) {
+      	player.loadingSpinner.hide();
         player.error(null);
         retry();
       }
