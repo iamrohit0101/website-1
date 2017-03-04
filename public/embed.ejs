@@ -43,21 +43,20 @@
 
 <body>
 
-    <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto">
-    </video>
-    <script src="/js/video.min.js"></script>
-    <script src="/js/videojs-resolution-switcher.js"></script>
-    <script src="/js/videojs5-hlsjs-source-handler.js"></script>
-    <script src="/js/videojs.logobrand.js"></script>
-    <script src="/js/videojs-persistvolume.js"></script>
-    <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-    <script src="/js/videojs-chromecast.min.js"></script>
+    <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto"></video>
+    <script type="text/javascript" src="/js/video.min.js"></script>
+    <script type="text/javascript" src="/js/videojs-resolution-switcher.js"></script>
+    <script type="text/javascript" src="/js/videojs5-hlsjs-source-handler.js"></script>
+    <script type="text/javascript" src="/js/videojs.logobrand.js"></script>
+    <script type="text/javascript" src="/js/videojs-persistvolume.js"></script>
+    <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script type="text/javascript" src="/js/videojs-chromecast.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
     <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v1.9.0/dist/feathers.js"></script>
 
     <script>
-        var ifPatreon = false, channel = "<%= username %>", host = 'https://angelthump.com', socket;
+        var ifPatreon = false, channel = "<%= username %>", host = 'https://angelthump.com', socket, requestTime = 1000, running = false;
         var sources = [{
             type: "application/x-mpegURL",
             src: "https://nyc-load.angelthump.com/hls/" + channel + ".m3u8",
@@ -123,9 +122,6 @@
             destination: "https://patreon.com/angelthump"
         });
 
-
-        var requestTime = 1000;
-
         function retry() {
             setTimeout(function() {
                 player.src(sources);
@@ -142,8 +138,6 @@
 
             }, requestTime);
         }
-
-        var running = false;
 
         player.on('error', function(e) {
             if (player.error().code == 2) {
@@ -189,8 +183,7 @@
                 }).then(function(result) {
                     console.log('Authenticated!');
                 }).catch(function(error) {
-                    alert("Login to access this patreon server! Refresh after you login!");
-                    window.location = "https://angelthump.com/login.html";
+                    alert("Login @ AngelThump.com to access this patreon server!");
                     console.error('Error authenticating!', error);
                 });
 
