@@ -3,9 +3,9 @@
 
 <head>
     <link href="/css/video-js.min.css" rel="stylesheet">
+    <link href="/css/videojs-chromecast.css" rel="stylesheet">
     <link href="/css/videojs.logobrand.css" rel="stylesheet">
     <link href="/css/videojs-resolution-switcher.css" rel="stylesheet">
-    <link href="/css/videojs-chromecast.css" rel="stylesheet">
     <link rel="shortcut icon" href="/favicon.ico">
 
     <title>
@@ -63,13 +63,21 @@
             label: 'US-E'
         }, {
             type: "application/x-mpegURL",
+            src: "https://san1.angelthump.com/hls/" + channel + ".m3u8",
+            label: 'US-W'
+        }, {
+            type: "application/x-mpegURL",
             src: "https://ams-load.angelthump.com/hls/" + channel + ".m3u8",
             label: 'EU'
         }, {
             type: "application/x-mpegURL",
             src: "https://nyc-patreon.angelthump.com/hls/" + channel + ".m3u8",
-            label: 'PATREONS'
-        }, {
+            label: 'PATREON'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://sin1.angelthump.com/hls/" + channel + ".m3u8",
+            label: 'SINGAPORE'
+        },  {
             type: "application/x-mpegURL",
             src: "https://cdn.angelthump.com/hls/" + channel + ".m3u8",
             label: 'auto'
@@ -83,10 +91,10 @@
                 }
             },
             chromecast: {
-                appId: "50E3A992",
+                appId: '50E3A992',
                 metadata: {
-                    title: channel + "'s stream",
-                    subtitle: "subtitle"
+                    title: channel + 's stream',
+                    subtitle: 'subtitle'
                 }
             },
             plugins: {
