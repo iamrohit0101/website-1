@@ -169,16 +169,19 @@
             socket = io(host, {
                 transports: ['websocket']
             });
+            socket.on('connect', function() {
+                socket.emit('channel', channel);
+            });
         }
 
         socket.on('reload', function (argUsername) {
-        	if(channel == argUsername) {
+        	if(channel.toLowerCase() == argUsername.toLowerCase()) {
         		location.reload();
         	}
 		});
 
 		socket.on('redirect', function (argUsername, url) {
-        	if(channel == argUsername) {
+        	if(channel.toLowerCase() == argUsername.toLowerCase()) {
         		window.location = url;
         	}
 		});

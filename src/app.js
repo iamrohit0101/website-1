@@ -38,7 +38,7 @@ app.use(compress())
 	      socket.on('channel', function (channel) {
   				socket.join(channel);
   				var connection = io.nsps['/'].adapter.rooms[channel];
-          socket.emit('viewers', connection.length);
+          		socket.emit('viewers', connection.length);
   				//console.log("total sockets connected: " + Object.keys(io.sockets.sockets).length);
 		    });
         socket.on('end', function (){
