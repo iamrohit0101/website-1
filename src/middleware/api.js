@@ -24,11 +24,11 @@ module.exports = function(app) {
         const socket = io('https://angelthump.com');
 
         socket.on('connect', function() {
-		  socket.emit('channel',username);
-		  	socket.on('viewers', function(viewers) {
-				count = viewers - 1;
-			});
-		});
+  		    socket.emit('channel',username);
+  		    socket.on('viewers', function(viewers) {
+    				count = viewers - 1;
+    			});
+    		});
 
          setTimeout(function() {
         	Promise.all([

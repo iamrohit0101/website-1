@@ -3,6 +3,7 @@
 
 
 const signup = require('./signup');
+const admin = require('./admin');
 const verify = require('./verify');
 const api = require('./api');
 const path = require('path');
@@ -53,6 +54,17 @@ module.exports = function() {
   });
 
   app.post('/signup', signup(app));
+  app.get('/admin/:type(reload)/:username', function(req, res, next){
+    res.status(200).send('ok');
+
+    next();
+  }, admin(app));
+
+  app.get('/admin/:type(redirect)/:username/:puntUsername', function(req, res, next){
+    res.status(200).send('ok');
+
+    next();
+  }, admin(app));
 
   // support GET for easy testing
   app.get('/live', verify.initial(app));
