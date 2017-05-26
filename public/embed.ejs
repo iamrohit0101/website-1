@@ -207,7 +207,17 @@
                 .configure(feathers.authentication({
                     storage: window.localStorage
                 }));
-            app.authenticate({}).then(user => {
+            app.authenticate()
+            .then(response => {
+                console.log('Authenticated!');
+                // By this point your accessToken has been stored in
+                // localstorage
+                return app.passport.verifyJWT(response.accessToken);
+            })
+            .then(payload => {
+                return app.service('users').get(payload.userId);
+            })
+            .then(user => {
                 app.set('user', user);
                 var user = app.get('user');
                 ifPatreon = user.data.patreon;
@@ -215,9 +225,8 @@
                     player.currentResolution(lastKnownServer);
                     alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
                 }
-            }).then(function(result) {
-                console.log('Authenticated!');
-            }).catch(function(error) {
+            })
+            .catch(function(error){
                 player.currentResolution(lastKnownServer);
                 alert("Login @ AngelThump.com to access this patreon server!");
                 console.error('Error authenticating!', error);
@@ -229,6 +238,7 @@
                 app.authenticate();
             });
         }
+
     </script>
 </body>
 </html>

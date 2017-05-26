@@ -1,21 +1,17 @@
-'use strict';
-
-
+const handler = require('feathers-errors/handler');
+const notFound = require('feathers-errors/not-found');
+const auth = require('feathers-authentication');
+const path = require('path');
 
 const signup = require('./signup');
 const admin = require('./admin');
 const verify = require('./verify');
 const api = require('./api');
-const path = require('path');
 
-const handler = require('feathers-errors/handler');
-const notFound = require('./not-found-handler');
-const logger = require('./logger');
-
-module.exports = function() {
+module.exports = function () {
   // Add your custom middleware here. Remember, that
-  // just like Express the order matters, so error
-  // handling middleware should go last.
+  // in Express the order matters, `notFound` and
+  // the error handler have to go last.
   const app = this;
 
   app.set('view engine', 'ejs');
@@ -29,11 +25,11 @@ module.exports = function() {
     res.render('embed', {username: req.params.username});
   });
 
-  
+  /*
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
-  });
-
+  });*/
+  
   app.get('/dmca', function(req, res, next){
     res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });
   });
@@ -53,7 +49,9 @@ module.exports = function() {
     res.sendFile('signup.html', { root: path.join(__dirname, '../../public') });
   });
 
+  //app.post('/login', auth.express.authenticate('local', { successRedirect: '/profile', failureRedirect: '/login' }));
   app.post('/signup', signup(app));
+
   app.get('/admin/:type(reload)/:username', function(req, res, next){
     res.status(200).send('ok');
 
@@ -84,7 +82,6 @@ module.exports = function() {
   //app.get('/api/:username', api(app));
   
   app.use(notFound());
-  app.use(logger(app));
 
   //json for now
   app.use(handler({
