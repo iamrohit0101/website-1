@@ -1,19 +1,16 @@
 'use strict';
 
 // users-model.js - A mongoose model
-//
+// 
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
-
-const mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
-    validator = require('validator'),
-    uniqueValidator = require('mongoose-unique-validator');
-
-const usersSchema = new Schema({
-  email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: {
-      validator: validator.isEmail,
-      message: '{VALUE} is not a valid email!' }},
+module.exports = function(app) {
+  const mongooseClient = app.get('mongooseClient'),
+  validator = require('validator'),
+  uniqueValidator = require('mongoose-unique-validator');
+  const users = new mongooseClient.Schema({
+  
+  email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: [{ validator: validator.isEmail, msg: '{VALUE} is not a valid email!' }]},
   username: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true},
   password: { type: String, required: true },
   streamkey: { type: String, unique: true, dropDups: true, uniqueCaseInsensitive: true},
@@ -28,10 +25,7 @@ const usersSchema = new Schema({
   createdAt: { type: Date, 'default': Date.now },
   updatedAt: { type: Date, 'default': Date.now }
 });
+  users.plugin(uniqueValidator);
 
-usersSchema.plugin(uniqueValidator);
-
-
-const usersModel = mongoose.model('users', usersSchema);
-
-module.exports = usersModel;
+  return mongooseClient.model('users', users);
+};
