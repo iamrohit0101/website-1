@@ -1,0 +1,21 @@
+html {
+  margin: 0;
+  padding: 0;
+  background: #000000;
+  overflow: hidden;
+}
+
+#yee {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+}
+
+.video-js.vjs-playing .vjs-tech {
+  pointer-events: none;
+}
+
+.vjs-fullscreen.vjs-user-inactive {
+  cursor: none;
+}

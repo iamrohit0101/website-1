@@ -1,0 +1,81 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
+    <title>AngelThump</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="//cdn.rawgit.com/feathersjs/feathers-chat/v0.1.0/public/base.css">
+    <link rel="stylesheet" href="//angelthump.com/css/chat.css">
+  </head>
+  <body>
+    <main class="login container">
+      <div class="row">
+        <div class="col-12 col-6-tablet push-3-tablet text-center heading">
+          <h1 class="font-100">Log in</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 col-6-tablet push-3-tablet col-4-desktop push-4-desktop">
+          <form class="form" onsubmit="return false">
+            <fieldset>
+              <input class="block" id="username" type="username" name="username" placeholder="username">
+            </fieldset>
+
+            <fieldset>
+              <input class="block" id="password" type="password" name="password" placeholder="password">
+            </fieldset>
+
+            <button type="submit" id="login" class="button button-primary block signup">
+              Log in
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//npmcdn.com/feathers-client@2.2.0/dist/feathers.js"></script>
+    <script type="text/javascript">
+      // Establish a Socket.io connection
+      const socket = io();
+      // Initialize our Feathers client application through Socket.io
+      // with hooks and authentication.
+      const client = feathers();
+
+      client.configure(feathers.socketio(socket));
+      client.configure(feathers.hooks());
+      // Use localStorage to store our login token
+      client.configure(feathers.authentication({
+        storage: window.localStorage
+      }));
+
+      function getCredentials() {
+        const user = {
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+        };
+
+        return user;
+      }
+
+      function login(credentials) {
+        const payload = credentials ?
+          Object.assign({ strategy: 'local' }, credentials) : {};
+
+        return client.authenticate(payload)
+          .then(function(result) {
+              console.log('Authenticated!');
+              window.location.href = '/profile';
+          }).catch(function(error) {
+              window.location.reload();
+              console.error('Error authenticating!', error);
+          });
+      }
+
+      document.getElementById("login").addEventListener("click", function(){
+        const user = getCredentials();
+        login(user);
+      });
+    </script>
+  </body>
+</html>
