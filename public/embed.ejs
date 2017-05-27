@@ -64,7 +64,7 @@
     <script type="text/javascript" src="/js/videojs-chromecast.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
-    <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v1.9.0/dist/feathers.js"></script>
+    <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v2.2.0/dist/feathers.js"></script>
     <script type="text/javascript" src="/js/videojs.ga.min.js"></script>
 
     <script>
@@ -220,7 +220,7 @@
             .then(user => {
                 app.set('user', user);
                 var user = app.get('user');
-                ifPatreon = user.data.patreon;
+                ifPatreon = user.patreon;
                 if (!ifPatreon) {
                     player.currentResolution(lastKnownServer);
                     alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");

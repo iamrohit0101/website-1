@@ -22,6 +22,7 @@ module.exports = function () {
   // http://docs.feathersjs.com/guides/using-a-view-engine.html
 
   app.get('/embed/:username', function(req, res, next){
+  	res.header("Content-Security-Policy", "frame-ancestors *");
     res.render('embed', {username: req.params.username});
   });
 
