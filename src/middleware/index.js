@@ -23,7 +23,7 @@ module.exports = function () {
 
   app.get('/embed/:username', function(req, res, next){
   	res.header("Content-Security-Policy", "frame-ancestors *");
-  	res.header("X-Frame-Options", "Allow-From *");
+  	res.header("X-Frame-Options", "Allow-From https://overrustle.com");
     res.render('embed', {username: req.params.username});
   });
 
