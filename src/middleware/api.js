@@ -36,6 +36,7 @@ module.exports.individual = function(app) {
 					title: `${username}'s stream`,
 					// title: title,
 					viewers: parseInt(count, 10),
+					poster: user.poster,
 					thumbnail: `https://api.angelthump.com/thumbnail/${username}.jpg`,
 					created_at: date,
 				});

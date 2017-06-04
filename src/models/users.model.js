@@ -24,6 +24,7 @@ module.exports = function(app) {
   patreon: {type: Boolean, 'default': false},
   title: {type: String, 'default': " "},
   live: {type: Boolean, 'default': false},
+  poster: {type: String, 'default': "https://angelthump.com/assets/default_offline.jpg"},
   streamCreatedAt: {type: Date, 'default': Date.now },
   createdAt: { type: Date, 'default': Date.now },
   updatedAt: { type: Date, 'default': Date.now }
