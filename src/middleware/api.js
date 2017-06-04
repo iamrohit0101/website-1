@@ -103,10 +103,19 @@ module.exports.all = function(app) {
 	    }
     }
 
+    function sortBy(prop){
+	   return function(a,b){
+	      if( b[prop] > a[prop]){
+	          return 1;
+	      }else if( b[prop] < a[prop] ){
+	          return -1;
+	      }
+	      return 0;
+	   }
+	}
+
     api(function(data) {
-    	data.sort(function(a, b) {
-		    return b.count - a.count;
-		});
+    	data.sort(sortBy("viewers"));
     	res.json({stream_list: data, streams: users.total});
     });
 })
