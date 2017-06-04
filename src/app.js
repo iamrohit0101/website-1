@@ -53,11 +53,11 @@ app.hooks(appHooks);
 
  app.configure(socketio(function(io) {
     io.on('connection', function(socket) {
+      socket.emit('total_connections', Object.keys(io.sockets.sockets).length);
 	      socket.on('channel', function (channel) {
   				socket.join(channel);
   				var connection = io.nsps['/'].adapter.rooms[channel];
-          		socket.emit('viewers', connection.length);
-  				//console.log("total sockets connected: " + Object.keys(io.sockets.sockets).length);
+          socket.emit('viewers', connection.length);
 		    });
         socket.on('end', function (){
             socket.disconnect(0);

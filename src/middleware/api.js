@@ -67,6 +67,7 @@ module.exports.all = function(app) {
     })
     // Then we're good to check apis
     .then((users) => {
+    var total_connections;
     function api(callback) {
     	var jsonArray = [];
     	var number = 0;
@@ -79,6 +80,9 @@ module.exports.all = function(app) {
 			const socket = io('https://angelthump.com');
 
 			socket.on('connect', function() {
+				socket.on('total_connections', function(connections) {
+					total_connections = connections;
+				});
 			    socket.emit('channel',username);
 			    socket.on('viewers', function(viewers) {
 					count = viewers - 1;
@@ -116,7 +120,7 @@ module.exports.all = function(app) {
 
     api(function(data) {
     	data.sort(sortBy("viewers"));
-    	res.json({stream_list: data, streams: users.total});
+    	res.json({stream_list: data, streams: users.total, connections: total_connections});
     });
 })
     // On errors, just call our error middleware
