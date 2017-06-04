@@ -4,7 +4,7 @@ const rp = require('request-promise');
 const socketio = require('feathers-socketio/client');
 const io = require('socket.io-client');
 
-module.exports = function(app) {
+module.exports.individual = function(app) {
   return function(req, res, next) {
     const requested_username = req.params.username;
     console.log('api request for ', requested_username);
@@ -19,32 +19,30 @@ module.exports = function(app) {
       if (users.total > 0) {
       	const user = users.data[0];
         const username = user.username;;
-        // const title = user.title;
+        const title = user.title;
+        const date = user.streamCreatedAt;
         var count;
 
         const socket = io('https://angelthump.com');
 
         socket.on('connect', function() {
-  		    socket.emit('channel',username);
-  		    socket.on('viewers', function(viewers) {
-    				count = viewers - 1;
-    			});
-    		});
+		    socket.emit('channel',username);
+		    socket.on('viewers', function(viewers) {
+				count = viewers - 1;
 
-         setTimeout(function() {
-        	Promise.all([
-	          	rp({uri:`https://api.angelthump.com/live?app=live&name=${username}`}),
-	        ]).then( function (values){
 				res.json({
-					live: values[0].trim() === '1',
+					username: user.username,
+					live: user.live,
 					title: `${username}'s stream`,
 					// title: title,
 					viewers: parseInt(count, 10),
 					thumbnail: `https://api.angelthump.com/thumbnail/${username}.jpg`,
+					created_at: date,
 				});
+
 				socket.emit('end');
-	        }).catch(() => res.status(404).send('API Data Not Found'));
-	    }, 500);
+			});
+		});
 
       }else{
         res.status(404).send(`No Users Named ${requested_username}`);
@@ -53,6 +51,66 @@ module.exports = function(app) {
     // On errors, just call our error middleware
     .catch((e) => {
       console.log(e, 'forbidden requested_username:', requested_username);
+      console.error(e.stack);
+      res.status(403).send('Forbidden');
+    });
+  };
+};
+
+
+module.exports.all = function(app) {
+  return function(req, res, next) {
+
+    app.service('users').find({
+      query: { live: true }
+    })
+    // Then we're good to check apis
+    .then((users) => {
+    function api(callback) {
+    	var jsonArray = [];
+    	var number = 0;
+    	for(var i = 0; i < users.total; i++) {
+			const user = users.data[i];
+			const username = user.username;;
+			const title = user.title;
+			const date = user.streamCreatedAt;
+			var count;
+			const socket = io('https://angelthump.com');
+
+			socket.on('connect', function() {
+			    socket.emit('channel',username);
+			    socket.on('viewers', function(viewers) {
+					count = viewers - 1;
+
+					var jsonObject = {
+						username: user.username,
+						live: user.live,
+						title: `${username}'s stream`,
+						// title: title,
+						viewers: parseInt(count, 10),
+						thumbnail: `https://api.angelthump.com/thumbnail/${username}.jpg`,
+						created_at: date,
+					};
+					jsonArray.push(jsonObject);
+					socket.emit('end');
+
+					if (++number == users.total) {
+			    		callback(jsonArray);
+			    	}
+				});
+			});
+	    }
+    }
+
+    api(function(data) {
+    	data.sort(function(a, b) {
+		    return b.count - a.count;
+		});
+    	res.json({stream_list: data, streams: users.total});
+    });
+})
+    // On errors, just call our error middleware
+    .catch((e) => {
       console.error(e.stack);
       res.status(403).send('Forbidden');
     });

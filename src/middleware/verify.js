@@ -23,19 +23,25 @@ module.exports.initial = function(app) {
     const body = req.body;
     const streamkey = req.body.name;
 
-    console.log('initial hit to:', req.originalUrl);
+    //console.log('initial hit to:', req.originalUrl);
     app.service('users').find({
       query: { streamkey: streamkey }
     })
     // Then we're good to stream
     .then((users) => {
     	const user = users.data[0];
-		if (users.total > 0 && !user.banned) {
-			const username = user.username;
-			res.redirect(username);
-		}else{
-			res.status(403).send('You are banned');
-		}
+  		if (users.total > 0 && !user.banned) {
+  			const username = user.username;
+  			res.redirect(username);
+        app.service('users').patch(user._id, {
+          live: true,
+          streamCreatedAt: Date.now()
+        }).then(() => {
+          console.log(user.username + " is now live");
+        });
+  		}else{
+  			res.status(403).send('You are banned');
+  		}
     })
     // On errors, just call our error middleware
     .catch(() => res.status(403).send('Forbidden'));

@@ -6,6 +6,7 @@ const path = require('path');
 const signup = require('./signup');
 const admin = require('./admin');
 const verify = require('./verify');
+const done = require('./on_publish_done');
 const api = require('./api');
 
 module.exports = function () {
@@ -22,8 +23,6 @@ module.exports = function () {
   // http://docs.feathersjs.com/guides/using-a-view-engine.html
 
   app.get('/embed/:username', function(req, res, next){
-  	res.header("Content-Security-Policy", "frame-ancestors *");
-  	res.header("X-Frame-Options", "Allow-From https://overrustle.com");
     res.render('embed', {username: req.params.username});
   });
 
@@ -51,6 +50,14 @@ module.exports = function () {
     res.sendFile('signup.html', { root: path.join(__dirname, '../../public') });
   });
 
+  app.get('/donate', function(req, res, next){
+    res.redirect(301, 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3VKPL7E8RSL38');
+  });
+
+  app.get('/patreon', function(req, res, next){
+    res.redirect(301, 'https://www.patreon.com/angelthump');
+  });
+
   //app.post('/login', auth.express.authenticate('local', { successRedirect: '/profile', failureRedirect: '/login' }));
   app.post('/signup', signup(app));
 
@@ -66,12 +73,16 @@ module.exports = function () {
     next();
   }, admin(app));
 
-  // support GET for easy testing
-  app.get('/live', verify.initial(app));
   app.post('/live', verify.initial(app));
+  app.post('/done', done(app));
+
   app.get('/api', function(req, res, next){
-    res.status(200).send('ok');
-  });
+    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.header("Pragma", "no-cache");
+    res.header("Expires", -1);
+
+    next();
+  }, api.all(app));
 
   app.get('/api/:username', function(req, res, next){
     res.header("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -79,9 +90,7 @@ module.exports = function () {
     res.header("Expires", -1);
 
     next();
-  }, api(app));
-
-  //app.get('/api/:username', api(app));
+  }, api.individual(app));
   
   app.use(notFound());
 

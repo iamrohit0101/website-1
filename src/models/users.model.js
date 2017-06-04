@@ -22,6 +22,9 @@ module.exports = function(app) {
   resetExpires: { type: Date }, // or a long integer
   banned:    {type: Boolean, 'default': false},
   patreon: {type: Boolean, 'default': false},
+  title: {type: String, 'default': " "},
+  live: {type: Boolean, 'default': false},
+  streamCreatedAt: {type: Date, 'default': Date.now },
   createdAt: { type: Date, 'default': Date.now },
   updatedAt: { type: Date, 'default': Date.now }
 });

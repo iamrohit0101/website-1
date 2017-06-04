@@ -91,7 +91,7 @@
         },{
             type: "application/x-mpegURL",
             src: "https://sin1.angelthump.com/hls/" + channel + ".m3u8",
-            label: 'SINGAPORE'
+            label: 'ASIA'
         },  /*{
             type: "application/x-mpegURL",
             src: "https://cdn.angelthump.com/hls/" + channel + ".m3u8",
@@ -130,6 +130,7 @@
         player.on("pause", function() {
             player.one("play", function() {
                 player.updateSrc(sources);
+                player.currentResolution(lastKnownServer);
             });
         });
 
