@@ -118,10 +118,14 @@ module.exports.all = function(app) {
 	   }
 	}
 
-    api(function(data) {
-    	data.sort(sortBy("viewers"));
-    	res.json({stream_list: data, streams: users.total, connections: total_connections});
-    });
+	if(users.total != 0) {
+		api(function(data) {
+    		data.sort(sortBy("viewers"));
+    		res.json({stream_list: data, streams: users.total, connections: total_connections});
+    	});
+	} else {
+		res.json({stream_list: [], streams: users.total, connections: total_connections});
+	}
 })
     // On errors, just call our error middleware
     .catch((e) => {
