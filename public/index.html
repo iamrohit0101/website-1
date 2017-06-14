@@ -11,6 +11,29 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+    <style type="text/css">
+		.warning {
+		    padding: 20px;
+		    background-color: #e68a00;
+		    color: white;
+		    margin-bottom: 15px;
+		}
+
+		.closebtn {
+		    margin-left: 15px;
+		    color: white;
+		    font-weight: bold;
+		    float: right;
+		    font-size: 22px;
+		    line-height: 20px;
+		    cursor: pointer;
+		    transition: 0.3s;
+		}
+
+		.closebtn:hover {
+		    color: black;
+		}
+    </style>
     <script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,6 +49,10 @@
     <main class="container">
       <div class="row">
         <div class="jumbotron intro" style="text-align: center;background: none; padding-bottom:10px">
+        <div class="warning">
+	      <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+	       Streamers! Please change your Keyframe Interval to 1! It will improve the stream quality. Visit your profile for more info.
+	    </div>
           <img class="img-fluid center-block" src="/assets/logo.png" alt="AngelThump Logo">
           <h1>Live Streaming</h1>
           <h2 class="lead">by Overpowered &amp; hephaestus</h2>

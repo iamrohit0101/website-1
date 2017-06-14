@@ -89,7 +89,6 @@ module.exports.all = function(app) {
 
 					var jsonObject = {
 						username: user.username,
-						live: user.live,
 						title: `${username}'s stream`,
 						// title: title,
 						viewers: parseInt(count, 10),
