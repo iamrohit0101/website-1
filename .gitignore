@@ -29,5 +29,5 @@ node_modules
 
 lib/
 data/
-public/embed*.ejs
+public/embed-test.ejs
 *.conf

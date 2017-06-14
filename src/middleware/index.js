@@ -26,9 +26,12 @@ module.exports = function () {
     res.render('embed', {username: req.params.username});
   });
 
-  
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
+  });
+
+  app.get('/embed-flash/:username', function(req, res, next){
+    res.render('embed-flash', {username: req.params.username});
   });
   
   app.get('/dmca', function(req, res, next){
