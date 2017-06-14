@@ -60,7 +60,7 @@
     "react-dom": "^15.5.4",
     "serve-favicon": "^2.4.3",
     "uglify-js": "^3.0.15",
-    "uglifyify": "^3.0.4",
+    "uglifyify": "^4.0.0",
     "uws": "^0.14.5",
     "validator": "^7.0.0",
     "winston": "^2.3.1"
@@ -68,12 +68,12 @@
   "devDependencies": {
     "browserify": "^14.4.0",
     "buble": "^0.15.2",
-    "eslint": "^3.19.0",
+    "eslint": "^4.0.0",
     "jshint": "^2.9.4",
     "mocha": "^3.4.2",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
     "uglify-js": "^3.0.15",
-    "uglifyify": "^3.0.4"
+    "uglifyify": "^4.0.0"
   }
 }
