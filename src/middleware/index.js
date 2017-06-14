@@ -26,10 +26,10 @@ module.exports = function () {
     res.render('embed', {username: req.params.username});
   });
 
-  /*
+  
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
-  });*/
+  });
   
   app.get('/dmca', function(req, res, next){
     res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });
