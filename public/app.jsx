@@ -94,7 +94,7 @@ class Profile extends React.Component {
 		            <strong>OBS SETTINGS (VERY IMPORTANT)</strong>
 		          </div>
 		          <div>
-		            <em>USING OBS STUDIO: GO TO SETTINGS > OUTPUT > CHANGE TO ADVANCED MODE ON THE TOP</em>
+		            <strong>OBS STUDIO: GO TO SETTINGS > OUTPUT > CHANGE FROM SIMPLE TO ADVANCED</strong>
 		          </div>
 		          <div>
 		            <em>Keyframe Interval: 1</em>
