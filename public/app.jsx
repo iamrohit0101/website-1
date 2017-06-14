@@ -94,7 +94,7 @@ class Profile extends React.Component {
 		            <strong>OBS SETTINGS (VERY IMPORTANT)</strong>
 		          </div>
 		          <div>
-		            <em>Keyframe Interval: 2</em>
+		            <em>Keyframe Interval: 1</em>
 		          </div>
 		          <div>
 		            <em>x264 option: scenecut=-1</em>
