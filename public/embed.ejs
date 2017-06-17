@@ -114,7 +114,7 @@
             },
             plugins: {
                 videoJsResolutionSwitcher: {
-                    default: lastKnownServer,
+                    default: 'US-E',
                     dynamicLabel: true
                 }
             }
@@ -123,14 +123,19 @@
         var player = videojs('player', options, function() {
         	this.ga();
         });
+        connect();
         player.updateSrc(sources);
         player.currentResolution(lastKnownServer);
-        connect();
+
 
         player.on("pause", function() {
             player.one("play", function() {
                 player.updateSrc(sources);
-                player.currentResolution(lastKnownServer);
+                if(lastKnownServer == 'PATREON') {
+		        	checkPatreon();
+		        } else {
+		        	player.currentResolution(lastKnownServer);
+		        }
             });
         });
 
@@ -222,14 +227,16 @@
                 app.set('user', user);
                 var user = app.get('user');
                 ifPatreon = user.patreon;
-                if (!ifPatreon) {
-                    player.currentResolution(lastKnownServer);
+                if (ifPatreon) {
+                	localStorage.setItem('server', 'PATREON');
+                } else {
+                	player.currentResolution('US-E');
                     alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
                 }
             })
             .catch(function(error){
-                player.currentResolution(lastKnownServer);
-                alert("Login @ AngelThump.com to access this patreon server!");
+                player.currentResolution('US-E');
+                alert("Login @ AngelThump.com then try again!");
                 console.error('Error authenticating!', error);
             });
 
