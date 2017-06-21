@@ -1,7 +1,8 @@
 const authentication = require('feathers-authentication');
 const jwt = require('feathers-authentication-jwt');
 const local = require('feathers-authentication-local');
-
+const oauth2 = require('feathers-authentication-oauth2');
+const PatreonStrategy = require('passport-patreon').Strategy;
 
 module.exports = function () {
   const app = this;
@@ -11,6 +12,7 @@ module.exports = function () {
   app.configure(authentication(config));
   app.configure(jwt());
   app.configure(local(config.local));
+
 
   // The `authentication` service is used to create a JWT.
   // The before `create` hook registers strategies that can be used

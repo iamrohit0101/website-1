@@ -13,6 +13,8 @@ module.exports = function(app) {
   email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: [{ validator: validator.isEmail, msg: '{VALUE} is not a valid email!' }]},
   username: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true},
   password: { type: String, required: true },
+  patreonId: { type: String },
+  patreon: { type: mongooseClient.Schema.Types.Mixed },
   streamkey: { type: String, unique: true, dropDups: true, uniqueCaseInsensitive: true},
   isVerified: { type: Boolean, 'default': false },
   verifyToken: { type: String },
@@ -21,7 +23,7 @@ module.exports = function(app) {
   resetToken: { type: String },
   resetExpires: { type: Date }, // or a long integer
   banned:    {type: Boolean, 'default': false},
-  patreon: {type: Boolean, 'default': false},
+  ifPatreon: {type: Boolean, 'default': false},
   title: {type: String, 'default': " "},
   live: {type: Boolean, 'default': false},
   poster: {type: String, 'default': "https://angelthump.com/assets/default_offline.jpg"},

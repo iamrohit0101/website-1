@@ -31,3 +31,5 @@ lib/
 data/
 public/embed-test.ejs
 *.conf
+public/.old
+package-lock.json

@@ -99,6 +99,8 @@ module.exports = function () {
 
   //json for now
   app.use(handler({
-    html: false
+    html: function(error, req, res, next) {
+       res.render('errors.ejs', {code: error.code, message: error.message});
+    }
   }));
 };

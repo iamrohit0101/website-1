@@ -133,11 +133,7 @@
         player.on("pause", function() {
             player.one("play", function() {
                 player.updateSrc(sources);
-                if(lastKnownServer == 'PATREON') {
-                    checkPatreon();
-                } else {
-                    player.currentResolution(lastKnownServer);
-                }
+                player.currentResolution(lastKnownServer);    
             });
         });
 
@@ -247,7 +243,7 @@
             .then(user => {
                 app.set('user', user);
                 var user = app.get('user');
-                ifPatreon = user.patreon;
+                ifPatreon = user.ifPatreon;
                 if (ifPatreon) {
                     localStorage.setItem('server', 'PATREON');
                 } else {

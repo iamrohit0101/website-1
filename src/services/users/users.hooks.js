@@ -1,5 +1,5 @@
 const insensitive = require('./insensitive');
-const username = require('./username');
+
 const streamkey = require('./streamkey');
 
 const { authenticate } = require('feathers-authentication').hooks;
@@ -20,8 +20,8 @@ module.exports = {
     all: [],
     find: [ authenticate('jwt'), insensitive() ],
     get: [ ...restrict ],
-    create: [ hashPassword(), streamkey.initialize(), username() ],
-    update: [ ...restrict, hashPassword(), username() ],
+    create: [ hashPassword(), streamkey.initialize(), commonHooks.lowerCase('email','username') ],
+    update: [ ...restrict, hashPassword(),  commonHooks.lowerCase('email','username') ],
     patch: [ ...restrict, hashPassword(), streamkey.considerReset() ],
     remove: [ ...restrict ]
   },

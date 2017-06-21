@@ -14,6 +14,13 @@ client.configure(authentication({
   storage: window.localStorage
 }));
 
+function refresh(updatedUser) {
+	ReactDOM.render(
+	  <Profile user={updatedUser} />,
+	  document.getElementById('app')
+	);
+}
+
 class Profile extends React.Component {
 	constructor(props) {
 		super(props);
@@ -29,8 +36,9 @@ class Profile extends React.Component {
     	const userService = client.service('users');
     	userService.patch(this.props.user._id, {
     		streamkey: 0
+    	}).then(user => {
+    		refresh(user)
     	});
-    	window.location.reload();
   	}
 
 	toggleStreamKey() {
@@ -42,7 +50,7 @@ class Profile extends React.Component {
 	}
 
 	render() {
-		const user = this.props.user;
+		var user = this.props.user;
 
 		return <main className="container">
 		  <div className="row">
@@ -120,7 +128,7 @@ class Profile extends React.Component {
 		              {this.state.showStreamKey ? user.streamkey : ""}
 		            </p>
 		          </div>
-		        </div>
+		      </div>
 		      </div>
 		    </div>
 		  </div>
@@ -130,14 +138,10 @@ class Profile extends React.Component {
 		    </a>
 		  </footer>
 		</main>
-
-		return <aside>
-		  <img src={user.avatar || PLACEHOLDER} className="avatar" />
-		  <span className="username font-600">{user.username}</span>
-		</aside>
 	}
 }
 
+/* deleted bc on 'patched' not working for some reason.
 class ProfileApp extends React.Component {
 	constructor(props) {
 		super(props);
@@ -154,7 +158,11 @@ class ProfileApp extends React.Component {
 		users.get(cached_user._id).then(user => this.setState({ user: user }))
 		  .catch(e => console.error(e));
 
-		users.on('patched', user => this.setState({user: user}));
+		users.on('patched', user => {
+			this.setState({user: user});
+			console.log(user);
+			console.log(this.state.user);
+		});
 	}
 
 	render() {
@@ -162,7 +170,7 @@ class ProfileApp extends React.Component {
 		  <Profile user={this.state.user} />
 		</div>
 	}
-}
+}*/
 
 
 client.authenticate()
@@ -181,7 +189,7 @@ client.authenticate()
   //console.log('User', client.get('user'));
   
 ReactDOM.render(
-  <ProfileApp />,
+  <Profile user={client.get('user')} />,
   document.getElementById('app')
 );
 })

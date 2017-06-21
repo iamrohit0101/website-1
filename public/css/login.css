@@ -1,24 +1,6 @@
-<section>
-<div class="register-page">
-  <a href="/">
-    <img src="/assets/small_logo.png" />
-  </a>
-  <div class="form">
-    <form class="register-form" method="post" action="/signup">
-      <input type="email" name="email" placeholder="email"/>
-      <input type="username" name="username" placeholder="username"/>
-      <input type="password" name="password" placeholder="password"/>
-      <button>create</button>
-      <p class="message">Already registered? <a href="/login">Sign In</a></p>
-    </form>
-  </div>
-</div>
-</section>
+  @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
-<style>
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
-
-.register-page {
+.login-page {
   width: 405px;
   padding: 8% 0 0;
   margin: auto;
@@ -70,6 +52,9 @@
   color: #4286f4;
   text-decoration: none;
 }
+.form .register-form {
+  display: none;
+}
 .container {
   position: relative;
   z-index: 1;
@@ -103,4 +88,3 @@
 .container .info span .fa {
   color: #EF3B3A;
 }
-</style>
