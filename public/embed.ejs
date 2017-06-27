@@ -70,7 +70,7 @@
     <script type="text/javascript" src="/js/videojs-overlay.min.js"></script>
 
     <script>
-        var ifPatreon = false, channel = "<%= username %>", host = 'https://angelthump.com', socket, requestTime = 1000, running = false, lastKnownServer = localStorage.getItem('server');
+        var ifPatreon = false, channel = "<%= username %>".toLowerCase(), host = 'https://angelthump.com', socket, requestTime = 1000, running = false, lastKnownServer = localStorage.getItem('server');
         if(lastKnownServer == null) {
             lastKnownServer = 'US-E';
         }
@@ -131,9 +131,11 @@
 
 
         player.on("pause", function() {
+        	socket.disconnect();
             player.one("play", function() {
                 player.updateSrc(sources);
-                player.currentResolution(lastKnownServer);    
+                player.currentResolution(lastKnownServer);
+                connect();  
             });
         });
 

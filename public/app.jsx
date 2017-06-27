@@ -5,7 +5,7 @@ const hooks = require('feathers-hooks');
 const socketio = require('feathers-socketio/client');
 const authentication = require('feathers-authentication-client');
 
-const socket = io('https://angelthump.com:443');
+const socket = io('https://angelthump.com');
 const client = feathers();
 
 client.configure(hooks());
