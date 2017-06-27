@@ -21,12 +21,25 @@ function refresh(updatedUser) {
 	);
 }
 
+function WarningBanner(props) {
+  if (!props.warn) {
+    return null;
+  }
+
+  return (
+    <div className="warning">
+      Streamer! Please verify your email! If you did not recieve a email, please click <a href={'https://angelthump.com/resend_email/' + props.email}>here.</a>
+    </div>
+  );
+}
+
 class Profile extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			showStreamKey: false
+			showStreamKey: false,
+			showWarning: !this.props.user.isVerified
 		};
 		this.toggleStreamKey = this.toggleStreamKey.bind(this);
 		this.resetStreamKey = this.resetStreamKey.bind(this);
@@ -53,10 +66,11 @@ class Profile extends React.Component {
 		var user = this.props.user;
 
 		return <main className="container">
+			<WarningBanner warn={this.state.showWarning} email={user.email} />
 		  <div className="row">
 		    <div className="col-lg-8 col-lg-offset-4">
 		      <div className="nav">
-		        <h3 className="title">Profile</h3>
+		        <h3 className="title">Dashboard</h3>
 		      </div>
 		      <div className="row">
 		        <div className="col-md-12">

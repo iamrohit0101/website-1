@@ -8,6 +8,7 @@ const admin = require('./admin');
 const verify = require('./verify');
 const done = require('./on_publish_done');
 const api = require('./api');
+const authManagement = require('./authManagement');
 
 module.exports = function () {
   // Add your custom middleware here. Remember, that
@@ -44,13 +45,19 @@ module.exports = function () {
     res.sendFile('tos.html', { root: path.join(__dirname, '../../public') });
   });
   app.get('/profile', function(req, res, next){
-    res.sendFile('profile.html', { root: path.join(__dirname, '../../public') });
+    res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.get('/dashboard', function(req, res, next){
+    res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
   });
   app.get('/login', function(req, res, next){
     res.sendFile('login.html', { root: path.join(__dirname, '../../public') });
   });
   app.get('/signup', function(req, res, next){
     res.sendFile('signup.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.get('/reset', function(req, res, next){
+    res.sendFile('reset.html', { root: path.join(__dirname, '../../public') });
   });
 
   app.get('/donate', function(req, res, next){
@@ -61,7 +68,27 @@ module.exports = function () {
     res.redirect(301, 'https://www.patreon.com/angelthump');
   });
 
-  //app.post('/login', auth.express.authenticate('local', { successRedirect: '/profile', failureRedirect: '/login' }));
+  app.get('/reset_email', function(req, res, next){
+    res.sendFile('reset_email.html', { root: path.join(__dirname, '../../public') });
+  });
+
+  app.get('/reset_password', function(req, res, next){
+    res.sendFile('reset_password.html', { root: path.join(__dirname, '../../public') });
+  });
+
+  app.get('/resend_email/:email', function(req, res, next){
+    const authManagement = app.service('authManagement');
+    authManagement.create({ action: 'resendVerifySignup',
+      value: {email: req.params.email}, // compares to .verifyToken
+    }).then(x => {
+		res.status(200).send('ok');
+	}).catch(function(error){
+		res.render('errors.ejs', {code: error.code, message: error.message});
+	});;
+  });
+
+  app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
+
   app.post('/signup', signup(app));
 
   app.get('/admin/:type(reload)/:username', function(req, res, next){

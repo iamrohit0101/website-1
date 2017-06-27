@@ -12,6 +12,13 @@
     margin-bottom: 15px;
 }
 
+.success {
+    padding: 20px;
+    background-color: #228B22;
+    color: white;
+    margin-bottom: 15px;
+}
+
 .closebtn {
     margin-left: 15px;
     color: white;

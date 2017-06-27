@@ -13,6 +13,7 @@
       <input id="password" type="password" name="password" placeholder="password"/>
       <button type="submit" id="login">login</button>
       <p class="message">Not registered? <a href="/signup">Create an account</a></p>
+      <p class="message"><a href="/reset">Forgot your password?</a></p>
     </form>
   </div>
 </div>
@@ -33,7 +34,7 @@
   client.authenticate()
   .then(response => {
     console.log('Authenticated!', response);
-    window.location.href = '/profile';
+    window.location.href = '/dashboard';
     return client.passport.verifyJWT(response.accessToken);
   })
   .catch(function(error){
@@ -56,7 +57,7 @@
     return client.authenticate(payload)
       .then(function(result) {
           console.log('Authenticated!');
-          window.location.href = '/profile';
+          window.location.href = '/dashboard';
       }).catch(function(error) {
           document.getElementById("error").style.display = 'block';
           console.error('Error authenticating!', error);

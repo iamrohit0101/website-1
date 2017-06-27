@@ -7,6 +7,9 @@ const commonHooks = require('feathers-hooks-common');
 const { restrictToOwner } = require('feathers-authentication-hooks');
 
 const { hashPassword } = require('feathers-authentication-local').hooks;
+const verifyHooks = require('feathers-authentication-management').hooks;
+const emailHook = require('../../hooks/emailHook');
+
 const restrict = [
   authenticate('jwt'),
   restrictToOwner({
@@ -20,9 +23,9 @@ module.exports = {
     all: [],
     find: [ authenticate('jwt'), insensitive() ],
     get: [ ...restrict ],
-    create: [ hashPassword(), streamkey.initialize(), commonHooks.lowerCase('email','username') ],
-    update: [ ...restrict, hashPassword(),  commonHooks.lowerCase('email','username') ],
-    patch: [ ...restrict, hashPassword(), streamkey.considerReset() ],
+    create: [ hashPassword(), streamkey.initialize(), commonHooks.lowerCase('email','username'), verifyHooks.addVerification() ],
+    update: [ ...restrict, commonHooks.lowerCase('email','username') ],
+    patch: [ ...restrict, streamkey.considerReset(), commonHooks.lowerCase('email','username') ],
     remove: [ ...restrict ]
   },
 
@@ -35,7 +38,7 @@ module.exports = {
     ],
     find: [],
     get: [],
-    create: [],
+    create: [emailHook.sendVerificationEmail(), verifyHooks.removeVerification()],
     update: [
     commonHooks.when(
         hook => hook.params.provider,
