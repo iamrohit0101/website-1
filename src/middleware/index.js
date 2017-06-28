@@ -50,6 +50,12 @@ module.exports = function () {
   app.get('/dashboard', function(req, res, next){
     res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
   });
+  app.get('/settings', function(req, res, next){
+    res.sendFile('settings.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.get('/dashboard/settings', function(req, res, next){
+    res.sendFile('settings.html', { root: path.join(__dirname, '../../public') });
+  });
   app.get('/login', function(req, res, next){
     res.sendFile('login.html', { root: path.join(__dirname, '../../public') });
   });

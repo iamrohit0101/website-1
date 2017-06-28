@@ -1,0 +1,408 @@
+body {
+	background: rgb(20,20,20)!important;
+}
+
+.fullwidth_main {
+    position: relative;
+    width: auto;
+    margin-top: 0;
+    padding-bottom: 0;
+    border-top: none;
+}
+
+.wrapper {
+    z-index: 1;
+}
+
+.wrapper, .dark_wrapper {
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+ }
+
+#dash_main {
+    padding: 0;
+}
+
+#dash_main .dash-broadcast {
+    background-color: #282828;
+    border-color: #000;
+}
+
+.c12, .wrapper, .dark_wrapper {
+    width: 940px;
+    box-sizing: content-box;
+}
+
+.warning {
+	text-align: center;
+	font-weight: bold;
+	font-size: 17px;
+}
+
+#dash_main #dashboard_title, #dash_main #stream-config-status, #dash_main #controls_column .section_header {
+    color: #D3D3D3;
+}
+
+h1 {
+    color: #D3D3D3;
+    font-size: 2.5rem;
+    line-height: 3rem;
+    margin-bottom: 0rem;
+}
+
+ul.tabs li.selected a, .directory_header .nav li.selected a, ul.tabs li.selected button, .directory_header .nav li.selected button, ul.tabs_fake li.selected a, ul.tabs_fake li.selected button {
+    color: #d3d3d3;
+    border-color: #d3d3d3!important;
+}
+
+.tabs>.tab>a, .tabs>li>a, .tabs__item>a {
+    cursor: pointer;
+    display: inline-block;
+    color: #6441a4;
+    padding: .5rem 0;
+    font-size: 1.4rem;
+}
+
+.tabs>.tab, .tabs>li, .tabs__item {
+    transition: box-shadow .2s ease-out;
+    color: #6441a4;
+    margin-right: 2rem;
+    display: inline-block;
+    cursor: pointer;
+}
+
+#dash_main #dash_nav li.tab.selected>a, #dash_main #dash_nav li.tab>a:hover, .tw-tabs__item>a.active, .tw-tabs__item>button.active {
+    color: #D3D3D3;
+}
+
+#dash_main #dash_nav {
+    box-shadow: 0 -1px 0 #666 inset;
+}
+
+#dash_main #dash_nav {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+#dash_main ul.tabs, ul.tabs_fake {
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+}
+
+.tabs {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-align: end;
+    align-items: flex-end;
+    padding: 0;
+    margin-bottom: 1rem;
+    box-shadow: 0 -1px 0 #dad8de inset;
+}
+
+ul, ol, li {
+    list-style-type: none;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+ul, menu, dir {
+    display: block;
+    list-style-type: disc;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 40px;
+}
+
+ul.tabs:before {
+    border-color: #333;
+}
+
+li {
+    list-style-position: inside;
+}
+
+a {
+    color: #6441a4;
+    text-decoration: none;
+}
+
+.dash-items-contain {
+    position: relative;
+    min-height: 500px;
+}
+
+#dash_main .dash-items-contain #controls_column {
+    width: 420px;
+}
+
+.c7 {
+    width: 540px;
+    box-sizing: content-box;
+}
+
+.grid, #turbo_description #features_list li, .flex_grid {
+    position: relative;
+    float: left;
+    margin-right: 20px;
+}
+
+#dash_main .dash-broadcast-contain, #dash_main .dash-hostmode-contain {
+    background-color: #282828;
+    border-color: #000;
+}
+
+#dash_main .dash-broadcast-contain {
+    padding: 10px;
+}
+
+#dash_main #dashboard_title, #dash_main #stream-config-status, #dash_main #controls_column .section_header {
+    color: #D3D3D3;
+}
+
+#dash_main #controls_column .section_header {
+    color: #322f37;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+h4 {
+	color: #D3D3D3;
+    font-size: 1.3rem;
+    line-height: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.balloon-wrapper {
+    position: relative;
+}
+
+#dash_main #vod_status, #dash_main #gameselector_input, #dash_main #broadcaster_language_switch, #dash_main .ember-application #gameselector_input {
+    background-color: rgb(20,20,20)!important;
+    color: #D3D3D3;
+    border: solid 1px #333;
+    box-shadow: none;
+}
+
+#dash_main #updateTitle {
+    width: 80%;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+input.text, .recurly input, input.string, textarea {
+    margin: 0 0 20px;
+    line-height: 28px;
+    padding: 0 7px;
+    height: 30px;
+    font: inherit;
+    letter-spacing: inherit;
+    color: #6e6779;
+    vertical-align: top;
+    border: 1px solid #dad8de;
+    background-clip: padding-box;
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    box-sizing: border-box;
+    background: white;
+}
+
+input, textarea, select {
+    border-radius: 2px;
+}
+
+input {
+    -webkit-appearance: textfield;
+    background-color: white;
+    -webkit-rtl-ordering: logical;
+    user-select: text;
+    cursor: auto;
+    padding: 1px;
+    border-width: 2px;
+    border-style: inset;
+    border-color: initial;
+    border-image: initial;
+}
+
+input, textarea, select, button {
+    text-rendering: auto;
+    color: initial;
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: start;
+    margin: 0em;
+    font: 13.3333px Arial;
+}
+
+input, textarea, select, button, meter, progress {
+    -webkit-writing-mode: horizontal-tb;
+}
+
+#dash_main #form_submit {
+    position: relative;
+    float: right;
+    margin-top: -10px;
+    margin-right: -5px;
+}
+
+.button.primary {
+    background-color: #2538bb;
+    color: #d3d3d3;
+}
+
+.button {
+    border-radius: 2px!important;
+    font-weight: bold;
+    background: #6441a4;
+    color: white;
+    display: inline-block;
+    position: relative;
+    margin: 0;
+    padding: 0 0.7rem;
+    transition: background .12s ease-in,color .12s ease-in,box-shadow .12s ease-in;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 3rem;
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+}
+
+#dash_main .dash-player-contain {
+    margin-bottom: 0px;
+}
+
+.dash-player-contain {
+    position: relative;
+    margin-top: 20px;
+}
+
+#dash_main #video_player {
+    display: block;
+    height: 237px;
+}
+
+iframe {    
+ border: 0;
+}
+
+#dash_main #stats {
+    background-color: #282828;
+    margin: 20px 0px;
+    padding: 10px;
+}
+
+#dash_main #stats {
+    height: 48px;
+}
+
+#dash_main #stats {
+    padding: 10px 0;
+    height: 30px;
+}
+
+#dash_main #stats .stat {
+    float: left;
+    margin-right: 15px;
+}
+
+#dash_main #stats .stat svg {
+    margin: -2px 2px 7px 6px;
+    float: left;
+}
+
+svg:not(:root), symbol, image, marker, pattern, foreignObject {
+    overflow: hidden;
+}
+
+html|* > svg {
+    transform-origin: 50% 50% 0px;
+}
+
+#dash_main #stats .stat.channel-viewer-count svg path {
+    fill: #fc3636;
+}
+
+#dash_main #stats .stat span {
+    color: #D3D3D3;
+    position: relative;
+    margin: 3.5px;
+    line-height: 14px;
+    font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+
+h3 {
+	color: #D3D3D3;
+    font-size: 1rem;
+    line-height: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+div.upload div.file {
+    margin: 10px 0 0!important;
+    float: left;
+    width: 28rem;
+}
+
+.cl-container fieldset .cl-input-container {
+    float: left;
+    width: 46rem;
+    padding: 0 2rem;
+}
+
+div.upload {
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+p {
+    color: #999;;
+    font-size: 1rem;
+    line-height: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+div.upload div.file {
+    margin: 10px 0 0!important;
+    float: left;
+    width: 28rem;
+}
+
+div.upload div.file .file {
+    margin-bottom: 1rem;
+}
+
+.button.upload {
+    border-radius: 1px!important;
+    font-weight: bold;
+    background: #6441a4;
+    color: white;
+    display: inline-block;
+    position: relative;
+    margin-left: 10px;
+    padding: 0 0.7rem;
+    transition: background .12s ease-in,color .12s ease-in,box-shadow .12s ease-in;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 2.5rem;
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+}
+
+.center {
+    text-align:center;
+}

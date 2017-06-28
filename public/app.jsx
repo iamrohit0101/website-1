@@ -7,6 +7,7 @@ const authentication = require('feathers-authentication-client');
 
 const socket = io('https://angelthump.com');
 const client = feathers();
+var data = {};
 
 client.configure(hooks());
 client.configure(socketio(socket));
@@ -14,10 +15,39 @@ client.configure(authentication({
   storage: window.localStorage
 }));
 
+client.authenticate()
+.then(response => {
+  return client.passport.verifyJWT(response.accessToken);
+})
+.then(payload => {
+	return client.service('users').get(payload.userId);
+})
+.then(user => {
+	client.set('user', user);
+	if(window.location.pathname == "/dashboard" || window.location.pathname == "/dashboard/") {
+		getAPIData(client.get('user'));
+		setInterval(function(){getAPIData(client.get('user'))}, 30000);
+		ReactDOM.render(
+			<Dashboard user={client.get('user')} />,
+			document.getElementById('dash_main')
+		);
+	} else if (window.location.pathname == "/dashboard/settings" || window.location.pathname == "/dashboard/settings/" ) {
+		ReactDOM.render(
+			<Settings user={client.get('user')} />,
+			document.getElementById('settings')
+		);
+	}
+})
+.catch(function(error){
+	if(error.code === 401) {
+		window.location.href = '/login';
+	}
+});
+
 function refresh(updatedUser) {
 	ReactDOM.render(
-	  <Profile user={updatedUser} />,
-	  document.getElementById('app')
+	  <Dashboard user={updatedUser} />,
+	  document.getElementById('dash_main')
 	);
 }
 
@@ -28,17 +58,133 @@ function WarningBanner(props) {
 
   return (
     <div className="warning">
-      Streamer! Please verify your email! If you did not recieve a email, please click <a href={'https://angelthump.com/resend_email/' + props.email}>here.</a>
+      Please verify your email to use all of the site's functionality! If you did not recieve a email, please click <a href={'https://angelthump.com/resend-email/' + props.email}>here.</a>
     </div>
   );
 }
 
-class Profile extends React.Component {
+function SuccessTitleBanner(props) {
+  if (!props.warn) {
+    return null;
+  }
+
+  return (
+    <div className="success" id="titleSuccess">
+		<span className="closebtn" onClick={hideDiv}>&times;</span> 
+		Successfully updated your title!
+	</div>
+  );
+}
+
+function hideDiv() {
+	document.getElementById('titleSuccess').style.display='none';
+}
+
+function patchUser(id) {
+	const userService = client.service('users');
+	userService.patch(client.get('user')._id, {
+		poster: "https://angelthump.com/uploads/" + id
+	}).then(user => {
+		window.location.reload();
+	});
+}
+
+function getAPIData(user) {
+	axios
+		.get("https://angelthump.com/api/" + user.username)
+		.then(function(result) {    
+			data = result.data;
+			refresh(user);
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
+}
+
+class Dashboard extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			showWarning: !this.props.user.isVerified,
+			showTitleBanner: false,
+		};
+		this.updateTitle = this.updateTitle.bind(this);
+	};
 
+	updateTitle() {
+		const userService = client.service('users');
+    	userService.patch(this.props.user._id, {
+    		title: document.getElementById('updateTitle').value
+    	}).then(user => {
+    		this.setState({showTitleBanner: !this.state.showTitleBanner});
+    	});
+	}
+
+	render() {
+		const user = this.props.user;
+		const src = "https://angelthump.com/embed/" + user.username;
+		return <main>
+			<div className="wrapper c12 clearfix">
+				<WarningBanner warn={this.state.showWarning} email={user.email} />
+				<h1 id="dashboard_title">
+					<span className='title'>Dashboard</span>
+				</h1>
+				<ul className='tabs' id='dash_nav'>
+					<li className='selected tab'><a href="/dashboard">Home</a></li>
+					<li className='tab'><a href="/dashboard/settings">Settings</a></li>
+				</ul>
+				<div className="dash-items-contain clearfix">
+					<div className="grid c7" id="controls_column">
+						<SuccessTitleBanner warn={this.state.showTitleBanner} />
+						<div className="dash-broadcast-contain">
+							<h4 className="section header">Title the stream</h4>
+							<div className="vod_status input optional string ballon-wrapper">
+								<input className='string optional' id='updateTitle' maxLength='140' defaultValue={user.title}></input>
+								<div id='form_submit'>
+									<button className="button primary" tabIndex="4" onClick={this.updateTitle}>
+										<span>Update</span>
+									</button>
+								</div>
+							</div>
+						</div>
+						<div className="dash-player-contain js-dash-player-contain"> 
+							<div id="video_player">
+								<iframe id="player" width="100%" height="100%" marginHeight="0" marginWidth="0" frameBorder="0" allowTransparency='true' allowFullScreen='true' src={src} scrolling="yes"></iframe>
+							</div>
+						</div>
+						<div id="stats">
+							<div className="stat channel-viewer-count js-channel-viewer-count">
+								<svg aria-label="Live Viewers" className="svg-glyph_live" height="16px" role="img" version="1.1" viewBox="0 0 16 16" width="16px" x="0px" y="0px">
+									<title>Live Viewers</title>
+									<path clipRule="evenodd" d="M11,14H5H2v-1l3-3h2L5,8V2h6v6l-2,2h2l3,3v1H11z" fillRule="evenodd"></path>
+								</svg>
+								<span id="channel_viewer_count">{data.viewers}</span>
+								<span id="channel_title">{data.title}</span>
+							</div>
+						</div>
+						<h3 className="text"><a href={'https://www.AngelThump.com/embed/' + user.username} target="_blank">Embed Player: https://angelthump.com/embed/{user.username}</a></h3>
+					</div>
+					<div className="dash-chat-column c5 last">
+						<ImageUpload url={user.poster}/>
+					</div>
+				</div>
+			</div>
+
+			<footer className="center">
+				<a href="#" className="button--green" onClick={this.logout}>
+				  Sign Out
+				</a>
+			</footer>
+		</main>
+	}
+}
+
+class Settings extends React.Component {
+	constructor(props) {
+		super(props);
 		this.state = {
 			showStreamKey: false,
+			streamKey: this.props.user.streamkey,
 			showWarning: !this.props.user.isVerified
 		};
 		this.toggleStreamKey = this.toggleStreamKey.bind(this);
@@ -50,7 +196,7 @@ class Profile extends React.Component {
     	userService.patch(this.props.user._id, {
     		streamkey: 0
     	}).then(user => {
-    		refresh(user)
+    		this.setState({streamKey: user.streamkey});
     	});
   	}
 
@@ -63,153 +209,148 @@ class Profile extends React.Component {
 	}
 
 	render() {
-		var user = this.props.user;
-
-		return <main className="container">
-			<WarningBanner warn={this.state.showWarning} email={user.email} />
-		  <div className="row">
-		    <div className="col-lg-8 col-lg-offset-4">
-		      <div className="nav">
-		        <h3 className="title">Dashboard</h3>
-		      </div>
-		      <div className="row">
-		        <div className="col-md-12">
-		          <div>
-		            <strong>Email</strong>
-		          </div>
-		          <div>
-		            {user.email}
-		          </div>
-		        </div>
-		      </div>
-		      <div className="row">
-		        <div className="col-md-12">
-		        <a href={'https://www.AngelThump.com/embed/' + user.username}>
-		          <div>
-		            <strong>Embed link: https://www.AngelThump.com/embed/{user.username}</strong>
-		          </div>
-		          </a>
-		          <div>
-		            <strong>Channel Name: {user.username}</strong>
-		          </div>
-		        </div>
-		      </div>
-		      <div className="row">
-		        <div className="col-md-12">
-		          <div>
-		            <strong>US Ingest URL</strong>
-		          </div>
-		          <div>
-		            rtmp://ingest.angelthump.com:1935/live
-		          </div>
-		          <div>
-		            <strong>EU Ingest URL</strong>
-		          </div>
-		          <div>
-		            rtmp://eu-ingest.angelthump.com:1935/live
-		          </div>
-		        </div>
-		      </div>
-		      <div className="row">
-		        <div className="col-md-12">
-		          <div>
-		            <strong>OBS SETTINGS (VERY IMPORTANT)</strong>
-		          </div>
-		          <div>
-		            <strong>OBS STUDIO: GO TO SETTINGS > OUTPUT > CHANGE FROM SIMPLE TO ADVANCED</strong>
-		          </div>
-		          <div>
-		            <em>Keyframe Interval: 1</em>
-		          </div>
-		          <div>
-		            <em>x264 option: scenecut=-1</em>
-		          </div>
-		          <div>
-		            <p>
-		              <a className="btn btn-primary" href="#" onClick={this.toggleStreamKey}>
+		const user = this.props.user;
+		return <main>
+			<div className="wrapper c12 clearfix">
+				<WarningBanner warn={this.state.showWarning} email={user.email} />
+				<h1 id="settings_title">
+					<span className='title'>Settings</span>
+				</h1>
+				<ul className='tabs' id='dash_nav'>
+					<li className='tab'><a href="/dashboard">Home</a></li>
+					<li className='selected tab'><a href="/dashboard/settings">Settings</a></li>
+				</ul>
+				<div className="dash-items-contain clearfix">
+					<p>
+		              <a className="button--green" href="#" onClick={this.toggleStreamKey}>
 		                {this.state.showStreamKey ? "Hide Stream Key" : "Show Stream Key"}
 		              </a>
 		              {
 		                this.state.showStreamKey
-		                  ? <button type='button' className='btn btn-warning reset'
+		                  ? <a className='button--grey'
 		                     href='#' onClick={this.resetStreamKey}>
 		                      Reset Stream Key
-		                    </button>
+		                    </a>
 		                  : ''
 		              }
 		            </p>
 		            <p>
-		              {this.state.showStreamKey ? user.streamkey : ""}
+		              {this.state.showStreamKey ? this.state.streamKey : ""}
 		            </p>
-		          </div>
-		      </div>
-		      </div>
-		    </div>
-		  </div>
-		  <footer className="row text-xs-center">
-		    <a href="#" className="logout btn btn-secondary" onClick={this.logout}>
-		      Sign Out
-		    </a>
-		  </footer>
+					<h4>
+	            		<strong>US Ingest URL</strong>
+	            	</h4>
+					<h4>
+	            		<strong>rtmp://ingest.angelthump.com:1935/live</strong>
+	            	</h4>
+					<h4>
+	            		<strong>EU Ingest URL</strong>
+	            	</h4>
+					<h4>
+	            		<strong>rtmp://eu-ingest.angelthump.com:1935/live</strong>
+	            	</h4>
+					<img src="/assets/ingest.png" width="720">
+	            	</img>
+	            	<h4>
+	            		<strong>OBS SETTINGS (VERY IMPORTANT)</strong>
+	            	</h4>
+	            	<h4>
+	            		<strong>Bitrate: 3500</strong>
+	            	</h4>
+	            	<h4>
+	            		<strong>Keyframe Interval: 1</strong>
+	            	</h4>
+	            	<h4>
+	            		<strong>x264 option: scenecut=-1</strong>
+	            	</h4>
+	            	<img src="/assets/options.png" width="720">
+	            	</img>
+	            	<br></br><br></br>
+	            	<h4>
+						<strong>Email: {user.email}     </strong>
+					</h4>
+
+					<a className="button--green" href="/reset_email">
+	            		Email Change
+	            	</a>
+
+	            	<a className='button--grey' href='/reset_password'>
+                      Reset Password
+                    </a>
+
+				</div>
+			</div>
+
+			<footer className="center">
+				<a href="#" className="button--green" onClick={this.logout}>
+				  Sign Out
+				</a>
+			</footer>
 		</main>
 	}
 }
 
-/* deleted bc on 'patched' not working for some reason.
-class ProfileApp extends React.Component {
-	constructor(props) {
-		super(props);
+class ImageUpload extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {file: '',imagePreviewUrl: props.url};
+  }
 
-		this.state = {
-			user: {}
-		};
-	};
+  _handleSubmit(e) {
+    e.preventDefault();
+    console.log('handle uploading-', this.state.file);
 
-	componentDidMount() {
-		const users = client.service('users');
-		const cached_user = client.get('user');
+    const uploadService = client.service('uploads');
+    uploadService
+    .create({uri: this.state.imagePreviewUrl})
+    .then(function(response){
+    	patchUser(response.id);
+    }).catch(function(error) {
+    	console.log(error);
+    });
+  }
 
-		users.get(cached_user._id).then(user => this.setState({ user: user }))
-		  .catch(e => console.error(e));
+  _handleImageChange(e) {
+    e.preventDefault();
 
-		users.on('patched', user => {
-			this.setState({user: user});
-			console.log(user);
-			console.log(this.state.user);
-		});
-	}
+    let reader = new FileReader();
+    let file = e.target.files[0];
 
-	render() {
-		return <div>
-		  <Profile user={this.state.user} />
-		</div>
-	}
-}*/
+    reader.onloadend = () => {
+      this.setState({
+        file: file,
+        imagePreviewUrl: reader.result
+      });
+    }
 
+    reader.readAsDataURL(file)
+  }
 
-client.authenticate()
-.then(response => {
-  console.log('Authenticated!', response);
-  // By this point your accessToken has been stored in
-  // localstorage
-  return client.passport.verifyJWT(response.accessToken);
-})
-.then(payload => {
-  //console.log('JWT Payload', payload);
-  return client.service('users').get(payload.userId);
-})
-.then(user => {
-  client.set('user', user);
-  //console.log('User', client.get('user'));
-  
-ReactDOM.render(
-  <Profile user={client.get('user')} />,
-  document.getElementById('app')
-);
-})
-.catch(function(error){
-	if(error.code === 401) {
-		window.location.href = '/login'
-  	}
-	console.error('Error authenticating!', error);
-});
+  render() {
+    let {imagePreviewUrl} = this.state;
+    let $imagePreview = null;
+    if (imagePreviewUrl) {
+      $imagePreview = (<img src={imagePreviewUrl} width="495" />);
+    }
+
+    return (
+      <div className="cl-input-container">
+      	<p>This is displayed on the player when your channel is offline.</p>
+      	<div className="upload">
+      		{$imagePreview}
+	        <div className="input file optional user_channel_offline_image">
+	        	<form onSubmit={(e)=>this._handleSubmit(e)}>
+		          <input className="file optional" 
+		            type="file" 
+		            onChange={(e)=>this._handleImageChange(e)} />
+		          <button className="button upload" 
+		            type="submit" 
+		            onClick={(e)=>this._handleSubmit(e)}>Upload Image</button>
+		        </form>
+	        	<p className="form_microcopy">Image should be 16:9 to fill the entire video player.</p>
+	        </div>
+      	</div>
+      </div>
+    )
+  }
+}

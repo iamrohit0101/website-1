@@ -33,8 +33,7 @@ module.exports.individual = function(app) {
 				res.json({
 					username: user.username,
 					live: user.live,
-					title: `${username}'s stream`,
-					// title: title,
+					title: title,
 					viewers: parseInt(count, 10),
 					poster: user.poster,
 					thumbnail: `https://api.angelthump.com/thumbnail/${username}.jpg`,

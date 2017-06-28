@@ -25,6 +25,9 @@
             width: 100%;
             height: 100%;
             top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
         }
         .video-js.vjs-playing .vjs-tech {
             pointer-events: none;
@@ -68,9 +71,10 @@
     <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v2.2.0/dist/feathers.js"></script>
     <script type="text/javascript" src="/js/videojs.ga.min.js"></script>
     <script type="text/javascript" src="/js/videojs-overlay.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script>
-        var ifPatreon = false, channel = "<%= username %>".toLowerCase(), host = 'https://angelthump.com', socket, requestTime = 1000, running = false, lastKnownServer = localStorage.getItem('server');
+        var ifPatreon = false, channel = "<%= username %>".toLowerCase(), host = 'https://angelthump.com', socket, requestTime = 1000, lastKnownServer = localStorage.getItem('server');
         if(lastKnownServer == null) {
             lastKnownServer = 'US-E';
         }
@@ -148,6 +152,7 @@
             }
         })
 
+        /*
         player.overlay({
           overlays: [{
 
@@ -165,10 +170,17 @@
             content: "<a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
             align: "bottom"
           }]
+        });*/
+
+        axios.get("https://angelthump.com/api/" + channel)
+        .then(function(result) {    
+            player.poster(result.data.poster);
+        })
+        .catch(function(error) {
+            console.log(channel);
+            player.poster("https://angelthump.com/assets/default_offline.jpg");
+            console.log(error);
         });
-
-
-        player.poster('https://angelthump.com/assets/default_offline.jpg');
 
         player.logobrand({
             image: "https://angelthump.com/assets/patreon.png",
@@ -183,9 +195,7 @@
                     requestTime = requestTime * 2;
                 }
 
-                if (running && player.readyState() == 0) {
-                    retry();
-                } else {
+                if (player.readyState() != 0) {
                     player.loadingSpinner.show();
                 }
 

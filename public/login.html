@@ -30,17 +30,6 @@
     storage: window.localStorage
   }));
 
-  //try with JWT first
-  client.authenticate()
-  .then(response => {
-    console.log('Authenticated!', response);
-    window.location.href = '/dashboard';
-    return client.passport.verifyJWT(response.accessToken);
-  })
-  .catch(function(error){
-    console.error('Error authenticating with JWT!', error);
-  });
-
   function getCredentials() {
     const user = {
       username: document.getElementById('username').value,
