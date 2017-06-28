@@ -33,3 +33,4 @@ public/embed-test.ejs
 *.conf
 public/.old
 package-lock.json
+public/uploads
