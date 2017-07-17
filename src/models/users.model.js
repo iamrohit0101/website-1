@@ -6,12 +6,25 @@
 // for more of what you can do here.
 module.exports = function(app) {
   const mongooseClient = app.get('mongooseClient'),
-  validator = require('validator'),
-  uniqueValidator = require('mongoose-unique-validator');
+  uniqueValidator = require('mongoose-unique-validator'),
+  validate = require('mongoose-validator');
+
+  var usernameValidator = [
+	  validate({
+	    validator: 'isLength',
+	    arguments: [3, 30],
+	    message: 'Name should be between {ARGS[0]} and {ARGS[1]} characters'
+	  }),
+	  validate({
+	    validator: 'isAlphanumeric',
+	    passIfEmpty: true,
+	    message: 'Name should contain alpha-numeric characters only'
+	  })
+	];
   const users = new mongooseClient.Schema({
   
-  email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: [{ validator: validator.isEmail, msg: '{VALUE} is not a valid email!' }]},
-  username: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true},
+  email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: [validate({ validator: 'isEmail', msg: '{VALUE} is not a valid email!' })]},
+  username: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: usernameValidator},
   password: { type: String, required: true },
   patreonId: { type: String },
   patreon: { type: mongooseClient.Schema.Types.Mixed },

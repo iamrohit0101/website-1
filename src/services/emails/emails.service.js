@@ -1,7 +1,6 @@
 // Initializes the `emails` service on path `/emails`
 const createService = require('./emails.class.js');
 const hooks = require('./emails.hooks');
-const filters = require('./emails.filters');
 const mailer = require('feathers-mailer');
 const smtpTransport = require('nodemailer-smtp-transport');
 

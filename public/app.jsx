@@ -120,6 +120,10 @@ class Dashboard extends React.Component {
     	});
 	}
 
+	logout() {
+		client.logout().then(() => window.location.href = '/');
+	}
+
 	render() {
 		const user = this.props.user;
 		const src = "https://angelthump.com/embed/" + user.username;

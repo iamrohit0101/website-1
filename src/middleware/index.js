@@ -18,7 +18,7 @@ module.exports = function () {
 
   app.set('view engine', 'ejs');
   app.set('views', 'public');
-
+  
   // TODO:
   // check if the username actually exists before trying to render this view
   // http://docs.feathersjs.com/guides/using-a-view-engine.html
@@ -27,6 +27,7 @@ module.exports = function () {
     res.render('embed', {username: req.params.username});
   });
 
+  
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
   });
@@ -51,7 +52,7 @@ module.exports = function () {
     res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
   });
   app.get('/settings', function(req, res, next){
-    res.sendFile('settings.html', { root: path.join(__dirname, '../../public') });
+    res.redirect(301, 'https://angelthump.com/dashboard/settings');
   });
   app.get('/dashboard/settings', function(req, res, next){
     res.sendFile('settings.html', { root: path.join(__dirname, '../../public') });

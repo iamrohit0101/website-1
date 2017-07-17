@@ -136,7 +136,7 @@ a {
 
 .dash-items-contain {
     position: relative;
-    min-height: 500px;
+    min-height: 600px;
 }
 
 #dash_main .dash-items-contain #controls_column {

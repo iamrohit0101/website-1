@@ -45,14 +45,11 @@ module.exports.individual = function(app) {
 		});
 
       }else{
-        res.status(404).send(`No Users Named ${requested_username}`);
+        res.render('errors.ejs', {code: 404, message: `No Users Named ${requested_username}`});
       }
     })
-    // On errors, just call our error middleware
     .catch((e) => {
-      console.log(e, 'forbidden requested_username:', requested_username);
-      console.error(e.stack);
-      res.status(403).send('Forbidden');
+      res.render('errors.ejs', {code: 403, message: `forbidden requested username: ${requested_username}`});
     });
   };
 };
@@ -89,7 +86,7 @@ module.exports.all = function(app) {
 					var jsonObject = {
 						username: user.username,
 						title: `${username}'s stream`,
-						// title: title,
+						title: title,
 						viewers: parseInt(count, 10),
 						thumbnail: `https://api.angelthump.com/thumbnail/${username}.jpg`,
 						created_at: date,
@@ -125,10 +122,8 @@ module.exports.all = function(app) {
 		res.json({stream_list: [], streams: users.total, connections: total_connections});
 	}
 })
-    // On errors, just call our error middleware
     .catch((e) => {
-      console.error(e.stack);
-      res.status(403).send('Forbidden');
+      res.render('errors.ejs', {code: 403, message: e});
     });
   };
 };

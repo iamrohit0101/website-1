@@ -5,6 +5,14 @@ const https = require('https');
 const path = require('path');
 const app = require('./app');
 const port = app.get('port');
+const http = require('http');
+const httpApp = require('./app');
+
+const httpServer = http.createServer(httpApp).listen(80);
+
+httpApp.get("*", function (req, res, next) {
+    res.redirect("https://" + req.headers.host + "/" + req.path);
+});
 
 const server = https.createServer({
    key: fs.readFileSync(path.resolve(__dirname, app.get('key'))),

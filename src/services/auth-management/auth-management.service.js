@@ -1,7 +1,6 @@
 // Initializes the `authManagement` service on path `/authManagement`
 const createService = require('./auth-management.class.js');
 const hooks = require('./auth-management.hooks');
-const filters = require('./auth-management.filters');
 const notifier = require('./notifier');
 const authManagement = require('feathers-authentication-management');
 

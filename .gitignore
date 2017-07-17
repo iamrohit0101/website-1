@@ -34,3 +34,5 @@ public/embed-test.ejs
 public/.old
 package-lock.json
 public/uploads
+public/js/test
+public/css/test

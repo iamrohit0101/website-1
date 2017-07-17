@@ -30,7 +30,7 @@ module.exports.initial = function(app) {
     // Then we're good to stream
     .then((users) => {
     	const user = users.data[0];
-  		if (users.total > 0 && !user.banned) {
+  		if (users.total > 0 && !user.banned && user.isVerified) {
   			const username = user.username;
   			res.redirect(username);
         app.service('users').patch(user._id, {

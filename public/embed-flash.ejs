@@ -211,7 +211,7 @@
             .then(user => {
                 app.set('user', user);
                 var user = app.get('user');
-                ifPatreon = user.patreon;
+                ifPatreon = user.ifPatreon;
                 if (!ifPatreon) {
                     player.currentResolution(lastKnownServer);
                     alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
