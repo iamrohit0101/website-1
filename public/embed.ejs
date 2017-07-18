@@ -129,9 +129,9 @@
         player.on("pause", function() {
             socket.disconnect();
             player.one("play", function() {
+                connect();
                 player.updateSrc(sources);
-                player.currentResolution(lastKnownServer);
-                connect();  
+                player.currentResolution(lastKnownServer); 
             });
         });
 
@@ -147,16 +147,11 @@
         
         player.overlay({
           overlays: [{
-
-            // This overlay appears at 3 seconds and disappears at 15 seconds.
             start: 0,
             end: 7,
             content: "<a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
             align: "bottom"
           }, {
-
-            // This overlay will appear when the "custom1" event is triggered and
-            // disappear when the "custom2" event is triggered.
             start: 'pause',
             end: 'playing',
             content: "<a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
@@ -226,8 +221,11 @@
         });
 
         function checkPatreon() {
+            var login = io('https://angelthump.com', {
+                transports: ['websocket']
+            });
             var app = feathers()
-                .configure(feathers.socketio(socket))
+                .configure(feathers.socketio(login))
                 .configure(feathers.hooks())
                 .configure(feathers.authentication({
                     storage: window.localStorage
@@ -235,8 +233,6 @@
             app.authenticate()
             .then(response => {
                 console.log('Authenticated!');
-                // By this point your accessToken has been stored in
-                // localstorage
                 return app.passport.verifyJWT(response.accessToken);
             })
             .then(payload => {
@@ -260,7 +256,6 @@
                 console.error('Error authenticating!', error);
             });
 
-            // If the transport changes, you have to call authenticate() again.
             socket.io.engine.on('upgrade', function(transport) {
                 console.log('transport changed');
                 app.authenticate();

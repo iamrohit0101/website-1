@@ -4,7 +4,6 @@ const auth = require('feathers-authentication');
 const path = require('path');
 
 const signup = require('./signup');
-const admin = require('./admin');
 const verify = require('./verify');
 const done = require('./on_publish_done');
 const authManagement = require('./authManagement');
@@ -97,17 +96,13 @@ module.exports = function () {
 
   app.post('/signup', signup(app));
 
-  app.get('/admin/:type(reload)/:username', function(req, res, next){
-    res.status(200).send('ok');
+  app.get('/admin/reload/:username', function(req, res, next){
+    res.redirect(301, 'https://api.angelthump.com/admin/reload/' + req.params.username);
+  });
 
-    next();
-  }, admin(app));
-
-  app.get('/admin/:type(redirect)/:username/:puntUsername', function(req, res, next){
-    res.status(200).send('ok');
-
-    next();
-  }, admin(app));
+  app.get('/admin/redirect/:username/:puntUsername', function(req, res, next){
+     res.redirect(301, 'https://api.angelthump.com/admin/redirect/' + req.params.username + '/' + req.params.puntUsername);
+  });
 
   app.post('/live', verify.initial(app));
   app.post('/done', done(app));
