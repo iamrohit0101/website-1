@@ -7,7 +7,6 @@ const signup = require('./signup');
 const admin = require('./admin');
 const verify = require('./verify');
 const done = require('./on_publish_done');
-const api = require('./api');
 const authManagement = require('./authManagement');
 
 module.exports = function () {
@@ -114,20 +113,12 @@ module.exports = function () {
   app.post('/done', done(app));
 
   app.get('/api', function(req, res, next){
-    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.header("Pragma", "no-cache");
-    res.header("Expires", -1);
-
-    next();
-  }, api.all(app));
+    res.redirect(301, 'https://api.angelthump.com/');
+  });
 
   app.get('/api/:username', function(req, res, next){
-    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.header("Pragma", "no-cache");
-    res.header("Expires", -1);
-
-    next();
-  }, api.individual(app));
+  	res.redirect(301, 'https://api.angelthump.com/' + req.params.username);
+  });
   
   app.use(notFound());
 

@@ -74,7 +74,7 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script>
-        var ifPatreon = false, channel = "<%= username %>".toLowerCase(), host = 'https://angelthump.com', socket, requestTime = 1000, lastKnownServer = localStorage.getItem('server');
+        var ifPatreon = false, channel = "<%= username %>".toLowerCase(), host = 'https://api.angelthump.com', socket, requestTime = 1000, lastKnownServer = localStorage.getItem('server');
         var sources = [{
             type: "application/x-mpegURL",
             src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
@@ -164,7 +164,7 @@
           }]
         });
 
-        axios.get("https://angelthump.com/api/" + channel)
+        axios.get("https://api.angelthump.com/" + channel)
         .then(function(result) {    
             player.poster(result.data.poster);
         })
