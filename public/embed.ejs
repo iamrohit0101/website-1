@@ -59,21 +59,20 @@
 <body>
 
     <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto"></video>
-    <script type="text/javascript" src="/js/video.min.js"></script>
-    <script type="text/javascript" src="/js/videojs-resolution-switcher.js"></script>
-    <script type="text/javascript" src="/js/videojs5-hlsjs-source-handler.js"></script>
-    <script type="text/javascript" src="/js/videojs.logobrand.js"></script>
-    <script type="text/javascript" src="/js/videojs-persistvolume.js"></script>
-    <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-    <script type="text/javascript" src="/js/videojs-chromecast.min.js"></script>
+    <script type="text/javascript" src="/js/dep/video.min.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs5-hlsjs-source-handler.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs.logobrand.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
+    <script type="text/javascript" src="/js/dep/cast_sender.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-chromecast.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
-    <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v2.3.0/dist/feathers.js"></script>
-    <script type="text/javascript" src="/js/videojs.ga.min.js"></script>
-    <script type="text/javascript" src="/js/videojs-overlay.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
-    <script>
+    <script type="text/javascript" src="/js/dep/core.min.js"></script>
+    <script type="text/javascript" src="/js/dep/feathers.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs.ga.min.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
+    <script type="text/javascript" src="/js/dep/axios.min.js"></script>
+    <script type="text/javascript">
         var ifPatreon = false, channel = "<%= username %>".toLowerCase(), host = 'https://api.angelthump.com', socket, requestTime = 1000, lastKnownServer = localStorage.getItem('server');
         var sources = [{
             type: "application/x-mpegURL",
@@ -144,7 +143,7 @@
             }
         })
 
-        
+
         player.overlay({
           overlays: [{
             start: 0,
@@ -261,7 +260,6 @@
                 app.authenticate();
             });
         }
-
     </script>
 </body>
 </html>
