@@ -36,3 +36,4 @@ package-lock.json
 public/uploads
 public/js/test
 public/css/test
+logs/

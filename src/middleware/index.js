@@ -24,7 +24,6 @@ module.exports = function () {
   app.get('/embed/:username', function(req, res, next){
     res.render('embed', {username: req.params.username});
   });
-
   
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});

@@ -19,6 +19,10 @@ const authentication = require('./authentication');
 
 const mongodb = require('./mongodb');
 
+const fs = require('fs');
+const morgan = require('morgan');
+const accessLogStream = fs.createWriteStream(path.join(__dirname, '../logs/access.log'), {flags: 'a'});
+
 const app = feathers();
 
 // Load app configuration
@@ -34,6 +38,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
 app.use('/', feathers.static(app.get('public')));
+app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr', {stream: accessLogStream}));
 
 // Set up Plugins and providers
 app.configure(hooks());

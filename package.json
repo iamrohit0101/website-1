@@ -61,6 +61,7 @@
     "mongoose": "^4.11.3",
     "mongoose-unique-validator": "^1.0.5",
     "mongoose-validator": "^1.3.2",
+    "morgan": "^1.8.2",
     "multer": "^1.3.0",
     "nodemailer-smtp-transport": "^2.7.4",
     "passport-patreon": "^1.0.1",
