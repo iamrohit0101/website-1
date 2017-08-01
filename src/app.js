@@ -38,7 +38,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
 app.use('/', feathers.static(app.get('public')));
-app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr', {stream: accessLogStream}));
+
+//log to file
+app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr - [:date[clf]]', {stream: accessLogStream, skip: function (req, res) { 
+	return app.get('skipIPs').includes(req.connection.remoteAddress.replace(/^.*:/, ''));
+}}));
+
+//print to console
+app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr', {skip: function (req, res) { 
+	return app.get('skipIPs').includes(req.connection.remoteAddress.replace(/^.*:/, ''));
+}}));
 
 // Set up Plugins and providers
 app.configure(hooks());

@@ -22,7 +22,13 @@ module.exports = function () {
   // http://docs.feathersjs.com/guides/using-a-view-engine.html
 
   app.get('/embed/:username', function(req, res, next){
-    res.render('embed', {username: req.params.username});
+  	const referer = req.header('Referer') || '/';
+	if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com')) {
+		console.log('redirecting ' + referer);
+		res.redirect('https://www.youtube.com/watch?v=gqpkZ2LPpps');
+	} else {
+		res.render('embed', {username: req.params.username});
+	}
   });
   
   app.get('/embed-test/:username', function(req, res, next){
