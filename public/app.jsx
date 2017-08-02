@@ -36,6 +36,11 @@ client.authenticate()
 			<Settings user={client.get('user')} />,
 			document.getElementById('settings')
 		);
+	} else if (window.location.pathname == "/dashboard/passwordprotect" || window.location.pathname == "/dashboard/passwordprotect/" ) {
+		ReactDOM.render(
+			<Password user={client.get('user')} />,
+			document.getElementById('password-protect')
+		);
 	}
 })
 .catch(function(error){
@@ -136,6 +141,7 @@ class Dashboard extends React.Component {
 				<ul className='tabs' id='dash_nav'>
 					<li className='selected tab'><a href="/dashboard">Home</a></li>
 					<li className='tab'><a href="/dashboard/settings">Settings</a></li>
+					<li className='tab'><a href="/dashboard/passwordprotect">Password Protect (Patreon Only)</a></li>
 				</ul>
 				<div className="dash-items-contain clearfix">
 					<div className="grid c7" id="controls_column">
@@ -223,6 +229,7 @@ class Settings extends React.Component {
 				<ul className='tabs' id='dash_nav'>
 					<li className='tab'><a href="/dashboard">Home</a></li>
 					<li className='selected tab'><a href="/dashboard/settings">Settings</a></li>
+					<li className='tab'><a href="/dashboard/passwordprotect">Password Protect (Patreon Only)</a></li>
 				</ul>
 				<div className="dash-items-contain clearfix">
 					<p>
@@ -284,6 +291,101 @@ class Settings extends React.Component {
 
 				</div>
 			</div>
+
+			<footer className="center">
+				<a href="#" className="button--green" onClick={this.logout}>
+				  Sign Out
+				</a>
+			</footer>
+		</main>
+	}
+}
+
+class Password extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			showWarning: !this.props.user.isVerified,
+			passwordProtected: this.props.user.passwordProtected,
+			streamPassword: this.props.user.streamPassword
+		};
+		this.handleInputChange = this.handleInputChange.bind(this);
+		this.updatePassword = this.updatePassword.bind(this);
+	};
+
+	logout() {
+		client.logout().then(() => window.location.href = '/');
+	}
+
+	handleInputChange(event) {
+		if(this.props.user.ifPatreon && this.props.user.isVerified) {
+			const userService = client.service('users');
+	    	userService.patch(this.props.user._id, {
+	    		passwordProtected: !this.state.passwordProtected
+	    	}).then(user => {
+	    		if(this.state.passwordProtected) {
+	    			alert("Stream is now Password Protected!");
+	    		} else {
+	    			alert("Stream is no longer password protected!");
+	    		}
+	    	});
+
+			this.setState({
+				passwordProtected: !this.state.passwordProtected
+			});
+		} else {
+			alert("You are not a patreon or your email is not verified!");
+		}
+	}
+
+	updatePassword() {
+		if(this.props.user.ifPatreon && this.props.user.isVerified) {
+			const userService = client.service('users');
+	    	userService.patch(this.props.user._id, {
+	    		streamPassword: document.getElementById('updatePassword').value
+	    	}).then(user => {
+	    		alert("Successfully Updated Stream Password");
+	    	});
+
+			this.setState({
+				streamPassword: document.getElementById('updatePassword').value
+			});
+		} else {
+			alert("You are not a patreon or your email is not verified!");
+		}
+	}
+
+	render() {
+		const user = this.props.user;
+		return <main>
+			<div className="wrapper c12 clearfix">
+				<WarningBanner warn={this.state.showWarning} email={user.email} />
+				<h1 id="password_title">
+					<span className='title'>Password Protect Your Stream</span>
+				</h1>
+				<ul className='tabs' id='dash_nav'>
+					<li className='tab'><a href="/dashboard">Home</a></li>
+					<li className='tab'><a href="/dashboard/settings">Settings</a></li>
+					<li className='selected tab'><a href="/dashboard/passwordprotect">Password Protect (Patreon Only)</a></li>
+				</ul>
+				<div className="dash-items-contain clearfix">
+					<h4>
+						<input className='checkbox' type="checkbox" checked={this.state.passwordProtected} onChange={this.handleInputChange} />
+						&nbsp;
+						Enable to password protect your stream!
+					</h4>
+					<h4>
+						<div id='form_submit'>
+							<input className='string optional' id='updatePassword' maxLength='16' defaultValue={this.state.streamPassword}></input>
+							&nbsp;
+							<button className="button primary" tabIndex="4" onClick={this.updatePassword}>
+								<span>Update</span>
+							</button>
+						</div>
+					</h4>
+				</div>
+			</div>
+			
 
 			<footer className="center">
 				<a href="#" className="button--green" onClick={this.logout}>

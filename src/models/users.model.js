@@ -37,6 +37,8 @@ module.exports = function(app) {
   resetExpires: { type: Date },
   banned:    {type: Boolean, 'default': false},
   ifPatreon: {type: Boolean, 'default': false},
+  streamPassword: {type: String},
+  passwordProtected: {type: Boolean, 'default': false},
   title: {type: String},
   live: {type: Boolean, 'default': false},
   poster: {type: String, 'default': "https://angelthump.com/assets/default_offline.jpg"},

@@ -7,6 +7,7 @@ const signup = require('./signup');
 const verify = require('./verify');
 const done = require('./on_publish_done');
 const authManagement = require('./authManagement');
+const checkPassword = require('./checkPassword');
 
 module.exports = function () {
   // Add your custom middleware here. Remember, that
@@ -60,6 +61,12 @@ module.exports = function () {
   app.get('/dashboard/settings', function(req, res, next){
     res.sendFile('settings.html', { root: path.join(__dirname, '../../public') });
   });
+  app.get('/passwordprotect', function(req, res, next){
+    res.redirect(301, 'https://angelthump.com/dashboard/passwordprotect');
+  });
+  app.get('/dashboard/passwordprotect', function(req, res, next){
+    res.sendFile('passwordprotect.html', { root: path.join(__dirname, '../../public') });
+  });
   app.get('/login', function(req, res, next){
     res.sendFile('login.html', { root: path.join(__dirname, '../../public') });
   });
@@ -100,6 +107,7 @@ module.exports = function () {
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
 
   app.post('/signup', signup(app));
+  app.post('/checkPassword', checkPassword(app));
 
   app.get('/admin/reload/:username', function(req, res, next){
     res.redirect(301, 'https://api.angelthump.com/admin/reload/' + req.params.username);
