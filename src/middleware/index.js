@@ -9,10 +9,10 @@ const done = require('./on_publish_done');
 const authManagement = require('./authManagement');
 const checkPassword = require('./checkPassword');
 
+const patreonAPI = require('./patreonAPI');
+const patreonWebhooks = require('./patreonWebhooks');
+
 module.exports = function () {
-  // Add your custom middleware here. Remember, that
-  // in Express the order matters, `notFound` and
-  // the error handler have to go last.
   const app = this;
 
   app.set('view engine', 'ejs');
@@ -61,11 +61,11 @@ module.exports = function () {
   app.get('/dashboard/settings', function(req, res, next){
     res.sendFile('settings.html', { root: path.join(__dirname, '../../public') });
   });
-  app.get('/passwordprotect', function(req, res, next){
-    res.redirect(301, 'https://angelthump.com/dashboard/passwordprotect');
+  app.get('/patreon', function(req, res, next){
+    res.redirect(301, 'https://angelthump.com/dashboard/patreon');
   });
-  app.get('/dashboard/passwordprotect', function(req, res, next){
-    res.sendFile('passwordprotect.html', { root: path.join(__dirname, '../../public') });
+  app.get('/dashboard/patreon', function(req, res, next){
+    res.sendFile('patreon.html', { root: path.join(__dirname, '../../public') });
   });
   app.get('/login', function(req, res, next){
     res.sendFile('login.html', { root: path.join(__dirname, '../../public') });
@@ -81,10 +81,6 @@ module.exports = function () {
     res.redirect(301, 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3VKPL7E8RSL38');
   });
 
-  app.get('/patreon', function(req, res, next){
-    res.redirect(301, 'https://www.patreon.com/angelthump');
-  });
-
   app.get('/reset_email', function(req, res, next){
     res.sendFile('reset_email.html', { root: path.join(__dirname, '../../public') });
   });
@@ -92,6 +88,15 @@ module.exports = function () {
   app.get('/reset_password', function(req, res, next){
     res.sendFile('reset_password.html', { root: path.join(__dirname, '../../public') });
   });
+
+  app.get('/patron', function(req, res, next){
+    res.sendFile('patron.html', { root: path.join(__dirname, '../../public') });
+  });
+  app.post('/patron', patreonAPI(app));
+
+  app.post('/patreon/create', patreonWebhooks.create(app));
+  app.post('/patreon/update', patreonWebhooks.update(app));
+  app.post('/patreon/delete', patreonWebhooks.delete(app));
 
   app.get('/resend_email/:email', function(req, res, next){
     const authManagement = app.service('authManagement');
@@ -130,7 +135,6 @@ module.exports = function () {
   
   app.use(notFound());
 
-  //json for now
   app.use(handler({
     html: function(error, req, res, next) {
        res.render('errors.ejs', {code: error.code, message: error.message});

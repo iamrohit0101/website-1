@@ -36,10 +36,10 @@ client.authenticate()
 			<Settings user={client.get('user')} />,
 			document.getElementById('settings')
 		);
-	} else if (window.location.pathname == "/dashboard/passwordprotect" || window.location.pathname == "/dashboard/passwordprotect/" ) {
+	} else if (window.location.pathname == "/dashboard/patreon" || window.location.pathname == "/dashboard/patreon/" ) {
 		ReactDOM.render(
-			<Password user={client.get('user')} />,
-			document.getElementById('password-protect')
+			<Patreon user={client.get('user')} />,
+			document.getElementById('patreon')
 		);
 	}
 })
@@ -141,7 +141,7 @@ class Dashboard extends React.Component {
 				<ul className='tabs' id='dash_nav'>
 					<li className='selected tab'><a href="/dashboard">Home</a></li>
 					<li className='tab'><a href="/dashboard/settings">Settings</a></li>
-					<li className='tab'><a href="/dashboard/passwordprotect">Password Protect (Patreon Only)</a></li>
+					<li className='tab'><a href="/dashboard/patreon">Patreon Features</a></li>
 				</ul>
 				<div className="dash-items-contain clearfix">
 					<div className="grid c7" id="controls_column">
@@ -229,7 +229,7 @@ class Settings extends React.Component {
 				<ul className='tabs' id='dash_nav'>
 					<li className='tab'><a href="/dashboard">Home</a></li>
 					<li className='selected tab'><a href="/dashboard/settings">Settings</a></li>
-					<li className='tab'><a href="/dashboard/passwordprotect">Password Protect (Patreon Only)</a></li>
+					<li className='tab'><a href="/dashboard/patreon">Patreon Features</a></li>
 				</ul>
 				<div className="dash-items-contain clearfix">
 					<p>
@@ -301,7 +301,7 @@ class Settings extends React.Component {
 	}
 }
 
-class Password extends React.Component {
+class Patreon extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -361,12 +361,12 @@ class Password extends React.Component {
 			<div className="wrapper c12 clearfix">
 				<WarningBanner warn={this.state.showWarning} email={user.email} />
 				<h1 id="password_title">
-					<span className='title'>Password Protect Your Stream</span>
+					<span className='title'>Patreon Features</span>
 				</h1>
 				<ul className='tabs' id='dash_nav'>
 					<li className='tab'><a href="/dashboard">Home</a></li>
 					<li className='tab'><a href="/dashboard/settings">Settings</a></li>
-					<li className='selected tab'><a href="/dashboard/passwordprotect">Password Protect (Patreon Only)</a></li>
+					<li className='selected tab'><a href="/dashboard/patreon">Patreon Features</a></li>
 				</ul>
 				<div className="dash-items-contain clearfix">
 					<h4>
@@ -383,6 +383,9 @@ class Password extends React.Component {
 							</button>
 						</div>
 					</h4>
+					<a className="button--green" href="/patron">
+	            		Link account to patreon to use features!
+	            	</a>
 				</div>
 			</div>
 			

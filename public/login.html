@@ -47,10 +47,10 @@
       .then(function(result) {
           console.log('Authenticated!');
           const referrer = document.referrer;
-          if(referrer.includes("embed")) {
-          	window.location.href = referrer;
+          if(referrer != null && referrer != 'https://angelthump.com/') {
+            window.location.href = referrer;
           } else {
-          	window.location.href = '/dashboard';
+            window.location.href = '/dashboard';
           }
       }).catch(function(error) {
           document.getElementById("error").style.display = 'block';
