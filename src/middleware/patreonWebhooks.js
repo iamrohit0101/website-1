@@ -18,6 +18,8 @@ module.exports.create = function(app) {
 		        }
 		    }
 
+		    console.log(includedAttributes.email + " to be created");
+
 		    app.service('users').find({
 	          query: { email: includedAttributes.email }
 	        })
@@ -65,6 +67,8 @@ module.exports.update = function(app) {
 	        }
 	    }
 
+	    console.log(includedAttributes.email + " to be updated & created");
+
 	    app.service('users').find({
           query: { email: includedAttributes.email }
         })
@@ -105,6 +109,8 @@ module.exports.update = function(app) {
 	            break includedLoop;
 	        }
 	    }
+
+	    console.log(includedAttributes.email + " to be updated & deleted");
 
 	    app.service('users').find({
 	      query: { email: includedAttributes.email }
@@ -152,6 +158,8 @@ module.exports.delete = function(app) {
 		        break includedLoop;
 		    }
 		}
+
+		console.log(includedAttributes.email + " to be deleted");
 
 		app.service('users').find({
 		  query: { email: includedAttributes.email }

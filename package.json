@@ -1,7 +1,7 @@
 {
   "name": "angelthump",
   "description": "Streaming service",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "homepage": "angelthump.com",
   "main": "src/",
   "keywords": [

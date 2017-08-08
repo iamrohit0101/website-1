@@ -32,6 +32,18 @@
         </form>
       </div>
     </div>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-98637299-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
     <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto"></video>
     <script type="text/javascript" src="/js/dep/cast_sender.js?loadCastFramework=1"></script>
     <script type="text/javascript" src="/js/dep/video.min.js"></script>
@@ -46,12 +58,8 @@
     <script type="text/javascript" src="/js/dep/videojs.ga.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
-    <script type="text/javascript" src="//cdn.jsdelivr.net/ga-lite/latest/ga-lite.min.js" async></script>
     <script type="text/javascript">
-	    var galite = galite || {};
-		galite.UA = 'UA-98637299-1';
-
-        var poster, socket, ifPatreon = false, host = 'https://api.angelthump.com', channel = "<%= username %>".toLowerCase();
+        var poster, socket, host = 'https://api.angelthump.com', channel = "<%= username %>".toLowerCase();
 
         axios.get("https://api.angelthump.com/" + channel)
         .then(function(result) {
@@ -112,10 +120,6 @@
                 type: "application/x-mpegURL",
                 src: "https://eu-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'EU-PATREON'
-            }, {
-                type: "application/x-mpegURL",
-                src: "https://blr1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'BANGALORE-P'
             }];
 
             var options = {
@@ -145,7 +149,7 @@
             });
             player.poster(poster);
             connect();
-            if(lastKnownServer == null || (lastKnownServer != 'US-E' && lastKnownServer != 'US-W' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'NA-PATREON' && lastKnownServer != 'BANGALORE-P' && lastKnownServer != 'EU1' && lastKnownServer != 'EU2')) {
+            if(lastKnownServer == null || (lastKnownServer != 'US-E' && lastKnownServer != 'US-W' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'NA-PATREON' && lastKnownServer != 'EU1' && lastKnownServer != 'EU2')) {
                 lastKnownServer = 'US-E';
             }
             player.updateSrc(sources);
@@ -162,7 +166,7 @@
             });
 
             player.on("resolutionchange", function() {
-                if (player.currentResolution().label == 'NA-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'BANGALORE-P') {
+                if (player.currentResolution().label == 'NA-PATREON' || player.currentResolution().label == 'EU-PATREON') {
                     checkPatreon();
                 } else {
                     lastKnownServer = player.currentResolution().label;
@@ -249,8 +253,7 @@
                 .then(user => {
                     app.set('user', user);
                     var user = app.get('user');
-                    ifPatreon = user.ifPatreon;
-                    if (ifPatreon) {
+                    if (user.ifPatreon) {
                         localStorage.setItem('server', player.currentResolution().label);
                         lastKnownServer = player.currentResolution().label;
                     } else {

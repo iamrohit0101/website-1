@@ -25,3 +25,17 @@ module.exports = function(app) {
     }
   };
 };
+
+
+module.exports.resend = function(app) {
+  return function(req, res, next) {
+    const authManagement = app.service('authManagement');
+      authManagement.create({ action: 'resendVerifySignup',
+        value: {email: req.params.email}, // compares to .verifyToken
+      }).then(x => {
+      res.render('success.ejs', {message: "Email sent!"});
+    }).catch(function(error){
+      res.render('errors.ejs', {code: error.code, message: error.message});
+    });;
+  };
+};

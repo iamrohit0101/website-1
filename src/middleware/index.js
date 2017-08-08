@@ -32,12 +32,9 @@ module.exports = function () {
 	}
   });
   
+  //test-bed
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
-  });
-
-  app.get('/embed-flash/:username', function(req, res, next){
-    res.render('embed-flash', {username: req.params.username});
   });
   
   app.get('/dmca', function(req, res, next){
@@ -98,16 +95,7 @@ module.exports = function () {
   app.post('/patreon/update', patreonWebhooks.update(app));
   app.post('/patreon/delete', patreonWebhooks.delete(app));
 
-  app.get('/resend_email/:email', function(req, res, next){
-    const authManagement = app.service('authManagement');
-    authManagement.create({ action: 'resendVerifySignup',
-      value: {email: req.params.email}, // compares to .verifyToken
-    }).then(x => {
-		res.status(200).send('ok');
-	}).catch(function(error){
-		res.render('errors.ejs', {code: error.code, message: error.message});
-	});;
-  });
+  app.get('/resend-email/:email', authManagement.resend(app));
 
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
 
