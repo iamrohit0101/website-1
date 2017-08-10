@@ -1,4 +1,5 @@
 'use strict';
+const config = require('../../config/default.json');
 
 module.exports = function(app) {
   return function(req, res, next) {
@@ -11,7 +12,7 @@ module.exports = function(app) {
     .then((users) => {
     	const user = users.data[0];
   		if (users.total > 0) {
-  			if(user.streamPassword == password || password == 'bodgay') {
+  			if(user.streamPassword == password || password == config.adminPass) {
           res.json({
             result: true
           });
