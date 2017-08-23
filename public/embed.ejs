@@ -57,7 +57,7 @@
     <script type="text/javascript" src="/js/dep/feathers.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.ga.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
-    <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="//unpkg.com/axios/dist/axios.js"></script>
     <script type="text/javascript">
         var poster, socket, host = 'https://api.angelthump.com', channel = "<%= username %>".toLowerCase();
 
@@ -99,24 +99,20 @@
             var sources = [{
                 type: "application/x-mpegURL",
                 src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-E'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://sfo1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-W'
+                label: 'NA'
             },{
                 type: "application/x-mpegURL",
                 src: "https://ams1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'EU1'
+                label: 'EU'
             },{
                 type: "application/x-mpegURL",
-                src: "https://ams2.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'EU2'
-            }, {
-                type: "application/x-mpegURL",
                 src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'NA-PATREON'
-            }, {
+                label: 'US-EAST-PATREON'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://sfo1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'US-WEST-PATREON'
+            },{
                 type: "application/x-mpegURL",
                 src: "https://eu-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'EU-PATREON'
@@ -131,7 +127,7 @@
                 },
                 plugins: {
                     videoJsResolutionSwitcher: {
-                        default: 'US-E',
+                        default: 'NA',
                         dynamicLabel: true
                     }
                 },
@@ -149,15 +145,17 @@
             });
             player.poster(poster);
             connect();
-            if(lastKnownServer == null || (lastKnownServer != 'US-E' && lastKnownServer != 'US-W' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'NA-PATREON' && lastKnownServer != 'EU1' && lastKnownServer != 'EU2')) {
-                lastKnownServer = 'US-E';
+            if(lastKnownServer == null || (lastKnownServer != 'NA' && lastKnownServer != 'US-WEST-PATREON' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'US-EAST-PATREON' && lastKnownServer != 'EU')) {
+                lastKnownServer = 'NA';
             }
             player.updateSrc(sources);
             player.currentResolution(lastKnownServer);
 
 
             player.on("pause", function() {
-                socket.disconnect();
+                if(scoket.connected) {
+                    socket.disconnect();
+                }
                 player.one("play", function() {
                     connect();
                     player.updateSrc(sources);
@@ -166,7 +164,11 @@
             });
 
             player.on("resolutionchange", function() {
-                if (player.currentResolution().label == 'NA-PATREON' || player.currentResolution().label == 'EU-PATREON') {
+                if(!socket.connected) {
+                    connect();
+                }
+                player.loadingSpinner.show();
+                if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
                     checkPatreon();
                 } else {
                     lastKnownServer = player.currentResolution().label;
@@ -197,6 +199,9 @@
                 if (player.error().code == 2) {
                     player.loadingSpinner.hide();
                     player.error(null);
+                    if(socket.connected) {
+                        socket.disconnect();
+                    }
                     retry();
                 }
             });
@@ -208,15 +213,9 @@
             function retry() {
                 setTimeout(function() {
                     player.src(sources);
-
                     if (requestTime < 16000) {
                         requestTime = requestTime * 2;
                     }
-
-                    if (player.readyState() != 0) {
-                        player.loadingSpinner.show();
-                    }
-
                 }, requestTime);
             }
 
@@ -231,6 +230,7 @@
                     window.location = url;
                 }
             });
+
 
             function checkPatreon() {
                 var login = io('https://angelthump.com', {
@@ -257,12 +257,12 @@
                         localStorage.setItem('server', player.currentResolution().label);
                         lastKnownServer = player.currentResolution().label;
                     } else {
-                        player.currentResolution('US-E');
+                        player.currentResolution('NA');
                         alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
                     }
                 })
                 .catch(function(error){
-                    player.currentResolution('US-E');
+                    player.currentResolution('NA');
                     window.location = 'https://angelthump.com/login';
                     console.error('Error authenticating!', error);
                 });
@@ -276,7 +276,8 @@
 
         function connect() {
             socket = io(host, {
-                transports: ['websocket']
+                transports: ['websocket'],
+                forceNew: true
             });
             socket.on('connect', function() {
                 socket.emit('channel', channel);

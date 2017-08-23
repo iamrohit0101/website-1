@@ -44,10 +44,11 @@ app.use(morgan(':method :url :status :response-time ms - :res[content-length] - 
 	return app.get('skipIPs').includes(req.connection.remoteAddress.replace(/^.*:/, ''));
 }}));
 
+/*
 //print to console
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr', {skip: function (req, res) { 
 	return app.get('skipIPs').includes(req.connection.remoteAddress.replace(/^.*:/, ''));
-}}));
+}}));*/
 
 // Set up Plugins and providers
 app.configure(hooks());
