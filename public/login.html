@@ -47,7 +47,7 @@
       .then(function(result) {
           console.log('Authenticated!');
           const referrer = document.referrer;
-          if(referrer != null && referrer != 'https://angelthump.com/') {
+          if(referrer != null && referrer.includes('embed')) {
             window.location.href = referrer;
           } else {
             window.location.href = '/dashboard';

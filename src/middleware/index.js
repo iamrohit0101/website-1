@@ -11,6 +11,7 @@ const checkPassword = require('./checkPassword');
 
 const patreonAPI = require('./patreonAPI');
 const patreonWebhooks = require('./patreonWebhooks');
+const paywall = require('./paywall');
 
 module.exports = function () {
   const app = this;
@@ -47,7 +48,7 @@ module.exports = function () {
     res.sendFile('tos.html', { root: path.join(__dirname, '../../public') });
   });
   app.get('/profile', function(req, res, next){
-    res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
+    res.redirect(301, 'https://angelthump.com/dashboard');
   });
   app.get('/dashboard', function(req, res, next){
     res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
@@ -101,6 +102,9 @@ module.exports = function () {
 
   app.post('/signup', signup(app));
   app.post('/checkPassword', checkPassword(app));
+
+  app.get('/admin/paywall/:username', paywall.paywall(app));
+  app.get('/admin/undopaywall/:username', paywall.undoPaywall(app));
 
   app.get('/admin/reload/:username', function(req, res, next){
     res.redirect(301, 'https://api.angelthump.com/admin/reload/' + req.params.username);

@@ -1,7 +1,7 @@
 {
   "name": "angelthump",
   "description": "Streaming service",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "homepage": "angelthump.com",
   "main": "src/",
   "keywords": [
@@ -63,7 +63,7 @@
     "mongoose-validator": "^1.3.2",
     "morgan": "^1.8.2",
     "multer": "^1.3.0",
-    "nodemailer-smtp-transport": "^2.7.4",
+    "nodemailer-ses-transport": "^1.5.1",
     "passport-patreon": "^1.0.1",
     "patreon": "^0.1.0",
     "react": "^15.6.1",

@@ -41,13 +41,13 @@ app.use('/', feathers.static(app.get('public')));
 
 //log to file
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr - [:date[clf]]', {stream: accessLogStream, skip: function (req, res) { 
-	return app.get('skipIPs').includes(req.connection.remoteAddress.replace(/^.*:/, ''));
+	return app.get('skipIPs').includes(req.connection.remoteAddress);
 }}));
 
 /*
 //print to console
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr', {skip: function (req, res) { 
-	return app.get('skipIPs').includes(req.connection.remoteAddress.replace(/^.*:/, ''));
+	return app.get('skipIPs').includes(req.connection.remoteAddress);
 }}));*/
 
 // Set up Plugins and providers

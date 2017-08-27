@@ -1,6 +1,5 @@
 const feathers = require('feathers')
-const config = require('feathers-configuration')
-const conf = feathers().configure(config());
+const config = require('../../../config/default.json');
 const path = require('path')
 
 module.exports = function(app) {
@@ -27,14 +26,11 @@ return {
             //console.log(`-- Preparing email for ${type}`)
             var hashLink
             var email
-            var emailAccountTemplatesPath = path.join(app.get('public'), 'email-templates', 'account')
-            var templatePath
-            var compiledHTML
             switch (type) {
-              case 'resendVerifySignup': // send another email with link for verifying user's email address
+              case 'resendVerifySignup':
                 hashLink = getLink('verify', user.verifyToken)
                 email = {
-                        from: conf.get('gmail'),
+                        from: config.email,
                         to: user.email,
                         subject: 'Verify your email',
                         html: 'Thank you for signing up. Please verify your email by clicking the link below!' + '<br><br>' + hashLink + '<br><br>'
@@ -42,19 +38,19 @@ return {
                     }
                 return sendEmail(email)
                 break
-             case 'verifySignup': // inform that user's email is now confirmed
+             case 'verifySignup':
                 email = {
-                        from: conf.get('gmail'),
+                        from: config.email,
                         to: user.email,
                         subject: 'Thank you, your email has been verified',
                         html: 'Your email has been verified. You have access to all of the site\'s functionality now!'
                     }
                 return sendEmail(email)
                 break
-              case 'sendResetPwd': // inform that user's email is now confirmed
+              case 'sendResetPwd':
                 hashLink = getLink('reset', user.resetToken)
                 email = {
-                        from: conf.get('gmail'),
+                        from: config.email,
                         to: user.email,
                         subject: 'Reset Password',
                         html: 'Hi, ' + user.username + '<br><br>' + 'To reset your password, please click the link below.' + '<br><br>' + hashLink + '<br><br>' 
@@ -62,9 +58,9 @@ return {
                     }
                 return sendEmail(email)
                 break
-              case 'resetPwd': // inform that user's email is now confirmed
+              case 'resetPwd':
                 email = {
-                        from: conf.get('gmail'),
+                        from: config.email,
                         to: user.email,
                         subject: 'Your password has changed',
                         html: 'Hi, ' + user.username + '<br><br>' + 'Your password was just reset.'
@@ -73,7 +69,7 @@ return {
                 break
               case 'passwordChange':
                 email = {
-                        from: conf.get('gmail'),
+                        from: config.email,
                         to: user.email,
                         subject: 'Your password was changed',
                         html: 'Hi, ' + user.username + '<br><br>' + 'Your password was just reset.'
@@ -83,7 +79,7 @@ return {
               case 'identityChange':
                 hashLink = getLink('verifyChanges', user.verifyToken)
                 email = {
-                        from: conf.get('gmail'),
+                        from: config.email,
                         to: user.email,
                         subject: 'Your email was changed. Please verify the changes',
                         html: 'Hi, ' + user.username + '<br><br>' + 'To change your email, please click the link below.' + '<br><br>' + hashLink + '<br><br>' 

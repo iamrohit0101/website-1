@@ -8,7 +8,7 @@ module.exports = function(app) {
       authManagement.create({ action: 'verifySignupLong',
         value: hash, // compares to .verifyToken
       }).then(x => {
-        res.redirect(301, '/profile');
+        res.render('success.ejs', {message: "Email verified!"});
       }).catch(function(error){
         res.render('errors.ejs', {code: error.code, message: error.message});
       });
@@ -18,7 +18,7 @@ module.exports = function(app) {
       authManagement.create({ action: 'verifySignupLong',
         value: hash, // compares to .verifyToken
       }).then(x => {
-        res.redirect(301, '/profile');
+        res.redirect(301, '/dashboard');
       }).catch(function(error){
         res.render('errors.ejs', {code: error.code, message: error.message});
       });

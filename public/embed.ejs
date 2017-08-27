@@ -59,22 +59,21 @@
     <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.js"></script>
     <script type="text/javascript">
-        var poster, socket, host = 'https://api.angelthump.com', channel = "<%= username %>".toLowerCase();
+        var poster, socket, host = 'https://api.angelthump.com', channel = "<%= username %>".toLowerCase(), paywall = false;
 
         axios.get("https://api.angelthump.com/" + channel)
         .then(function(result) {
-            if(result.data.poster != null) {
-                poster = result.data.poster;
-                if(result.data.passwordProtected) {
-                    document.getElementById("password-page").style.display = 'block';
-                    document.getElementById("player").style.display = 'none';
-                } else {
-                    launchPlayer();
-                }
+            poster = result.data.poster;
+            if(result.data.passwordProtected) {
+                document.getElementById("password-page").style.display = 'block';
+                document.getElementById("player").style.display = 'none';
+                paywall = result.data.paywall;
             } else {
-                poster = "https://angelthump.com/assets/default_offline.jpg";
-                passwordProtected = false;
-                launchPlayer();
+            	if(result.data.paywall) {
+            		paywallCheck();
+            	} else {
+            		launchPlayer();
+            	}
             }
         });
 
@@ -87,7 +86,11 @@
                 if(response.data.result) {
                     document.getElementById("password-page").style.display = 'none';
                     document.getElementById("player").style.display = 'block';
-                    launchPlayer();
+                    if(paywall) {
+            			paywallCheck();
+	            	} else {
+	            		launchPlayer();
+	            	}
                 } else {
                     document.getElementById("error").style.display = 'block';
                 }
@@ -100,11 +103,11 @@
                 type: "application/x-mpegURL",
                 src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'NA'
-            },{
+            }/*,{
                 type: "application/x-mpegURL",
                 src: "https://ams1.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'EU'
-            },{
+            }*/,{
                 type: "application/x-mpegURL",
                 src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'US-EAST-PATREON'
@@ -199,10 +202,10 @@
                 if (player.error().code == 2) {
                     player.loadingSpinner.hide();
                     player.error(null);
-                    if(socket.connected) {
-                        socket.disconnect();
-                    }
                     retry();
+                }
+                if(socket.connected) {
+                    //socket.disconnect();
                 }
             });
 
@@ -220,6 +223,7 @@
             }
 
             socket.on('reload', function (argUsername) {
+            	console.log("fired");
             if(channel.toLowerCase() == argUsername.toLowerCase()) {
                 location.reload();
                 }
@@ -267,17 +271,65 @@
                     console.error('Error authenticating!', error);
                 });
 
-                socket.io.engine.on('upgrade', function(transport) {
+                login.io.engine.on('upgrade', function(transport) {
                     console.log('transport changed');
                     app.authenticate();
                 });
             }
         }
 
+        function paywallCheck() {
+            var login = io('https://angelthump.com', {
+                transports: ['websocket']
+            });
+            var app = feathers()
+                .configure(feathers.socketio(login))
+                .configure(feathers.hooks())
+                .configure(feathers.authentication({
+                    storage: window.localStorage
+                }));
+            app.authenticate()
+            .then(response => {
+                console.log('Authenticated!');
+                return app.passport.verifyJWT(response.accessToken);
+            })
+            .then(payload => {
+                return app.service('users').get(payload.userId);
+            })
+            .then(user => {
+                app.set('user', user);
+                var user = app.get('user');
+
+                var userDate = new Date(user.createdAt);
+                var userMillis = userDate.getTime();
+
+                var dateNow = new Date();
+                var dateMillis = dateNow.getTime();
+
+                var difference = dateMillis - userMillis;
+                difference = (difference/1000)/60; 
+
+                if(difference >= 10 || user.ifPatreon) {
+                	launchPlayer();
+                } else {
+                	alert("Account is not old enough (10minutes). Become a $5 patron to override");
+                	window.location = 'https://www.youtube.com/watch?v=Ag0MLEl3UMg';
+                }
+            })
+            .catch(function(error){
+                window.location = 'https://angelthump.com/login';
+                console.error('Error authenticating!', error);
+            });
+
+            login.io.engine.on('upgrade', function(transport) {
+                console.log('transport changed');
+                app.authenticate();
+            });
+        }
+
         function connect() {
             socket = io(host, {
-                transports: ['websocket'],
-                forceNew: true
+                transports: ['websocket']
             });
             socket.on('connect', function() {
                 socket.emit('channel', channel);

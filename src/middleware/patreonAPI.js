@@ -1,7 +1,6 @@
 'use strict';
 
 const config = require('../../config/default.json');
-const patreonConfig = require('../../config/patreon.json');
 const patreon = require('patreon');
 const fs = require('fs');
 const path = require('path');
@@ -11,6 +10,8 @@ module.exports = function(app) {
 
     const patreonAPI = patreon.default;
     const patreonOAUTH = patreon.oauth;
+
+    var patreonConfig = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config/patreon.json'), 'utf8'));
 
     var accessToken = patreonConfig.access_token;
     var refreshToken = patreonConfig.refresh_token;
@@ -103,7 +104,6 @@ module.exports = function(app) {
                 });
             } else {
                 checkIfPatreon(req.body.email);
-                //res.json(result);
             }
         }
         getMorePledges();
@@ -112,8 +112,8 @@ module.exports = function(app) {
     function checkIfPatreon(email) {
         var found = false;
         for(var x = 0; x < result.length; x++) {
-            if(result[x].email == email) {
-                becomePatreon(email);
+            if(result[x].email.toLowerCase() == email.toLowerCase()) {
+                becomePatreon(email.toLowerCase());
                 found = true;
             }
         }
@@ -140,7 +140,7 @@ module.exports = function(app) {
                     });
                 }
             } else{
-                res.render('errors.ejs', {code: 500, message: "You are banned or your email is not verified!"});
+                res.render('errors.ejs', {code: 500, message: "You are either banned, your email is not verified, or your angelthump email does not match patreon email!"});
             }
         })
         .catch(function(error){
