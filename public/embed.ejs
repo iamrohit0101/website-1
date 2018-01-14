@@ -52,9 +52,8 @@
     <script type="text/javascript" src="/js/dep/videojs.logobrand.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-chromecast.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
-    <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v2.4.0/dist/feathers.min.js"></script>
+    <script type="text/javascript" src="//unpkg.com/socket.io-client@1.7.3/dist/socket.io.min.js"></script>
+    <script type="text/javascript" src="//unpkg.com/@feathersjs/client@3.1.2/dist/feathers.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.ga.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
@@ -224,6 +223,8 @@
 
             function retry() {
                 setTimeout(function() {
+                    player.src(sources);
+
                     if (requestTime < 16000) {
                         requestTime = requestTime * 2;
                     }
@@ -249,7 +250,6 @@
                 });
                 var app = feathers()
                     .configure(feathers.socketio(login))
-                    .configure(feathers.hooks())
                     .configure(feathers.authentication({
                         storage: window.localStorage
                     }));
@@ -291,7 +291,6 @@
             });
             var app = feathers()
                 .configure(feathers.socketio(login))
-                .configure(feathers.hooks())
                 .configure(feathers.authentication({
                     storage: window.localStorage
                 }));

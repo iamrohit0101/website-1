@@ -1,6 +1,5 @@
 const commonHooks = require('feathers-hooks-common');
-const { authenticate } = require('feathers-authentication').hooks;
-const { restrictToAuthenticated } = require('feathers-authentication-hooks');
+const { authenticate } = require('@feathersjs/authentication').hooks;
 const isAction = (...args) => hook => args.includes(hook.data.action);
 
 module.exports = {
@@ -11,7 +10,6 @@ module.exports = {
     create: [
       commonHooks.iff(isAction('passwordChange', 'identityChange'),
       authenticate('jwt'),
-      restrictToAuthenticated()
       ),
     ],
     update: [],

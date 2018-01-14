@@ -1,4 +1,4 @@
-const feathers = require('feathers')
+const feathers = require('@feathersjs/feathers')
 const config = require('../../../config/default.json');
 const path = require('path')
 

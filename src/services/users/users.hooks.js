@@ -2,11 +2,10 @@ const insensitive = require('./insensitive');
 
 const streamkey = require('./streamkey');
 
-const { authenticate } = require('feathers-authentication').hooks;
+const { authenticate } = require('@feathersjs/authentication').hooks;
 const commonHooks = require('feathers-hooks-common');
 const { restrictToOwner } = require('feathers-authentication-hooks');
-
-const { hashPassword } = require('feathers-authentication-local').hooks;
+const { hashPassword, protect } = require('@feathersjs/authentication-local').hooks;
 const verifyHooks = require('feathers-authentication-management').hooks;
 const emailHook = require('../../hooks/emailHook');
 
@@ -31,10 +30,7 @@ module.exports = {
 
   after: {
     all: [
-      commonHooks.when(
-        hook => hook.params.provider,
-        commonHooks.discard('password')
-      )
+      protect('password')
     ],
     find: [],
     get: [],

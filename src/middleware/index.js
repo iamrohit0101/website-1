@@ -1,6 +1,6 @@
-const handler = require('feathers-errors/handler');
+const handler = require('@feathersjs/express/errors');
 const notFound = require('feathers-errors/not-found');
-const auth = require('feathers-authentication');
+const auth = require('@feathersjs/authentication');
 const path = require('path');
 
 const signup = require('./signup');

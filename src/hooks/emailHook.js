@@ -1,6 +1,6 @@
 const accountService = require('../services/auth-management/notifier');
-const feathers = require('feathers');
-const config = require('feathers-configuration');
+const feathers = require('@feathersjs/feathers');
+const config = require('@feathersjs/configuration');
 
 exports.sendVerificationEmail = options => hook => {
   //if (!hook.params.provider) { return hook; }
