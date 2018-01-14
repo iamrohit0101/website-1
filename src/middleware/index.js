@@ -37,7 +37,10 @@ module.exports = function () {
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
   });
-  
+
+  app.get('/banned', function(req, res, next){
+    res.render('errors.ejs', {code: 400, message: "User is banned"});
+  });
   app.get('/dmca', function(req, res, next){
     res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });
   });

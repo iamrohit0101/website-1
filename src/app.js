@@ -41,7 +41,13 @@ app.use('/', feathers.static(app.get('public')));
 
 //log to file
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr - [:date[clf]]', {stream: accessLogStream, skip: function (req, res) { 
-	return app.get('skipIPs').includes(req.connection.remoteAddress);
+  var ip = req.connection.remoteAddress;
+  if(ip) {
+    if (ip.substr(0, 7) == "::ffff:") {
+      ip = ip.substr(7)
+    }
+  }
+	return app.get('skipIPs').includes(ip);
 }}));
 
 /*

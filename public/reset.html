@@ -27,7 +27,7 @@
 
   document.getElementById("submit").addEventListener("click", function(){
     authManagement.create({ action: 'sendResetPwd',
-      value: {email: document.getElementById('email').value}
+      value: {email: document.getElementById('email').value.toLowerCase()}
     }).then(x => {
       //success
       document.getElementById("success").setAttribute('style','text-align: center; display: block;');

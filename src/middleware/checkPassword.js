@@ -7,24 +7,24 @@ module.exports = function(app) {
     const password = req.body.password;
 
     app.service('users').find({
-      query: { username: streamname }
+		query: { username: streamname }
     })
     .then((users) => {
     	const user = users.data[0];
   		if (users.total > 0) {
   			if(user.streamPassword == password || password == config.adminPass) {
-          res.json({
-            result: true
-          });
-        } else {
-          res.json({
-            result: false
-          });
-        }
+				res.json({
+	        		result: true
+				});
+        	} else {
+          		res.json({
+          	 	 result: false
+          		});
+        	}
   		} else {
-        res.json({
-            result: false
-          });
+        	res.json({
+         	   result: false
+          	});
   		}
     })
     // On errors, just call our error middleware

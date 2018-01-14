@@ -35,16 +35,16 @@ module.exports.create = function(app) {
 	                    });
 	                }
 	            } else {
-	            	console.error(user.email + " may not be verified or is banned or not found in system!");
-	            	res.status(500).send("not found");
+	            	console.log(user.email + " may not be verified or is banned or not found in system!");
+	            	res.status(200).send("not found");
 	            }
 	        })
 	        .catch(function(error){
-	           console.error(error);
-	           res.status(400).send("error");
+	           console.log(error);
+	           res.status(200).send("error");
 	        });
 		} else {
-			res.status(400).send("not a 5 dolla patron or payment is declined");
+			res.status(200).send("not a 5 dolla patron or payment is declined");
 		}
 	}
 }
@@ -87,13 +87,13 @@ module.exports.update = function(app) {
 	                res.status(200).send("ok!");
 	            }
             } else {
-            	console.error(user.email + " may not be verified or is banned or not found in system!");
-            	res.status(500).send("not found");
+            	console.log(user.email + " may not be verified or is banned or not found in system!");
+            	res.status(200).send("not found");
             }
         })
         .catch(function(error){
-           console.error(error);
-           res.status(400).send("error");
+           console.log(error);
+           res.status(200).send("error");
         });
 	} else if(attributes.amount_cents < 500 || attributes.declined_since != null) {
 		const patronID = req.body.data.relationships.patron.data.id;
@@ -130,13 +130,13 @@ module.exports.update = function(app) {
 	                res.status(200).send("ok!");
 	            }
 	        } else {
-	        	console.error(user.email + " not found in system!");
-	        	res.status(500).send("not found");
+	        	console.log(user.email + " not found in system!");
+	        	res.status(200).send("not found");
 	        }
 	    })
 	    .catch(function(error){
-	       console.error(error);
-	       res.status(400).send("error");
+	       console.log(error);
+	       res.status(200).send("error");
 	    });
 	}
   }
@@ -179,13 +179,13 @@ module.exports.delete = function(app) {
 		            res.status(200).send("ok!");
 		        }
 		    } else {
-		    	console.error(user.email + " not found in system!");
-		    	res.status(500).send("not found");
+		    	console.log(user.email + " not found in system!");
+		    	res.status(200).send("not found");
 		    }
 		})
 		.catch(function(error){
-		   console.error(error);
-		   res.status(400).send("error");
+		   console.log(error);
+		   res.status(200).send("error");
 		});
 	}
 }

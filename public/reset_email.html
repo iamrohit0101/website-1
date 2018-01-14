@@ -42,7 +42,7 @@
   document.getElementById("reset").addEventListener("click", function(){
     authManagement.create({ action: 'identityChange',
       value: {
-        user: {email: document.getElementById('email').value},
+        user: {email: document.getElementById('email').value.toLowerCase()},
         password: document.getElementById('password').value,
         changes: {email: document.getElementById('newEmail').value}
       },

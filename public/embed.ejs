@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 
-<head>
+<head data-cast-api-enabled="true">
     <link href="/css/password.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/errors.css">
 	<link href="/css/embed.min.css" rel="stylesheet">
@@ -45,7 +45,7 @@
     </script>
     
     <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto"></video>
-    <script type="text/javascript" src="/js/dep/cast_sender.js?loadCastFramework=1"></script>
+    <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script type="text/javascript" src="/js/dep/video.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs5-hlsjs-source-handler.min.js"></script>
@@ -54,10 +54,11 @@
     <script type="text/javascript" src="/js/dep/videojs-chromecast.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.min.js"></script>
-    <script type="text/javascript" src="/js/dep/feathers.min.js"></script>
+    <script type="text/javascript" src="//cdn.rawgit.com/feathersjs/feathers-client/v2.4.0/dist/feathers.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.ga.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
-    <script type="text/javascript" src="//unpkg.com/axios/dist/axios.js"></script>
+    <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
+
     <script type="text/javascript">
         var poster, socket, host = 'https://api.angelthump.com', channel = "<%= username %>".toLowerCase(), paywall = false;
 
@@ -72,7 +73,11 @@
             	if(result.data.paywall) {
             		paywallCheck();
             	} else {
-            		launchPlayer();
+                    if(!result.data.banned) {
+                        launchPlayer();
+                    } else {
+                        window.location = "https://angelthump.com/banned";
+                    }
             	}
             }
         });
@@ -103,11 +108,11 @@
                 type: "application/x-mpegURL",
                 src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'NA'
-            }/*,{
+            },{
                 type: "application/x-mpegURL",
                 src: "https://ams1.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'EU'
-            }*/,{
+            },{
                 type: "application/x-mpegURL",
                 src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'US-EAST-PATREON'
@@ -156,7 +161,7 @@
 
 
             player.on("pause", function() {
-                if(scoket.connected) {
+                if(socket.connected) {
                     socket.disconnect();
                 }
                 player.one("play", function() {
@@ -203,6 +208,10 @@
                     player.loadingSpinner.hide();
                     player.error(null);
                     retry();
+                } else if (player.error().code == 3) {
+                	player.loadingSpinner.hide();
+                    player.error(null);
+                    retry();
                 }
                 if(socket.connected) {
                     //socket.disconnect();
@@ -215,7 +224,6 @@
 
             function retry() {
                 setTimeout(function() {
-                    player.src(sources);
                     if (requestTime < 16000) {
                         requestTime = requestTime * 2;
                     }
@@ -223,9 +231,8 @@
             }
 
             socket.on('reload', function (argUsername) {
-            	console.log("fired");
-            if(channel.toLowerCase() == argUsername.toLowerCase()) {
-                location.reload();
+            	if(channel.toLowerCase() == argUsername.toLowerCase()) {
+                	location.reload();
                 }
             });
 
