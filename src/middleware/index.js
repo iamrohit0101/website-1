@@ -25,12 +25,12 @@ module.exports = function () {
 
   app.get('/embed/:username', function(req, res, next){
   	const referer = req.header('Referer') || '/';
-	if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com')) {
-		console.log('redirecting ' + referer);
-		res.redirect('https://www.youtube.com/watch?v=gqpkZ2LPpps');
-	} else {
-		res.render('embed', {username: req.params.username});
-	}
+    if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com') || referer.includes('twitch.tv')) {
+      console.log('redirecting ' + referer);
+      res.redirect('https://www.youtube.com/watch?v=mj-v6zCnEaw');
+    } else {
+      res.render('embed', {username: req.params.username});
+    }
   });
   
   //test-bed
