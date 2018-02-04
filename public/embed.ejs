@@ -53,7 +53,8 @@
     <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-chromecast.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
-    <script type="text/javascript" src="//unpkg.com/@feathersjs/client@3.1.2/dist/feathers.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.1.4/core.min.js"></script>
+    <script type="text/javascript" src="//unpkg.com/@feathersjs/client@3.3.0/dist/feathers.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.ga.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
@@ -102,11 +103,11 @@
           });
 
         async function launchPlayer() {
-            var requestTime = 1000, lastKnownServer = localStorage.getItem('server'), autoServer, lastKnownAutoServer = localStorage.getItem('auto-server');
+            var requestTime = 1000, lastKnownServer = localStorage.getItem('server'), autoServer, lastKnownAutoServer = localStorage.getItem('autoServer');
 
             if(lastKnownAutoServer == null) {
                 lastKnownAutoServer = await returnServer();
-                localStorage.setItem('auto-server', lastKnownAutoServer);
+                localStorage.setItem('autoServer', lastKnownAutoServer);
             }
 
             if(lastKnownServer == null || (lastKnownServer != 'AUTO' && lastKnownServer != 'US-WEST-PATREON' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'US-EAST-PATREON')) {
@@ -245,7 +246,7 @@
 
             function checkPatreon() {
                 var app = feathers()
-                    .configure(feathers.socketio(login))
+                    .configure(feathers.socketio(socket))
                     .configure(feathers.authentication({
                         storage: window.localStorage
                     }));
@@ -274,7 +275,7 @@
                     console.error('Error authenticating!', error);
                 });
 
-                login.io.engine.on('upgrade', function(transport) {
+                socket.io.engine.on('upgrade', function(transport) {
                     console.log('transport changed');
                     app.authenticate();
                 });
@@ -283,7 +284,7 @@
 
         function paywallCheck() {
             var app = feathers()
-                .configure(feathers.socketio(login))
+                .configure(feathers.socketio(socket))
                 .configure(feathers.authentication({
                     storage: window.localStorage
                 }));
@@ -320,7 +321,7 @@
                 console.error('Error authenticating!', error);
             });
 
-            login.io.engine.on('upgrade', function(transport) {
+            socket.io.engine.on('upgrade', function(transport) {
                 console.log('transport changed');
                 app.authenticate();
             });
@@ -347,8 +348,7 @@
         }
 
         async function returnServer() {
-            var servers = ["https://nyc-hub.angelthump.com", "https://nyc-hub.angelthump.com:6969", "https://ams1.angelthump.com", "https://fra1.angelthump.com", "https://lon1.angelthump.com",
-             "https://tor1.angelthump.com", "https://blr1.angelthump.com", "https://sgp1.angelthump.com"];
+            var servers = ["https://nyc-hub.angelthump.com", "https://nyc-hub.angelthump.com:6969", "https://ams1.angelthump.com", "https://fra1.angelthump.com", "https://lon1.angelthump.com", "https://blr1.angelthump.com", "https://sgp1.angelthump.com"];
             var LowestLatencySoFar;
             var indexOfLowestLatency;
             for (const server of servers) {

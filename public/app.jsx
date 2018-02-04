@@ -1,15 +1,13 @@
-const feathers = require('feathers-client');
+const feathers = require('@feathersjs/client');
 const React = require('react');
 const ReactDOM = require('react-dom');
-const hooks = require('feathers-hooks');
-const socketio = require('feathers-socketio/client');
-const authentication = require('feathers-authentication-client');
+const socketio = require('@feathersjs/socketio-client');
+const authentication = require('@feathersjs/authentication-client');
 
 const socket = io('https://angelthump.com');
 const client = feathers();
 var data = {};
 
-client.configure(hooks());
 client.configure(socketio(socket));
 client.configure(authentication({
   storage: window.localStorage

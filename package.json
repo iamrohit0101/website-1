@@ -44,6 +44,7 @@
     "@feathersjs/express": "^1.1.2",
     "@feathersjs/feathers": "^3.0.5",
     "@feathersjs/socketio": "^3.0.2",
+    "babel-core": "^6.26.0",
     "body-parser": "^1.18.2",
     "compression": "^1.7.1",
     "cors": "^2.8.4",
@@ -71,6 +72,7 @@
     "request-promise": "^4.2.2",
     "serve-favicon": "^2.4.5",
     "socket.io-client": "^2.0.4",
+    "uglify-es": "^3.3.9",
     "uws": "^9.14.0",
     "winston": "^2.4.0"
   },

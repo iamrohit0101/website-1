@@ -56,14 +56,6 @@ app.configure(socketio({
   wsEngine: 'uws'
 }));
 
-app.configure(authentication);
-
-// Set up our services (see `services/index.js`)
-app.configure(services);
-// Configure middleware (see `middleware/index.js`) - always has to be last
-app.configure(middleware);
-app.hooks(appHooks);
-
 app.configure(socketio(function(io) {
 	io.on('connection', function(socket) {
 		socket.emit('total_connections', Object.keys(io.sockets.sockets).length);
@@ -81,5 +73,13 @@ app.configure(socketio(function(io) {
 	    });
 	  });
 }))
+
+app.configure(authentication);
+
+// Set up our services (see `services/index.js`)
+app.configure(services);
+// Configure middleware (see `middleware/index.js`) - always has to be last
+app.configure(middleware);
+app.hooks(appHooks);
 
 module.exports = app;
