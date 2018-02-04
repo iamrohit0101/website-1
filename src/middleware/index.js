@@ -12,6 +12,8 @@ const checkPassword = require('./checkPassword');
 const patreonAPI = require('./patreonAPI');
 const patreonWebhooks = require('./patreonWebhooks');
 const paywall = require('./paywall');
+const api = require('./api');
+const admin = require('./admin');
 
 module.exports = function () {
   const app = this;
@@ -37,6 +39,26 @@ module.exports = function () {
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
   });
+
+  app.get('/api', function(req, res, next){
+    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.header("Pragma", "no-cache");
+    res.header("Expires", -1);
+
+    next();
+  }, api.all(app));
+
+  app.get('/api/:username', function(req, res, next){
+    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.header("Pragma", "no-cache");
+    res.header("Expires", -1);
+
+    next();
+  }, api.individual(app));
+
+  app.get('/admin/reload/:username', admin.reload(app));
+
+  app.get('/admin/redirect/:username/:puntUsername', admin.redirect(app));
 
   app.get('/banned', function(req, res, next){
     res.render('errors.ejs', {code: 400, message: "User is banned"});
@@ -109,24 +131,8 @@ module.exports = function () {
   app.get('/admin/paywall/:username', paywall.paywall(app));
   app.get('/admin/undopaywall/:username', paywall.undoPaywall(app));
 
-  app.get('/admin/reload/:username', function(req, res, next){
-    res.redirect(301, 'https://api.angelthump.com/admin/reload/' + req.params.username);
-  });
-
-  app.get('/admin/redirect/:username/:puntUsername', function(req, res, next){
-     res.redirect(301, 'https://api.angelthump.com/admin/redirect/' + req.params.username + '/' + req.params.puntUsername);
-  });
-
   app.post('/live', verify.initial(app));
   app.post('/done', done(app));
-
-  app.get('/api', function(req, res, next){
-    res.redirect(301, 'https://api.angelthump.com/');
-  });
-
-  app.get('/api/:username', function(req, res, next){
-  	res.redirect(301, 'https://api.angelthump.com/' + req.params.username);
-  });
   
   app.use(notFound());
 

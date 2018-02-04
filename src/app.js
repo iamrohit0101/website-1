@@ -64,4 +64,22 @@ app.configure(services);
 app.configure(middleware);
 app.hooks(appHooks);
 
+app.configure(socketio(function(io) {
+	io.on('connection', function(socket) {
+		socket.emit('total_connections', Object.keys(io.sockets.sockets).length);
+		socket.on('channel', function (channel) {
+			socket.join(channel);
+		  	socket.emit('viewers', io.sockets.adapter.rooms[channel].length);
+		});
+	    socket.on('redirect', function (argUsername, url){
+	      console.log("redirecting " + argUsername);
+	      socket.broadcast.emit('redirect', argUsername, url);
+	    });
+	    socket.on('reload', function (argUsername){
+	      console.log("reloading " + argUsername);
+	      socket.broadcast.emit('reload', argUsername);
+	    });
+	  });
+}))
+
 module.exports = app;

@@ -30,6 +30,8 @@ node_modules
 lib/
 data/
 public/embed-test.ejs
+public/embed-old.ejs
+public/embed-test-videojs6.ejs
 *.conf
 public/.old
 package-lock.json

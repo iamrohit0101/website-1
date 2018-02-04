@@ -18,14 +18,13 @@
   </div>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="//npmcdn.com/feathers-client@2.2.0/dist/feathers.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
+<script src="https://unpkg.com/@feathersjs/client@3.3.0/dist/feathers.js"></script>
 <script type="text/javascript">
   const socket = io();
   const client = feathers();
 
   client.configure(feathers.socketio(socket));
-  client.configure(feathers.hooks());
   client.configure(feathers.authentication({
     storage: window.localStorage
   }));

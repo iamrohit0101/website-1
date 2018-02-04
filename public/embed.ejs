@@ -59,9 +59,9 @@
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="text/javascript">
-        var latency = [], poster, socket, host = 'https://api.angelthump.com', channel = "<%= username %>".toLowerCase(), paywall = false;
+        var latency = [], poster, socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), paywall = false;
 
-        axios.get("https://api.angelthump.com/" + channel)
+        axios.get("https://angelthump.com/api/" + channel)
         .then(function(result) {
             poster = result.data.poster;
             if(result.data.passwordProtected) {
@@ -244,9 +244,6 @@
 
 
             function checkPatreon() {
-                var login = io('https://angelthump.com', {
-                    transports: ['websocket']
-                });
                 var app = feathers()
                     .configure(feathers.socketio(login))
                     .configure(feathers.authentication({
@@ -285,9 +282,6 @@
         }
 
         function paywallCheck() {
-            var login = io('https://angelthump.com', {
-                transports: ['websocket']
-            });
             var app = feathers()
                 .configure(feathers.socketio(login))
                 .configure(feathers.authentication({
