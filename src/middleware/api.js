@@ -45,8 +45,7 @@ module.exports.individual = function(app) {
 					socket.disconnect();
 			});
 		});
-
-      }else{
+      } else {
         res.render('errors.ejs', {code: 404, message: `No Users Named ${requested_username}`});
       }
     })

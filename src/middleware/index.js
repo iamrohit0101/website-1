@@ -12,26 +12,15 @@ const patreonWebhooks = require('./patreonWebhooks');
 const paywall = require('./paywall');
 const api = require('./api');
 const admin = require('./admin');
+const embed = require('./embed');
 
 module.exports = function () {
   const app = this;
 
   app.set('view engine', 'ejs');
   app.set('views', 'public');
-  
-  // TODO:
-  // check if the username actually exists before trying to render this view
-  // http://docs.feathersjs.com/guides/using-a-view-engine.html
 
-  app.get('/embed/:username', function(req, res, next){
-  	const referer = req.header('Referer') || '/';
-    if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com') || referer.includes('twitch.tv')) {
-      console.log('redirecting ' + referer);
-      res.redirect('https://www.youtube.com/watch?v=mj-v6zCnEaw');
-    } else {
-      res.render('embed', {username: req.params.username});
-    }
-  });
+  app.get('/embed/:username', embed(app));
   
   //test-bed
   app.get('/embed-test/:username', function(req, res, next){
