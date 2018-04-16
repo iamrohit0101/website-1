@@ -86,7 +86,7 @@ function hideDiv() {
 function patchUser(id) {
 	const userService = client.service('users');
 	userService.patch(client.get('user')._id, {
-		poster: "https://angelthump.com/uploads/" + id
+		poster: "https://s3.amazonaws.com/offlinescreen/uploads/" + id
 	}).then(user => {
 		window.location.reload();
 	});

@@ -51,7 +51,7 @@
     <script type="text/javascript" src="/js/dep/videojs5-hlsjs-source-handler.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.logobrand.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs-chromecast.min.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-chromecast.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.1.4/core.min.js"></script>
     <script type="text/javascript" src="//unpkg.com/@feathersjs/client@3.3.0/dist/feathers.min.js"></script>
@@ -103,21 +103,44 @@
           });
 
         async function launchPlayer() {
-            var requestTime = 1000, lastKnownServer = localStorage.getItem('server'), autoServer, lastKnownAutoServer = localStorage.getItem('autoServer');
+            var requestTime = 1000, lastKnownServer = localStorage.getItem('server');
 
-            if(lastKnownAutoServer == null) {
-                lastKnownAutoServer = await returnServer();
-                localStorage.setItem('autoServer', lastKnownAutoServer);
-            }
-
-            if(lastKnownServer == null || (lastKnownServer != 'AUTO' && lastKnownServer != 'US-WEST-PATREON' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'US-EAST-PATREON')) {
-                lastKnownServer = 'AUTO';
+            if(lastKnownServer == null || (lastKnownServer != 'US-EAST' && lastKnownServer != 'BANGALORE' && lastKnownServer != 'SINGAPORE' && lastKnownServer != 'US-WEST' && lastKnownServer != 'TORNOTO' && lastKnownServer != 'FRANKFURT' && lastKnownServer != 'AMSTERDAM' && lastKnownServer != 'LONDON' && lastKnownServer != 'US-WEST-PATREON' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'US-EAST-PATREON')) {
+                lastKnownServer = 'US-EAST';
             }
 
             var sources = [{
                 type: "application/x-mpegURL",
-                src: lastKnownAutoServer + "/hls/" + channel + "/index.m3u8",
-                label: 'AUTO'
+                src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'US-EAST'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://sfo-hub.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'US-WEST'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://tor1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'TORONTO'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://fra1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'FRANKFURT'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://ams1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'AMSTERDAM'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://lon1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'LONDON'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://blr1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'BANGALORE'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://sgp1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'SINGAPORE'
             },{
                 type: "application/x-mpegURL",
                 src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
@@ -141,13 +164,11 @@
                 },
                 plugins: {
                     videoJsResolutionSwitcher: {
-                        default: 'AUTO',
+                        default: 'US-EAST',
                         dynamicLabel: true
                     }
                 },
-                chromecast: {
-                    appId: '50E3A992'
-                }
+                chromecast: {}
             };
 
             var player = videojs('player', options, function() {
@@ -265,12 +286,12 @@
                         localStorage.setItem('server', player.currentResolution().label);
                         lastKnownServer = player.currentResolution().label;
                     } else {
-                        player.currentResolution('AUTO');
+                        player.currentResolution(lastKnownServer);
                         alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
                     }
                 })
                 .catch(function(error){
-                    player.currentResolution('AUTO');
+                    player.currentResolution(lastKnownServer);
                     window.location = 'https://angelthump.com/login';
                     console.error('Error authenticating!', error);
                 });
@@ -334,46 +355,6 @@
             socket.on('connect', function() {
                 socket.emit('channel', channel);
             });
-        }
-
-        async function pingServer(server) {
-            var sendDate = (new Date()).getTime();
-            console.log(server);
-            await axios.get(server + "/latency.txt")
-            .then(function(result) {
-                var receiveDate = (new Date()).getTime();
-                var responseTimeMs = receiveDate - sendDate;
-                latency.push(responseTimeMs);
-            });
-        }
-
-        async function returnServer() {
-            var servers = ["https://nyc-hub.angelthump.com", "https://nyc-hub.angelthump.com:6969", "https://ams1.angelthump.com", "https://fra1.angelthump.com", "https://lon1.angelthump.com", "https://blr1.angelthump.com", "https://sgp1.angelthump.com"];
-            var LowestLatencySoFar;
-            var indexOfLowestLatency;
-            for (const server of servers) {
-                await pingServer(server);
-            }
-
-            console.log("DONE!");
-            console.log(latency);
-
-            for (var i = 0; i < latency.length; i++) {
-                var currentLatency = latency[i];
-
-                if(i == 0) {
-                    LowestLatencySoFar = currentLatency;
-                    indexOfLowestLatency = 0;
-                } else {
-                    if(LowestLatencySoFar > currentLatency) {
-                        LowestLatencySoFar = currentLatency;
-                        indexOfLowestLatency = latency.indexOf(currentLatency);
-                    }
-                }
-            }
-
-            console.log(servers[indexOfLowestLatency]);
-            return servers[indexOfLowestLatency];
         }
     </script>
 </body>

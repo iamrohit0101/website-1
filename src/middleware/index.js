@@ -4,10 +4,8 @@ const auth = require('@feathersjs/authentication');
 const path = require('path');
 
 const signup = require('./signup');
-const verify = require('./verify');
-const done = require('./on_publish_done');
+const events = require('./nginx_events');
 const authManagement = require('./authManagement');
-const checkPassword = require('./checkPassword');
 
 const patreonAPI = require('./patreonAPI');
 const patreonWebhooks = require('./patreonWebhooks');
@@ -126,13 +124,13 @@ module.exports = function () {
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
 
   app.post('/signup', signup(app));
-  app.post('/checkPassword', checkPassword(app));
+  app.post('/checkPassword', admin.checkPassword(app));
 
   app.get('/admin/paywall/:username', paywall.paywall(app));
   app.get('/admin/undopaywall/:username', paywall.undoPaywall(app));
 
-  app.post('/live', verify.initial(app));
-  app.post('/done', done(app));
+  app.post('/live', events.stream(app));
+  app.post('/done', events.done(app));
   
   app.use(notFound());
 
