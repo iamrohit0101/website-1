@@ -2,11 +2,9 @@ const handler = require('@feathersjs/express/errors');
 const notFound = require('feathers-errors/not-found');
 const auth = require('@feathersjs/authentication');
 const path = require('path');
-
 const signup = require('./signup');
 const events = require('./nginx_events');
 const authManagement = require('./authManagement');
-
 const patreonAPI = require('./patreonAPI');
 const patreonWebhooks = require('./patreonWebhooks');
 const paywall = require('./paywall');
@@ -21,7 +19,7 @@ module.exports = function () {
   app.set('views', 'public');
 
   app.get('/embed/:username', embed(app));
-  
+
   //test-bed
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
@@ -120,12 +118,12 @@ module.exports = function () {
 
   app.post('/live', events.stream(app));
   app.post('/done', events.done(app));
-  
+
   app.use(notFound());
 
   app.use(handler({
     html: function(error, req, res, next) {
-       res.render('errors.ejs', {code: error.code, message: error.message});
+        res.render('errors.ejs', {code: error.code, message: error.message});
     }
   }));
 };

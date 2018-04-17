@@ -20,33 +20,32 @@ module.exports = function(app) {
 	    passIfEmpty: true,
 	    message: 'Name should contain alpha-numeric characters only'
 	  })
-	];
-  const users = new mongooseClient.Schema({
+  ];
   
-  email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: [validate({ validator: 'isEmail', msg: '{VALUE} is not a valid email!' })]},
-  username: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: usernameValidator},
-  password: { type: String, required: true },
-  patreonId: { type: String },
-  patreon: { type: mongooseClient.Schema.Types.Mixed },
-  streamkey: { type: String, unique: true, dropDups: true, uniqueCaseInsensitive: true},
-  isVerified: { type: Boolean, default: false },
-  verifyToken: { type: String },
-  verifyExpires: { type: Date },
-  verifyChanges: { type: Object },
-  resetToken: { type: String },
-  resetExpires: { type: Date },
-  banned:    {type: Boolean, 'default': false},
-  ifPatreon: {type: Boolean, 'default': false},
-  paywall: {type: Boolean, 'default': false},
-  streamPassword: {type: String},
-  passwordProtected: {type: Boolean, 'default': false},
-  title: {type: String},
-  live: {type: Boolean, 'default': false},
-  poster: {type: String, 'default': "https://s3.amazonaws.com/offlinescreen/default_offline.jpg"},
-  streamCreatedAt: {type: Date, 'default': Date.now },
-  createdAt: { type: Date, 'default': Date.now },
-  updatedAt: { type: Date, 'default': Date.now }
-});
+  const users = new mongooseClient.Schema({
+    email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: [validate({ validator: 'isEmail', msg: '{VALUE} is not a valid email!' })]},
+    username: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: usernameValidator},
+    password: { type: String, required: true },
+    streamkey: { type: String, unique: true, dropDups: true, uniqueCaseInsensitive: true},
+    isVerified: { type: Boolean, default: false },
+    verifyToken: { type: String },
+    verifyExpires: { type: Date },
+    verifyChanges: { type: Object },
+    resetToken: { type: String },
+    resetExpires: { type: Date },
+    banned:    {type: Boolean, 'default': false},
+    ifPatreon: {type: Boolean, 'default': false},
+    paywall: {type: Boolean, 'default': false},
+    streamPassword: {type: String},
+    passwordProtected: {type: Boolean, 'default': false},
+    title: {type: String},
+    live: {type: Boolean, 'default': false},
+    poster: {type: String, 'default': "https://s3.amazonaws.com/offlinescreen/default_offline.jpg"},
+    streamCreatedAt: {type: Date, 'default': Date.now },
+    createdAt: { type: Date, 'default': Date.now },
+    updatedAt: { type: Date, 'default': Date.now }
+  });
+
   users.plugin(uniqueValidator);
 
   return mongooseClient.model('users', users);

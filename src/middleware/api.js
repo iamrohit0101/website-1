@@ -23,28 +23,26 @@ module.exports.individual = function(app) {
         const date = user.streamCreatedAt;
 				const passwordProtected = user.passwordProtected;
 				const banned = user.banned;
-
         const socket = io('https://angelthump.com');
 
         socket.on('connect', function() {
-		    	socket.emit('channel',username);
-		    	socket.on('viewers', function(viewers) {
-
-					res.json({
-						username: user.username,
-						live: user.live,
-						title: title,
-						viewers: parseInt(viewers - 1, 10),
-						passwordProtected: passwordProtected,
-						banned: banned,
-						poster: user.poster,
-						paywall: user.paywall,
-						thumbnail: `https://thumbnail.angelthump.com/thumbnails/${username}.jpeg`,
-						created_at: date,
+						socket.emit('channel',username);
+						socket.on('viewers', function(viewers) {
+							res.json({
+								username: user.username,
+								live: user.live,
+								title: title,
+								viewers: parseInt(viewers - 1, 10),
+								passwordProtected: passwordProtected,
+								banned: banned,
+								poster: user.poster,
+								paywall: user.paywall,
+								thumbnail: `https://thumbnail.angelthump.com/thumbnails/${username}.jpeg`,
+								created_at: date,
+							});
+							socket.disconnect();
 					});
-					socket.disconnect();
-			});
-		});
+				});
       } else {
         res.render('errors.ejs', {code: 404, message: `No Users Named ${requested_username}`});
       }
@@ -111,14 +109,14 @@ module.exports.all = function(app) {
 	}
 
 	if(users.total != 0) {
-		api(function(data) {
-    		data.sort(sortBy("viewers"));
-    		res.json({stream_list: data, streams: users.total, total_viewers: total_viewers, connections: total_connections});
-    	});
-	} else {
-		res.json({stream_list: [], streams: users.total, total_viewers: total_viewers, connections: total_connections});
-	}
-})
+			api(function(data) {
+					data.sort(sortBy("viewers"));
+					res.json({stream_list: data, streams: users.total, total_viewers: total_viewers, connections: total_connections});
+				});
+		} else {
+			res.json({stream_list: [], streams: users.total, total_viewers: total_viewers, connections: total_connections});
+		}
+	})
     .catch((e) => {
       res.render('errors.ejs', {code: 403, message: e});
     });
