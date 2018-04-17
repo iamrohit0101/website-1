@@ -18,7 +18,7 @@ module.exports.individual = function(app) {
       //console.log(users.total, 'users found for that stream username', requested_username);
       if (users.total > 0) {
       	const user = users.data[0];
-        const username = user.username;;
+        const username = user.username;
         const title = user.title;
         const date = user.streamCreatedAt;
 				const passwordProtected = user.passwordProtected;
@@ -36,7 +36,6 @@ module.exports.individual = function(app) {
 								passwordProtected: passwordProtected,
 								banned: banned,
 								poster: user.poster,
-								paywall: user.paywall,
 								thumbnail: `https://thumbnail.angelthump.com/thumbnails/${username}.jpeg`,
 								created_at: date,
 							});

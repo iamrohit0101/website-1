@@ -7,7 +7,6 @@ const events = require('./nginx_events');
 const authManagement = require('./authManagement');
 const patreonAPI = require('./patreonAPI');
 const patreonWebhooks = require('./patreonWebhooks');
-const paywall = require('./paywall');
 const api = require('./api');
 const admin = require('./admin');
 const embed = require('./embed');
@@ -111,10 +110,10 @@ module.exports = function () {
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
 
   app.post('/signup', signup(app));
+  app.get('/checkPassword', function(req, res, next){
+    res.sendFile('checkPassword.html', { root: path.join(__dirname, '../../public') });
+  });
   app.post('/checkPassword', admin.checkPassword(app));
-
-  app.get('/admin/paywall/:username', paywall.paywall(app));
-  app.get('/admin/undopaywall/:username', paywall.undoPaywall(app));
 
   app.post('/live', events.stream(app));
   app.post('/done', events.done(app));

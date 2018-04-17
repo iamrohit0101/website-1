@@ -58,247 +58,166 @@
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="text/javascript">
-        var latency = [], poster, socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), paywall = false;
+        var latency = [], socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server');
 
-        axios.get("https://angelthump.com/api/" + channel)
-        .then(function(result) {
-            poster = result.data.poster;
-            if(result.data.passwordProtected) {
-                document.getElementById("password-page").style.display = 'block';
-                document.getElementById("player").style.display = 'none';
-                paywall = result.data.paywall;
+        if(lastKnownServer == null || (lastKnownServer != 'US-EAST' && lastKnownServer != 'BANGALORE' && lastKnownServer != 'SINGAPORE' && lastKnownServer != 'US-WEST' && lastKnownServer != 'TORNOTO' && lastKnownServer != 'FRANKFURT' && lastKnownServer != 'AMSTERDAM' && lastKnownServer != 'LONDON' && lastKnownServer != 'US-WEST-PATREON' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'US-EAST-PATREON')) {
+            lastKnownServer = 'US-EAST';
+        }
+
+        var sources = [{
+            type: "application/x-mpegURL",
+            src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'US-EAST'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://sfo-hub.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'US-WEST'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://tor1.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'TORONTO'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://fra1.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'FRANKFURT'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://ams1.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'AMSTERDAM'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://lon1.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'LONDON'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://blr1.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'BANGALORE'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://sgp1.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'SINGAPORE'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'US-EAST-PATREON'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://sfo1.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'US-WEST-PATREON'
+        },{
+            type: "application/x-mpegURL",
+            src: "https://eu-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+            label: 'EU-PATREON'
+        }];
+
+        var options = {
+            errorDisplay: false,
+            html5: {
+                hlsjsConfig: {
+                    debug: false
+                }
+            },
+            plugins: {
+                videoJsResolutionSwitcher: {
+                    default: 'US-EAST',
+                    dynamicLabel: true
+                }
+            },
+            chromecast: {}
+        };
+
+        var player = videojs('player', options, function() {
+            this.ga();
+        });
+        player.poster(poster);
+        connect();
+        player.updateSrc(sources);
+        player.currentResolution(lastKnownServer);
+
+
+        player.on("pause", function() {
+            if(socket.connected) {
+                socket.disconnect();
+            }
+            player.one("play", function() {
+                connect();
+                player.updateSrc(sources);
+                player.currentResolution(lastKnownServer); 
+            });
+        });
+
+        player.on("resolutionchange", function() {
+            if(!socket.connected) {
+                connect();
+            }
+            player.loadingSpinner.show();
+            if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
+                checkPatreon();
             } else {
-            	if(result.data.paywall) {
-            		paywallCheck();
-            	} else {
-                    if(!result.data.banned) {
-                        launchPlayer();
-                    } else {
-                        window.location = "https://angelthump.com/banned";
-                    }
-            	}
+                lastKnownServer = player.currentResolution().label;
+                localStorage.setItem('server', lastKnownServer);
+            }
+        })
+
+        player.overlay({
+            overlays: [{
+            start: 1,
+            end: 7,
+            content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
+            align: "bottom",
+            showBackground: false
+            }]
+        });
+
+        player.logobrand({
+            image: "https://angelthump.com/assets/patreon.png",
+            destination: "https://patreon.com/angelthump"
+        });
+
+        player.on('error', function(e) {
+            if (player.error().code == 2) {
+                player.loadingSpinner.hide();
+                player.error(null);
+                retry();
+            } else if (player.error().code == 3) {
+                player.loadingSpinner.hide();
+                player.error(null);
+                retry();
+            }
+            /*disconnect for api
+            if(socket.connected) {
+                socket.disconnect();
+            }*/
+        });
+
+        player.persistvolume({
+            namespace: "volume"
+        });
+
+        function retry() {
+            setTimeout(function() {
+                player.src(sources);
+
+                if (requestTime < 16000) {
+                    requestTime = requestTime * 2;
+                }
+            }, requestTime);
+        }
+
+        socket.on('reload', function (argUsername) {
+            if(channel.toLowerCase() == argUsername.toLowerCase()) {
+                location.reload();
             }
         });
 
-        document.getElementById("submit").addEventListener("click", function(){
-            axios.post('/checkPassword', {
-                streamname: channel,
-                password: document.getElementById("streampassword").value
-            })
-            .then(function (response) {
-                if(response.data.result) {
-                    document.getElementById("password-page").style.display = 'none';
-                    document.getElementById("player").style.display = 'block';
-                    if(paywall) {
-            			paywallCheck();
-	            	} else {
-	            		launchPlayer();
-	            	}
-                } else {
-                    document.getElementById("error").style.display = 'block';
-                }
-            })
-          });
-
-        async function launchPlayer() {
-            var requestTime = 1000, lastKnownServer = localStorage.getItem('server');
-
-            if(lastKnownServer == null || (lastKnownServer != 'US-EAST' && lastKnownServer != 'BANGALORE' && lastKnownServer != 'SINGAPORE' && lastKnownServer != 'US-WEST' && lastKnownServer != 'TORNOTO' && lastKnownServer != 'FRANKFURT' && lastKnownServer != 'AMSTERDAM' && lastKnownServer != 'LONDON' && lastKnownServer != 'US-WEST-PATREON' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'US-EAST-PATREON')) {
-                lastKnownServer = 'US-EAST';
+        socket.on('redirect', function (argUsername, url) {
+            if(channel.toLowerCase() == argUsername.toLowerCase()) {
+                window.location = url;
             }
-
-            var sources = [{
-                type: "application/x-mpegURL",
-                src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-EAST'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://sfo-hub.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-WEST'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://tor1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'TORONTO'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://fra1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'FRANKFURT'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://ams1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'AMSTERDAM'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://lon1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'LONDON'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://blr1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'BANGALORE'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://sgp1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'SINGAPORE'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-EAST-PATREON'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://sfo1.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-WEST-PATREON'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://eu-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'EU-PATREON'
-            }];
-
-            var options = {
-                errorDisplay: false,
-                html5: {
-                    hlsjsConfig: {
-                        debug: false
-                    }
-                },
-                plugins: {
-                    videoJsResolutionSwitcher: {
-                        default: 'US-EAST',
-                        dynamicLabel: true
-                    }
-                },
-                chromecast: {}
-            };
-
-            var player = videojs('player', options, function() {
-                this.ga();
-            });
-            player.poster(poster);
-            connect();
-            player.updateSrc(sources);
-            player.currentResolution(lastKnownServer);
+        });
 
 
-            player.on("pause", function() {
-                if(socket.connected) {
-                    socket.disconnect();
-                }
-                player.one("play", function() {
-                    connect();
-                    player.updateSrc(sources);
-                    player.currentResolution(lastKnownServer); 
-                });
-            });
-
-            player.on("resolutionchange", function() {
-                if(!socket.connected) {
-                    connect();
-                }
-                player.loadingSpinner.show();
-                if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
-                    checkPatreon();
-                } else {
-                    lastKnownServer = player.currentResolution().label;
-                    localStorage.setItem('server', lastKnownServer);
-                }
-            })
-
-            player.overlay({
-              overlays: [{
-                start: 1,
-                end: 7,
-                content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
-                align: "bottom",
-                showBackground: false
-              }]
-            });
-
-            player.logobrand({
-                image: "https://angelthump.com/assets/patreon.png",
-                destination: "https://patreon.com/angelthump"
-            });
-
-            player.on('error', function(e) {
-                if (player.error().code == 2) {
-                    player.loadingSpinner.hide();
-                    player.error(null);
-                    retry();
-                } else if (player.error().code == 3) {
-                	player.loadingSpinner.hide();
-                    player.error(null);
-                    retry();
-                }
-                /*disconnect for api
-                if(socket.connected) {
-                    socket.disconnect();
-                }*/
-            });
-
-            player.persistvolume({
-                namespace: "volume"
-            });
-
-            function retry() {
-                setTimeout(function() {
-                    player.src(sources);
-
-                    if (requestTime < 16000) {
-                        requestTime = requestTime * 2;
-                    }
-                }, requestTime);
-            }
-
-            socket.on('reload', function (argUsername) {
-            	if(channel.toLowerCase() == argUsername.toLowerCase()) {
-                	location.reload();
-                }
-            });
-
-            socket.on('redirect', function (argUsername, url) {
-                if(channel.toLowerCase() == argUsername.toLowerCase()) {
-                    window.location = url;
-                }
-            });
-
-
-            function checkPatreon() {
-                var app = feathers()
-                    .configure(feathers.socketio(socket))
-                    .configure(feathers.authentication({
-                        storage: window.localStorage
-                    }));
-                app.authenticate()
-                .then(response => {
-                    console.log('Authenticated!');
-                    return app.passport.verifyJWT(response.accessToken);
-                })
-                .then(payload => {
-                    return app.service('users').get(payload.userId);
-                })
-                .then(user => {
-                    app.set('user', user);
-                    var user = app.get('user');
-                    if (user.ifPatreon) {
-                        localStorage.setItem('server', player.currentResolution().label);
-                        lastKnownServer = player.currentResolution().label;
-                    } else {
-                        player.currentResolution(lastKnownServer);
-                        alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
-                    }
-                })
-                .catch(function(error){
-                    player.currentResolution(lastKnownServer);
-                    window.location = 'https://angelthump.com/login';
-                    console.error('Error authenticating!', error);
-                });
-
-                socket.io.engine.on('upgrade', function(transport) {
-                    console.log('transport changed');
-                    app.authenticate();
-                });
-            }
-        }
-
-        function paywallCheck() {
+        function checkPatreon() {
             var app = feathers()
                 .configure(feathers.socketio(socket))
                 .configure(feathers.authentication({
@@ -315,24 +234,16 @@
             .then(user => {
                 app.set('user', user);
                 var user = app.get('user');
-
-                var userDate = new Date(user.createdAt);
-                var userMillis = userDate.getTime();
-
-                var dateNow = new Date();
-                var dateMillis = dateNow.getTime();
-
-                var difference = dateMillis - userMillis;
-                difference = (difference/1000)/60; 
-
-                if(difference >= 10 || user.ifPatreon) {
-                	launchPlayer();
+                if (user.ifPatreon) {
+                    localStorage.setItem('server', player.currentResolution().label);
+                    lastKnownServer = player.currentResolution().label;
                 } else {
-                	alert("Account is not old enough (10minutes). Become a $5 patron to override");
-                	window.location = 'https://www.youtube.com/watch?v=Ag0MLEl3UMg';
+                    player.currentResolution(lastKnownServer);
+                    alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
                 }
             })
             .catch(function(error){
+                player.currentResolution(lastKnownServer);
                 window.location = 'https://angelthump.com/login';
                 console.error('Error authenticating!', error);
             });
@@ -342,6 +253,7 @@
                 app.authenticate();
             });
         }
+        
 
         function connect() {
             socket = io(host, {

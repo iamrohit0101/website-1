@@ -13,7 +13,24 @@ module.exports = function(app) {
                     console.log('redirecting ' + referer);
                     res.redirect('https://www.youtube.com/watch?v=mj-v6zCnEaw');
                 } else {
-                    res.render('embed', {username: req.params.username});
+                    const user = users.data[0];
+                    if(user.banned) {
+                        res.redirect('https://angelthump.com/banned');
+                    } else {
+                        if(user.passwordProtected) {
+                            if(req.query.password == null) {
+                                res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
+                            } else {
+                                if(req.query.password == user.streamPassword) {
+                                    res.render('embed', {username: req.params.username, poster: user.poster});
+                                } else {
+                                    res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
+                                }
+                            }
+                        } else {
+                            res.render('embed', {username: req.params.username, poster: user.poster});
+                        }
+                    }
                 }
             } else {
                 res.render('errors.ejs', {code: 404, message: `there is no stream named: ${requested_username}`});

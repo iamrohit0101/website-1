@@ -47,25 +47,15 @@ module.exports.checkPassword = function(app) {
     })
     .then((users) => {
     	const user = users.data[0];
-  		if (users.total > 0) {
-  			if(user.streamPassword == password || password == config.adminPass) {
-				res.json({
-	        		result: true
-				});
-        	} else {
-          		res.json({
-          	 	 result: false
-          		});
-        	}
-  		} else {
-        	res.json({
-         	   result: false
-          	});
-  		}
+      if(user.streamPassword == password || password == config.adminPass) {
+        res.redirect('https://angelthump.com/embed/' + streamname + "?password=" + password);
+      } else {
+        res.redirect('https://angelthump.com/embed/' + streamname);
+      }
     })
     // On errors, just call our error middleware
     .catch((error) => {
-      res.status(403).send(error.message);
+      res.status(400).send(error.message);
     });
   };
 };
