@@ -3,8 +3,7 @@
     <title><%= username %> - AngelThump</title>
 
 <head data-cast-api-enabled="true">
-    <link rel="prefetch" href="/assets/small_logo.png">
-    <link href="/css/password.css" rel="stylesheet">
+    <link rel="prefetch" href="/assets/patreon-overlay.png">
     <link rel="stylesheet" href="/css/errors.css">
 	<link href="/css/embed.min.css" rel="stylesheet">
     <link href="/css/video-js.min.css" rel="stylesheet">
@@ -16,21 +15,6 @@
 </head>
 
 <body>
-    <div id="password-page" class="password-page" style="display: none;">
-      <a href="/">
-        <img src="/assets/small_logo.png" />
-      </a>
-      <div class="error" id="error" style="display: none; text-align: center;">
-        Wrong Password! Please try again!
-      </div>
-      <div id="form" class="form">
-        <form id="password-form" onsubmit="return false">
-          <input id="streampassword" type="password" name="password" placeholder="enter the stream password"/>
-          <button type="submit" id="submit">Submit</button>
-        </form>
-      </div>
-    </div>
-
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -39,7 +23,6 @@
 
       ga('create', 'UA-98637299-1', 'auto');
       ga('send', 'pageview');
-
     </script>
     
     <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto"></video>
@@ -128,10 +111,25 @@
 
         var player = videojs('player', options, function() {
             this.ga();
+            this.poster(poster);
+            this.updateSrc(sources);
         });
-        player.poster(poster);
         connect();
-        player.updateSrc(sources);
+        player.overlay({
+            overlays: [{
+                start: 1,
+                end: 7,
+                content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
+                align: "bottom",
+                showBackground: false
+            }]
+        });
+
+        player.logobrand({
+            image: "https://angelthump.com/assets/patreon.png",
+            destination: "https://patreon.com/angelthump"
+        });
+        
         player.currentResolution(lastKnownServer);
 
 
@@ -158,21 +156,6 @@
                 localStorage.setItem('server', lastKnownServer);
             }
         })
-
-        player.overlay({
-            overlays: [{
-            start: 1,
-            end: 7,
-            content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
-            align: "bottom",
-            showBackground: false
-            }]
-        });
-
-        player.logobrand({
-            image: "https://angelthump.com/assets/patreon.png",
-            destination: "https://patreon.com/angelthump"
-        });
 
         player.on('error', function(e) {
             if (player.error().code == 2) {
