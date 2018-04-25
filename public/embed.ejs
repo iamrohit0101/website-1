@@ -113,6 +113,7 @@
             this.ga();
             this.poster(poster);
             this.updateSrc(sources);
+            this.currentResolution(lastKnownServer);
         });
         connect();
         player.overlay({
@@ -129,8 +130,7 @@
             image: "https://angelthump.com/assets/patreon.png",
             destination: "https://patreon.com/angelthump"
         });
-        
-        player.currentResolution(lastKnownServer);
+    
 
 
         player.on("pause", function() {
