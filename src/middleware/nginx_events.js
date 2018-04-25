@@ -31,16 +31,22 @@ module.exports.stream = function(app) {
     .then((users) => {
     	const user = users.data[0];
   		if (users.total > 0 && !user.banned && user.isVerified) {
-  			const username = user.username;
-  			res.redirect(username);
-        app.service('users').patch(user._id, {
-          live: true,
-          streamCreatedAt: Date.now()
-        }).then(() => {
-          console.log(user.username + " is now live");
-        });
-  		}else{
-  			res.status(403).send('You are banned');
+
+        if(!user.banned && user.isVerified) {
+          const username = user.username;
+          res.redirect(username);
+          app.service('users').patch(user._id, {
+            live: true,
+            streamCreatedAt: Date.now()
+          }).then(() => {
+            console.log(user.username + " is now live");
+          });
+        } else {
+          res.status(403).send('You are banned or your email is not verified!');
+        }
+
+  		} else {
+  			res.status(404).send('No user with that streamkey');
   		}
     })
     // On errors, just call our error middleware

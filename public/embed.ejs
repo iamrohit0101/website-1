@@ -29,7 +29,7 @@
     <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script type="text/javascript" src="/js/dep/video.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.min.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs5-hlsjs-source-handler.min.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-contrib-hls.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.logobrand.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-chromecast.js"></script>
@@ -95,18 +95,12 @@
 
         var options = {
             errorDisplay: false,
-            html5: {
-                hlsjsConfig: {
-                    debug: false
-                }
-            },
             plugins: {
                 videoJsResolutionSwitcher: {
                     default: 'US-EAST',
                     dynamicLabel: true
                 }
-            },
-            chromecast: {}
+            }
         };
 
         var player = videojs('player', options, function() {
@@ -158,11 +152,11 @@
         })
 
         player.on('error', function(e) {
-            if (player.error().code == 2) {
+            if (player.error().code == 4) {
                 player.loadingSpinner.hide();
                 player.error(null);
                 retry();
-            } else if (player.error().code == 3) {
+            } else if (player.error().code == 2) {
                 player.loadingSpinner.hide();
                 player.error(null);
                 retry();
@@ -179,7 +173,7 @@
 
         function retry() {
             setTimeout(function() {
-                player.src(sources);
+                player.currentResolution(lastKnownServer);
 
                 if (requestTime < 16000) {
                     requestTime = requestTime * 2;
