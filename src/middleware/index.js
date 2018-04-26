@@ -10,6 +10,7 @@ const patreonWebhooks = require('./patreonWebhooks');
 const api = require('./api');
 const admin = require('./admin');
 const embed = require('./embed');
+const cache = require('apicache').middleware;
 
 module.exports = function () {
   const app = this;
@@ -20,23 +21,11 @@ module.exports = function () {
   app.get('/embed/:username', embed(app));
 
   //test-bed
-  app.get('/embed-test/:username', embed(app));
+  //app.get('/embed-test/:username', embed(app));
 
-  app.get('/api', function(req, res, next){
-    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.header("Pragma", "no-cache");
-    res.header("Expires", -1);
+  app.get('/api', cache('30 seconds'), api.all(app));
 
-    next();
-  }, api.all(app));
-
-  app.get('/api/:username', function(req, res, next){
-    res.header("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.header("Pragma", "no-cache");
-    res.header("Expires", -1);
-
-    next();
-  }, api.individual(app));
+  app.get('/api/:username', cache('30 seconds'), api.individual(app));
 
   app.get('/admin/reload/:username', admin.reload(app));
 
