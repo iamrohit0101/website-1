@@ -8,7 +8,8 @@ const port = app.get('port');
 const http = require('http');
 const httpApp = require('./app');
 
-const httpServer = http.createServer(httpApp).listen(80);
+//force ipv4
+const httpServer = http.createServer(httpApp).listen(80, "0.0.0.0");
 
 httpApp.get("*", function (req, res, next) {
     res.redirect("https://" + req.headers.host + "/" + req.path);
@@ -18,7 +19,8 @@ const server = https.createServer({
    key: fs.readFileSync(path.resolve(__dirname, app.get('key'))),
    cert: fs.readFileSync(path.resolve(__dirname, app.get('cert'))),
    ca: fs.readFileSync(path.resolve(__dirname, app.get('ca')))
-}, app).listen(port);
+   //force ipv4
+}, app).listen(port, "0.0.0.0");
 
 // Call app.setup to initialize all services and SocketIO
 app.setup(server);
