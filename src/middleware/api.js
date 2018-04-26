@@ -1,6 +1,5 @@
 'use strict';
 
-const rp = require('request-promise');
 const socketio = require('@feathersjs/socketio-client');
 const io = require('socket.io-client');
 

@@ -21,6 +21,7 @@ const mongodb = require('./mongodb');
 
 const fs = require('fs');
 const morgan = require('morgan');
+const requestIp = require('request-ip');
 const accessLogStream = fs.createWriteStream(path.join(__dirname, '../logs/access.log'), {flags: 'a'});
 
 const app = express(feathers());
@@ -41,13 +42,7 @@ app.use('/', express.static(app.get('public')));
 
 //log to file
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr - [:date[clf]]', {stream: accessLogStream, skip: function (req, res) { 
-  var ip = req.connection.remoteAddress;
-  if(ip) {
-    if (ip.substr(0, 7) == "::ffff:") {
-      ip = ip.substr(7)
-    }
-  }
-	return app.get('skipIPs').includes(ip);
+	return app.get('skipIPs').includes(requestIp.getClientIp(req));
 }}));
 
 app.configure(mongodb);

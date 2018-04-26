@@ -41,204 +41,209 @@
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="text/javascript">
-        var latency = [], socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server');
+        var latency = [], socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server'), servers = <%- JSON.stringify(servers) %>, autoServer = localStorage.getItem('auto-server');
+        var freeServerLabels = ['https://nyc-hub.angelthump.com/','https://sfo-hub.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
+        'https://ams1.angelthump.com/','https://lon1.angelthump.com/hls/','https://blr1.angelthump.com/hls/','https://sgp1.angelthump.com/hls/'];
 
-        if(lastKnownServer == null || (lastKnownServer != 'US-EAST' && lastKnownServer != 'BANGALORE' && lastKnownServer != 'SINGAPORE' && lastKnownServer != 'US-WEST' && lastKnownServer != 'TORNOTO' && lastKnownServer != 'FRANKFURT' && lastKnownServer != 'AMSTERDAM' && lastKnownServer != 'LONDON' && lastKnownServer != 'US-WEST-PATREON' && lastKnownServer != 'EU-PATREON' && lastKnownServer != 'US-EAST-PATREON')) {
-            lastKnownServer = 'US-EAST';
+        var patreonLabels = ['US-EAST-PATREON','US-WEST-PATREON','EU-PATREON'];
+        if((lastKnownServer == null && !patreonLabels.includes(lastKnownServer)) || (autoServer == null && !freeServerLabels.includes(freeServerLabels))) {
+            getServer();
+        } else {
+            launchPlayer();
         }
 
-        var sources = [{
-            type: "application/x-mpegURL",
-            src: "https://nyc-hub.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'US-EAST'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://sfo-hub.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'US-WEST'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://tor1.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'TORONTO'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://fra1.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'FRANKFURT'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://ams1.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'AMSTERDAM'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://lon1.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'LONDON'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://blr1.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'BANGALORE'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://sgp1.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'SINGAPORE'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'US-EAST-PATREON'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://sfo1.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'US-WEST-PATREON'
-        },{
-            type: "application/x-mpegURL",
-            src: "https://eu-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-            label: 'EU-PATREON'
-        }];
+        async function launchPlayer() {
+                var sources = [{
+                type: "application/x-mpegURL",
+                src: autoServer + "hls/" + channel + "/index.m3u8",
+                label: 'auto'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'US-EAST-PATREON'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://sfo1.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'US-WEST-PATREON'
+            },{
+                type: "application/x-mpegURL",
+                src: "https://eu-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                label: 'EU-PATREON'
+            }];
 
-        var options = {
-            errorDisplay: false,
-            plugins: {
-                videoJsResolutionSwitcher: {
-                    default: 'US-EAST',
-                    dynamicLabel: true
+            var options = {
+                errorDisplay: false,
+                plugins: {
+                    videoJsResolutionSwitcher: {
+                        default: 'auto',
+                        dynamicLabel: true
+                    }
                 }
-            }
-        };
+            };
 
-        var player = videojs('player', options, function() {
-            this.ga();
-            this.poster(poster);
-            this.updateSrc(sources);
-            this.currentResolution(lastKnownServer);
-        });
-        connect();
-        player.overlay({
-            overlays: [{
-                start: 1,
-                end: 7,
-                content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
-                align: "bottom",
-                showBackground: false
-            }]
-        });
-
-        player.logobrand({
-            image: "https://angelthump.com/assets/patreon.png",
-            destination: "https://patreon.com/angelthump"
-        });
-    
-
-
-        player.on("pause", function() {
-            if(socket.connected) {
-                socket.disconnect();
-            }
-            player.one("play", function() {
-                connect();
-                player.updateSrc(sources);
-                player.currentResolution(lastKnownServer); 
+            var player = videojs('player', options, function() {
+                this.ga();
+                this.poster(poster);
+                this.updateSrc(sources);
+                this.currentResolution(lastKnownServer);
             });
-        });
-
-        player.on("resolutionchange", function() {
-            if(!socket.connected) {
-                connect();
-            }
-            player.loadingSpinner.show();
-            if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
-                checkPatreon();
-            } else {
-                lastKnownServer = player.currentResolution().label;
-                localStorage.setItem('server', lastKnownServer);
-            }
-        })
-
-        player.on('error', function(e) {
-            if (player.error().code == 4) {
-                player.loadingSpinner.hide();
-                player.error(null);
-                retry();
-            } else if (player.error().code == 2) {
-                player.loadingSpinner.hide();
-                player.error(null);
-                retry();
-            }
-            /*disconnect for api
-            if(socket.connected) {
-                socket.disconnect();
-            }*/
-        });
-
-        player.persistvolume({
-            namespace: "volume"
-        });
-
-        function retry() {
-            setTimeout(function() {
-                player.currentResolution(lastKnownServer);
-
-                if (requestTime < 16000) {
-                    requestTime = requestTime * 2;
-                }
-            }, requestTime);
-        }
-
-        socket.on('reload', function (argUsername) {
-            if(channel.toLowerCase() == argUsername.toLowerCase()) {
-                location.reload();
-            }
-        });
-
-        socket.on('redirect', function (argUsername, url) {
-            if(channel.toLowerCase() == argUsername.toLowerCase()) {
-                window.location = url;
-            }
-        });
-
-
-        function checkPatreon() {
-            var app = feathers()
-                .configure(feathers.socketio(socket))
-                .configure(feathers.authentication({
-                    storage: window.localStorage
-                }));
-            app.authenticate()
-            .then(response => {
-                console.log('Authenticated!');
-                return app.passport.verifyJWT(response.accessToken);
-            })
-            .then(payload => {
-                return app.service('users').get(payload.userId);
-            })
-            .then(user => {
-                app.set('user', user);
-                var user = app.get('user');
-                if (user.ifPatreon) {
-                    localStorage.setItem('server', player.currentResolution().label);
-                    lastKnownServer = player.currentResolution().label;
-                } else {
-                    player.currentResolution(lastKnownServer);
-                    alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
-                }
-            })
-            .catch(function(error){
-                player.currentResolution(lastKnownServer);
-                window.location = 'https://angelthump.com/login';
-                console.error('Error authenticating!', error);
+            connect();
+            player.overlay({
+                overlays: [{
+                    start: 1,
+                    end: 7,
+                    content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
+                    align: "bottom",
+                    showBackground: false
+                }]
             });
 
-            socket.io.engine.on('upgrade', function(transport) {
-                console.log('transport changed');
-                app.authenticate();
+            player.logobrand({
+                image: "https://angelthump.com/assets/patreon.png",
+                destination: "https://patreon.com/angelthump"
             });
-        }
         
 
-        function connect() {
-            socket = io(host, {
-                transports: ['websocket']
+
+            player.on("pause", function() {
+                if(socket.connected) {
+                    socket.disconnect();
+                }
+                player.one("play", function() {
+                    connect();
+                    player.updateSrc(sources);
+                    player.currentResolution(lastKnownServer); 
+                });
             });
-            socket.on('connect', function() {
-                socket.emit('channel', channel);
+
+            player.on("resolutionchange", function() {
+                if(!socket.connected) {
+                    connect();
+                }
+                player.loadingSpinner.show();
+                if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
+                    checkPatreon();
+                } else {
+                    lastKnownServer = player.currentResolution().label;
+                    localStorage.setItem('server', lastKnownServer);
+                }
+            })
+
+            player.on('error', function(e) {
+                if (player.error().code == 4) {
+                    player.loadingSpinner.hide();
+                    player.error(null);
+                    retry();
+                } else if (player.error().code == 2) {
+                    player.loadingSpinner.hide();
+                    player.error(null);
+                    retry();
+                }
+                /*disconnect for api
+                if(socket.connected) {
+                    socket.disconnect();
+                }*/
             });
+
+            player.persistvolume({
+                namespace: "volume"
+            });
+
+            function retry() {
+                setTimeout(function() {
+                    player.currentResolution(lastKnownServer);
+
+                    if (requestTime < 16000) {
+                        requestTime = requestTime * 2;
+                    }
+                }, requestTime);
+            }
+
+            socket.on('reload', function (argUsername) {
+                if(channel.toLowerCase() == argUsername.toLowerCase()) {
+                    location.reload();
+                }
+            });
+
+            socket.on('redirect', function (argUsername, url) {
+                if(channel.toLowerCase() == argUsername.toLowerCase()) {
+                    window.location = url;
+                }
+            });
+
+            function checkPatreon() {
+                var app = feathers()
+                    .configure(feathers.socketio(socket))
+                    .configure(feathers.authentication({
+                        storage: window.localStorage
+                    }));
+                app.authenticate()
+                .then(response => {
+                    console.log('Authenticated!');
+                    return app.passport.verifyJWT(response.accessToken);
+                })
+                .then(payload => {
+                    return app.service('users').get(payload.userId);
+                })
+                .then(user => {
+                    app.set('user', user);
+                    var user = app.get('user');
+                    if (user.ifPatreon) {
+                        localStorage.setItem('server', player.currentResolution().label);
+                        lastKnownServer = player.currentResolution().label;
+                    } else {
+                        player.currentResolution(lastKnownServer);
+                        alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
+                    }
+                })
+                .catch(function(error){
+                    player.currentResolution(lastKnownServer);
+                    window.location = 'https://angelthump.com/login';
+                    console.error('Error authenticating!', error);
+                });
+
+                socket.io.engine.on('upgrade', function(transport) {
+                    console.log('transport changed');
+                    app.authenticate();
+                });
+            }
+        
+
+            function connect() {
+                socket = io(host, {
+                    transports: ['websocket']
+                });
+                socket.on('connect', function() {
+                    socket.emit('channel', channel);
+                });
+            }
+        }
+
+        var responseTime = [];
+
+        async function getTiming(url) {
+            var startTime = (new Date()).getTime();
+            await axios.get(url + "server.file")
+            .then(function (response) {
+                var endTime = (new Date()).getTime();
+                var elaspedTime = endTime - startTime;
+                responseTime.push(elaspedTime);
+                console.log(url + ": " + elaspedTime);
+            }).catch(function(error){
+                console.log(error);
+            });
+        }
+
+        async function getServer() {
+            for(const server of servers) {
+                await getTiming(server);
+            }
+            var server = servers[responseTime.indexOf(Math.min.apply(null , responseTime))];
+            localStorage.setItem('auto-server', server);
+            console.log(Math.min.apply(null , responseTime));
+            console.log(server);
+            autoServer = server;
+            launchPlayer();
         }
     </script>
 </body>

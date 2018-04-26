@@ -20,9 +20,7 @@ module.exports = function () {
   app.get('/embed/:username', embed(app));
 
   //test-bed
-  app.get('/embed-test/:username', function(req, res, next){
-    res.render('embed-test', {username: req.params.username});
-  });
+  app.get('/embed-test/:username', embed(app));
 
   app.get('/api', function(req, res, next){
     res.header("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -44,9 +42,6 @@ module.exports = function () {
 
   app.get('/admin/redirect/:username/:puntUsername', admin.redirect(app));
 
-  app.get('/banned', function(req, res, next){
-    res.render('errors.ejs', {code: 400, message: "User is banned"});
-  });
   app.get('/dmca', function(req, res, next){
     res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });
   });

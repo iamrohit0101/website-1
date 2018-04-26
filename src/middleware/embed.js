@@ -1,5 +1,13 @@
 'use strict';
 
+/** TODO: BESIDES GEOIP, RETURN BY AVAILABLITY (LOAD IS IMPORTANT) */
+
+const geolite2 = require('geolite2');
+const maxmind = require('maxmind');
+const requestIp = require('request-ip');
+const lookup = maxmind.openSync(geolite2.paths.city);
+const rp = require('request-promise');
+
 module.exports = function(app) {
     return function(req, res, next) {
         const requested_username = req.params.username;
@@ -15,20 +23,66 @@ module.exports = function(app) {
                 } else {
                     const user = users.data[0];
                     if(user.banned) {
-                        res.redirect('https://angelthump.com/banned');
+                        res.render('errors.ejs', {code: 401, message: "User is banned"});
                     } else {
                         if(user.passwordProtected) {
                             if(req.query.password == null) {
                                 res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                             } else {
                                 if(req.query.password == user.streamPassword) {
-                                    res.render('embed', {username: req.params.username, poster: user.poster});
+                                    const ip = requestIp.getClientIp(req); 
+                                    const data = lookup.get(ip);
+                                    const continent = data.continent.code;
+                                    var servers = [];
+
+                                    if(continent == 'NA') {
+                                        servers = ["https://nyc-hub.angelthump.com/", "https://tor1.angelthump.com/", "https://sfo-hub.angelthump.com/"]
+                                    } else if (continent == 'SA') {
+                                        servers = ["https://nyc-hub.angelthump.com/", "https://tor1.angelthump.com/", "https://sfo-hub.angelthump.com/"]
+                                    } else if (continent == 'EU') { //frankfurt london amsterdam 
+                                        servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/"]
+                                    } else if (continent == 'AS') { //singapore, bangalore
+                                        servers = ["https://sgp1.angelthump.com/", "https://blr1.angelthump.com/"]
+                                    } else if (continent == 'OC') { //singapore
+                                        servers = ["https://sgp1.angelthump.com/"]
+                                    } else if (continent == 'AF') { //none
+                                        servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/", "https://blr1.angelthump.com/"]
+                                    } else if (continent == 'AN') { //none
+                                        console.log("?????? where " + data.city.names[0]);
+                                    } else {
+                                        console.log(continent + " help");
+                                    }
+
+                                    res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
                                 } else {
                                     res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                                 }
                             }
                         } else {
-                            res.render('embed', {username: req.params.username, poster: user.poster});
+                            const ip = requestIp.getClientIp(req); 
+                            const data = lookup.get(ip);
+                            const continent = data.continent.code;
+                            var servers = [];
+
+                            if(continent == 'NA') {
+                                servers = ["https://nyc-hub.angelthump.com/", "https://tor1.angelthump.com/", "https://sfo-hub.angelthump.com/"]
+                            } else if (continent == 'SA') {
+                                servers = ["https://nyc-hub.angelthump.com/", "https://tor1.angelthump.com/", "https://sfo-hub.angelthump.com/"]
+                            } else if (continent == 'EU') { //frankfurt london amsterdam 
+                                servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/"]
+                            } else if (continent == 'AS') { //singapore, bangalore
+                                servers = ["https://sgp1.angelthump.com/", "https://blr1.angelthump.com/"]
+                            } else if (continent == 'OC') { //singapore
+                                servers = ["https://sgp1.angelthump.com/"]
+                            } else if (continent == 'AF') { //none
+                                servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/", "https://blr1.angelthump.com/"]
+                            } else if (continent == 'AN') { //none
+                                console.log("?????? where " + data.city.names[0]);
+                            } else {
+                                console.log(continent + " help");
+                            }
+
+                            res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
                         }
                     }
                 }

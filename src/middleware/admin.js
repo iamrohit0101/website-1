@@ -3,11 +3,12 @@
 const socketio = require('@feathersjs/socketio-client');
 const io = require('socket.io-client');
 const config = require('../../config/default.json');
+const requestIp = require('request-ip');
 
 module.exports.reload = function(app) {
   return function(req, res, next) {
     const requested_username = req.params.username;
-    const ip = req.connection.remoteAddress.substring(req.connection.remoteAddress.lastIndexOf(":") + 1, req.connection.remoteAddress.length);
+    const ip = requestIp.getClientIp(req);
     if (config.adminIPs.includes(ip)) {
       const socket = io('https://angelthump.com');
       socket.on('connect', function() {
@@ -24,7 +25,7 @@ module.exports.redirect = function(app) {
   return function(req, res, next) {
     const requested_username = req.params.username;
     const puntUsername = req.params.puntUsername;
-    const ip = req.connection.remoteAddress.substring(req.connection.remoteAddress.lastIndexOf(":") + 1, req.connection.remoteAddress.length);
+    const ip = requestIp.getClientIp(req);
     if (config.adminIPs.includes(ip)) {
       const socket = io('https://angelthump.com');
       socket.on('connect', function() {
