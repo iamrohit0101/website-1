@@ -46,7 +46,7 @@
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/hls/','https://blr1.angelthump.com/hls/','https://sgp1.angelthump.com/hls/'];
         var patreonLabels = ['US-EAST-PATREON','US-WEST-PATREON','EU-PATREON'];
 
-        if((lastKnownServer == null && !patreonLabels.includes(lastKnownServer)) || (autoServer == null && !freeServerLabels.includes(freeServerLabels))) {
+        if((lastKnownServer == null || !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
             getServer();
         } else {
             launchPlayer();
