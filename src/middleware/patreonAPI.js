@@ -54,7 +54,7 @@ module.exports = function(app) {
         function api(callback) {
             const sort = "?page%5Bcount%5D=100&sort=created";
 
-            patreonAPIClient('/campaigns/' + campaignID + '/pledges' + sort + cursor, function (currentUserError, apiResponse) {
+            patreonAPIClient('/campaigns/' + campaignID + '/pledges' + sort + cursor + "&include=patron.null", function (currentUserError, apiResponse) {
                 if (currentUserError) {
                     console.error(currentUserError);
                 }
@@ -66,36 +66,15 @@ module.exports = function(app) {
                 }
 
                 var array = [];
-
                 for(var i = 0; i < apiResponse.data.length; i++) {
                     const attributes = apiResponse.data[i].attributes;
                     if(attributes.amount_cents >= 500 && attributes.declined_since == null) {
-                        const patronID = apiResponse.data[i].relationships.patron.data.id;
-                        var includedInfo;
-                        var includedAttributes;
-                        var newJSON = {};
-
-                        includedLoop:
-                        for(var x = 0; x < apiResponse.included.length; x++) {
-                            if(apiResponse.included[x].id == patronID) {
-                                includedInfo = apiResponse.included[x];
-                                includedAttributes = includedInfo.attributes;
-                                break includedLoop;
-                            }
-                        }
-
-                        if(includedInfo.id == patronID) {
-                            for(var key in apiResponse.data[i].relationships.patron) newJSON[key] = apiResponse.data[i].relationships.patron[key];
-                            for(var key in includedAttributes) newJSON[key] = includedAttributes[key];
-                        }
-
-                        array.push(newJSON);
+                        array.push(apiResponse.included[i].attributes.email);
                     }
                 }
                 callback(array);
             });
         }
-
         function getMorePledges() {
             if(cursor != null) {
                 api(function(data) {
@@ -112,7 +91,7 @@ module.exports = function(app) {
     function checkIfPatreon(email) {
         var found = false;
         for(var x = 0; x < result.length; x++) {
-            if(result[x].email.toLowerCase() == email.toLowerCase()) {
+            if(result[x].toLowerCase() == email.toLowerCase()) {
                 becomePatreon(email.toLowerCase());
                 found = true;
             }
