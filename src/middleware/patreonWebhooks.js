@@ -4,24 +4,12 @@ module.exports.create = function(app) {
   return function(req, res, next) {
 		const attributes = req.body.data.attributes;
 		if(attributes.amount_cents >= 500 && attributes.declined_since == null) {
-			const patronID = req.body.data.relationships.patron.data.id;
+			const includedEmail = req.body.included[0].attributes.email;
 
-			var includedInfo;
-		    var includedAttributes;
-
-		    includedLoop:
-		    for(var x = 0; x < req.body.included.length; x++) {
-		        if(req.body.included[x].id == patronID) {
-		            includedInfo = req.body.included[x];
-		            includedAttributes = includedInfo.attributes;
-		            break includedLoop;
-		        }
-		    }
-
-		    console.log(includedAttributes.email + " to be created");
+		    console.log(includedEmail + " to be created");
 
 		    app.service('users').find({
-	          query: { email: includedAttributes.email }
+	          query: { email: includedEmail }
 	        })
 	        .then((users) => {
 	            const user = users.data[0];
@@ -35,7 +23,7 @@ module.exports.create = function(app) {
 	                    });
 	                }
 	            } else {
-	            	console.log(user.email + " may not be verified or is banned or not found in system!");
+	            	console.log(includedEmail + " may not be verified or is banned or not found in system!");
 	            	res.status(200).send("not found");
 	            }
 	        })
@@ -53,24 +41,12 @@ module.exports.update = function(app) {
   return function(req, res, next) {
   	const attributes = req.body.data.attributes;
 	if(attributes.amount_cents >= 500 && attributes.declined_since == null) {
-		const patronID = req.body.data.relationships.patron.data.id;
+		const includedEmail = req.body.included[0].attributes.email;
 
-		var includedInfo;
-	    var includedAttributes;
-
-	    includedLoop:
-	    for(var x = 0; x < req.body.included.length; x++) {
-	        if(req.body.included[x].id == patronID) {
-	            includedInfo = req.body.included[x];
-	            includedAttributes = includedInfo.attributes;
-	            break includedLoop;
-	        }
-	    }
-
-	    console.log(includedAttributes.email + " to be updated & created");
+	    console.log(includedEmail + " to be updated & created");
 
 	    app.service('users').find({
-          query: { email: includedAttributes.email }
+          query: { email: includedEmail }
         })
         .then((users) => {
             const user = users.data[0];
@@ -87,7 +63,7 @@ module.exports.update = function(app) {
 	                res.status(200).send("ok!");
 	            }
             } else {
-            	console.log(user.email + " may not be verified or is banned or not found in system!");
+            	console.log(includedEmail + " may not be verified or is banned or not found in system!");
             	res.status(200).send("not found");
             }
         })
@@ -96,24 +72,12 @@ module.exports.update = function(app) {
            res.status(200).send("error");
         });
 	} else if(attributes.amount_cents < 500 || attributes.declined_since != null) {
-		const patronID = req.body.data.relationships.patron.data.id;
+		const includedEmail = req.body.included[0].attributes.email;
 
-		var includedInfo;
-	    var includedAttributes;
-
-	    includedLoop:
-	    for(var x = 0; x < req.body.included.length; x++) {
-	        if(req.body.included[x].id == patronID) {
-	            includedInfo = req.body.included[x];
-	            includedAttributes = includedInfo.attributes;
-	            break includedLoop;
-	        }
-	    }
-
-	    console.log(includedAttributes.email + " to be updated & deleted");
+	    console.log(includedEmail + " to be updated & deleted");
 
 	    app.service('users').find({
-	      query: { email: includedAttributes.email }
+	      query: { email: includedEmail }
 	    })
 	    .then((users) => {
 	        const user = users.data[0];
@@ -130,7 +94,7 @@ module.exports.update = function(app) {
 	                res.status(200).send("ok!");
 	            }
 	        } else {
-	        	console.log(user.email + " not found in system!");
+	        	console.log(includedEmail.email + " not found in system!");
 	        	res.status(200).send("not found");
 	        }
 	    })
@@ -144,25 +108,12 @@ module.exports.update = function(app) {
 
 module.exports.delete = function(app) {
   return function(req, res, next) {
-		const attributes = req.body.data.attributes;
-		const patronID = req.body.data.relationships.patron.data.id;
+		const includedEmail = req.body.included[0].attributes.email;
 
-		var includedInfo;
-		var includedAttributes;
-
-		includedLoop:
-		for(var x = 0; x < req.body.included.length; x++) {
-		    if(req.body.included[x].id == patronID) {
-		        includedInfo = req.body.included[x];
-		        includedAttributes = includedInfo.attributes;
-		        break includedLoop;
-		    }
-		}
-
-		console.log(includedAttributes.email + " to be deleted");
+		console.log(includedEmail + " to be deleted");
 
 		app.service('users').find({
-		  query: { email: includedAttributes.email }
+		  query: { email: includedEmail }
 		})
 		.then((users) => {
 		    const user = users.data[0];
@@ -179,7 +130,7 @@ module.exports.delete = function(app) {
 		            res.status(200).send("ok!");
 		        }
 		    } else {
-		    	console.log(user.email + " not found in system!");
+		    	console.log(includedEmail + " not found in system!");
 		    	res.status(200).send("not found");
 		    }
 		})
