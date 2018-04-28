@@ -29,7 +29,7 @@
     <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script type="text/javascript" src="/js/dep/video.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.min.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs-contrib-hls.min.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-hlsjs-plugin.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.logobrand.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-chromecast.js"></script>
@@ -45,7 +45,8 @@
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/hls/','https://blr1.angelthump.com/hls/','https://sgp1.angelthump.com/hls/'];
         var patreonLabels = ['US-EAST-PATREON','US-WEST-PATREON','EU-PATREON'];
 
-        if((lastKnownServer == null || !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
+        if((lastKnownServer == null && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
+            lastKnownServer = 'auto';
             getServer();
         } else {
             launchPlayer();
@@ -74,13 +75,17 @@
                 errorDisplay: false,
                 plugins: {
                     videoJsResolutionSwitcher: {
-                        default: 'auto',
+                        default: lastKnownServer,
                         dynamicLabel: true
                     }
+                },
+                hls: {
+                    overrideNative: true
                 }
             };
 
-            var player = videojs('player', options, function() {
+            var player = videojs('player', options);
+            player.ready(function() {
                 this.poster(poster);
                 this.updateSrc(sources);
                 this.currentResolution(lastKnownServer);
@@ -125,7 +130,7 @@
                     lastKnownServer = player.currentResolution().label;
                     localStorage.setItem('server', lastKnownServer);
                 }
-            })
+            });
 
             player.on('error', function(e) {
                 if (player.error().code == 4) {
