@@ -75,7 +75,7 @@
                 errorDisplay: false,
                 plugins: {
                     videoJsResolutionSwitcher: {
-                        default: 'lastKnownServer',
+                        default: 'auto',
                         dynamicLabel: true
                     }
                 },
@@ -486,7 +486,7 @@
 
         async function getTiming(url) {
             var startTime = (new Date()).getTime();
-            await axios.get(url + "server.file")
+            await axios({timeout: 5000, url: url + "server.file"})
             .then(function (response) {
                 var endTime = (new Date()).getTime();
                 var elaspedTime = endTime - startTime;
