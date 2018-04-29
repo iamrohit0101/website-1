@@ -40,4 +40,6 @@ public/js/
 public/css/
 public/assets
 logs/
-*.json
+config/default.json
+config/production.json
+config/patreon.json

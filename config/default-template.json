@@ -1,0 +1,54 @@
+{
+    "host": "angelthump.com",
+    "port": 80,
+    "public": "../public/",
+    "paginate": {
+      "default": 10,
+      "max": 50
+    },
+    "authentication": {
+      "secret": "token",
+      "strategies": [
+        "jwt",
+        "local"
+      ],
+      "path": "/authentication",
+      "entity": "user",
+      "service": "users",
+      "passReqToCallback": true,
+      "session": false,
+      "cookie": {
+        "enabled": false,
+        "name": "feathers-jwt",
+        "httpOnly": false,
+        "secure": false
+      },
+      "jwt": {
+        "header": {
+          "type": "access"
+        },
+        "audience": "https://angelthump.com",
+        "subject": "anonymous",
+        "issuer": "feathers",
+        "algorithm": "HS256",
+        "expiresIn": "7d"
+      },
+      "local": {
+        "entity": "user",
+        "service": "users",
+        "usernameField": "username",
+        "passwordField": "password"
+      },
+      "patreon": {
+        "clientID": "",
+        "clientSecret": "",
+        "campaignID": ""
+      }
+    },
+    "skipIPs": [""],
+    "adminIPs": [""],
+    "mongodb": "mongodb://",
+    "awsAccessKey": "",
+    "awsSecretKey": ""
+  }
+  
