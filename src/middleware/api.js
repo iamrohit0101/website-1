@@ -6,15 +6,11 @@ const io = require('socket.io-client');
 module.exports.individual = function(app) {
   return function(req, res, next) {
 		var requested_username = req.params.username.toLowerCase();
-    console.log('api request for ', requested_username);
 
     app.service('users').find({
       query: { username: requested_username }
     })
-
-    // Then we're good to check apis
     .then((users) => {
-      //console.log(users.total, 'users found for that stream username', requested_username);
       if (users.total > 0) {
       	const user = users.data[0];
         const username = user.username;
@@ -46,7 +42,7 @@ module.exports.individual = function(app) {
       }
     })
     .catch((e) => {
-      res.render('errors.ejs', {code: 403, message: `forbidden requested username: ${requested_username}`});
+      res.render('errors.ejs', {code: 403, message: e.message});
     });
   };
 };
@@ -58,7 +54,6 @@ module.exports.all = function(app) {
     app.service('users').find({
       query: { live: true }
     })
-    // Then we're good to check apis
     .then((users) => {
     var total_connections = 0;
     var total_viewers = 0;
@@ -116,7 +111,7 @@ module.exports.all = function(app) {
 		}
 	})
     .catch((e) => {
-      res.render('errors.ejs', {code: 403, message: e});
+      res.render('errors.ejs', {code: 403, message: e.message});
     });
   };
 };

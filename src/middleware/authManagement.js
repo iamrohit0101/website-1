@@ -26,7 +26,6 @@ module.exports = function(app) {
   };
 };
 
-
 module.exports.resend = function(app) {
   return function(req, res, next) {
     const authManagement = app.service('authManagement');
@@ -34,6 +33,19 @@ module.exports.resend = function(app) {
         value: {email: req.params.email},
       }).then(x => {
       res.render('success.ejs', {message: "Email sent!"});
+    }).catch(function(error){
+      res.render('errors.ejs', {code: error.code, message: error.message});
+    });;
+  };
+};
+
+module.exports.passwordChange = function(app) {
+  return function(req, res, next) {
+    const authManagement = app.service('authManagement');
+      authManagement.create({ action: 'resetPwdLong',
+        value: {password: req.body.password, token: req.body.hash},
+      }).then(x => {
+      res.render('success.ejs', {message: "Password has been changed!"});
     }).catch(function(error){
       res.render('errors.ejs', {code: error.code, message: error.message});
     });;

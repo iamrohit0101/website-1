@@ -95,6 +95,7 @@ module.exports = function () {
   
   app.post('/emailPasswordReset', authManagement.emailPasswordReset(app));
   app.post('/passwordReset', authManagement.passwordReset(app));
+  app.post('/passwordChange', authManagement.passwordChange(app));
   app.post('/emailChange', authManagement.emailChange(app))
 
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
