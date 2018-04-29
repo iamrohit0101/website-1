@@ -24,7 +24,7 @@
       ga('create', 'UA-98637299-1', 'auto');
       ga('send', 'pageview');
     </script>
-    
+
     <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto"></video>
     <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script type="text/javascript" src="/js/dep/video.min.js"></script>
@@ -105,7 +105,7 @@
                 image: "https://angelthump.com/assets/patreon.png",
                 destination: "https://patreon.com/angelthump"
             });
-        
+
 
 
             player.on("pause", function() {
@@ -115,7 +115,7 @@
                 player.one("play", function() {
                     connect();
                     player.updateSrc(sources);
-                    player.currentResolution(lastKnownServer); 
+                    player.currentResolution(lastKnownServer);
                 });
             });
 
@@ -151,6 +151,266 @@
             player.persistvolume({
                 namespace: "volume"
             });
+
+            function Emitter() {
+                var handlers = {};
+
+                function getEventHandlers(name) {
+                    return handlers.hasOwnProperty(name) ? handlers[name] : (handlers[name] = {on: [], one: []});
+                }
+
+                function on(name, handler) {
+                    getEventHandlers(name).on.push(handler);
+                }
+
+                function one(name, handler) {
+                    getEventHandlers(name).one.push(handler);
+                }
+
+                function remove(arr, v) {
+                    var i = arr.indexOf(v);
+                    if (i !== -1) {
+                        arr.splice(i, 1);
+                    }
+                }
+
+                function off(name, handler) {
+                    var eventHandlers = handlers[name];
+                    if (eventHandlers !== undefined) {
+                        remove(eventHandlers.on, handler);
+                        remove(eventHandlers.one, handler);
+                        if (eventHandlers.on.length === 0 && eventHandlers.one.length === 0) {
+                            delete handlers[name];
+                        }
+                    }
+                }
+
+                function emit(name) {
+                    var eventHandlers = handlers[name];
+                    if (eventHandlers !== undefined) {
+                        var args = Array.prototype.slice.call(arguments, 1);
+                        var onHandlers = eventHandlers.on;
+                        var oneHandlers = eventHandlers.one;
+
+                        eventHandlers.one = [];
+
+                        for (var i = 0, l = onHandlers.length; i < l; i ++) {
+                            onHandlers[i].apply(this, args);
+                        }
+                        for (var i = 0, l = oneHandlers.length; i < l; i ++) {
+                            oneHandlers[i].apply(this, args);
+                        }
+
+                    }
+                }
+
+                return {
+                    on: on,
+                    off: off,
+                    one: one,
+                    emit: emit,
+                };
+            }
+
+            function Monitor(player) {
+                var REPORT_INTERVAL = 5000;
+                var REPORT_SERVER = 'https://stats.angelthump.com';
+                var RESOURCE_TIMING_FLUSH_INTERVAL = 100;
+
+                var active = {};
+                var events = [];
+                var live = false;
+
+                function publishReport() {
+                    Object.keys(active).forEach(function(k) {
+                        events.push(Object.assign({active: true}, active[k]));
+                    });
+
+                    var report = {};
+                    events.forEach(function(event) {
+                        for (var k in event) {
+                            if (event.hasOwnProperty(k) && event[k] === 0 || event[k] == null) {
+                                delete event[k];
+                            }
+                        }
+
+                        event.sent = Date.now();
+
+                        (report[event.type] || (report[event.type] = [])).push(event);
+                    });
+
+                    var req = new XMLHttpRequest();
+                    req.open('POST', REPORT_SERVER + '/api/v1/report', true);
+                    req.setRequestHeader('Content-type', 'application/javascript');
+                    req.send(JSON.stringify(report));
+                }
+
+                setInterval(function() {
+                    if (live) {
+                        publishReport();
+                    }
+                    events = [];
+                }, REPORT_INTERVAL);
+
+                var clientId = Date.now();
+                var eventId = 0;
+                var hostPattern = /https:\/\/([^\.]+)/i;
+                function initEvent() {
+                    var match = player.currentSrc().match(hostPattern);
+
+                    var dimensions = player.currentDimensions();
+                    var sourceRatio = player.videoHeight() / player.videoWidth();
+                    var playerRatio = dimensions.height / dimensions.width;
+                    var scale = playerRatio > sourceRatio
+                        ? dimensions.width / player.videoWidth()
+                        : dimensions.height / player.videoHeight();
+
+                    return {
+                        clientId: clientId,
+                        eventId: eventId ++,
+                        source: match ? match[1] : '',
+                        videoHeight: player.videoHeight(),
+                        videoWidth: player.videoWidth(),
+                        scale: Math.round(scale * 100) / 100,
+                        channel: channel,
+                    };
+                }
+
+                var emitter = Emitter();
+
+                function eventProxy(src) {
+                    return function(name) {
+                        src.on(name, function() {
+                            var args = [name];
+                            Array.prototype.push.apply(args, arguments);
+                            emitter.emit.apply(this, args);
+                        });
+                    }
+                }
+
+                [
+                    'waiting',
+                    'loadstart',
+                    'loadedmetadata',
+                    'loadeddata',
+                    'canplay',
+                    'canplaythrough',
+                    'playing',
+                    'play',
+                    'stalled',
+                    'error'
+                ].forEach(eventProxy(player));
+
+                videojs.Html5Hlsjs.addHook('beforeinitialize', function(player, hlsjs) {
+                    [
+                        'hlsError',
+                        'hlsMediaAttaching',
+                    ].forEach(eventProxy(hlsjs));
+                });
+
+                emitter.on('hlsError', function(type, e) {
+                    if (e.response !== undefined && e.response.code === 404) {
+                        live = false;
+                        emitter.emit('streamOffline');
+                    }
+                });
+
+                emitter.on('hlsMediaAttaching', function() {
+                    live = true;
+                    events = [];
+                    emitter.emit('streamOnline');
+                });
+
+                function beginBufferingEvent(type, done) {
+                    var event = Object.assign(initEvent(), {
+                        type: type,
+                        start: Date.now(),
+                        cancelled: false
+                    });
+
+                    [
+                        'waiting',
+                        'loadstart',
+                        'loadedmetadata',
+                        'loadeddata',
+                        'canplay',
+                        'canplaythrough',
+                        'playing'
+                    ].forEach(function(name) {
+                        emitter.one(name, function() {
+                            event[name] = Date.now() - event.start;
+                        });
+                    });
+
+                    function cancel() {
+                        event.cancelled = true;
+                        done(event);
+                    }
+                    emitter.one('pause', cancel);
+                    emitter.one('streamOnline', cancel);
+
+                    emitter.one('canplaythrough', function() {
+                        if (!event.cancelled) {
+                            emitter.off('pause', cancel);
+                            done(event);
+                        }
+                    });
+
+                    return event;
+                }
+
+                function handleBufferingEvent(type) {
+                    if (active[type] === undefined) {
+                        active[type] = beginBufferingEvent(type, function(event) {
+                            if (!event.cancelled) {
+                                events.push(active[type])
+                            }
+                            if (active[type] === event) {
+                                delete active[type];
+                            }
+                        });
+                    }
+                }
+
+                emitter.on('play', function() { handleBufferingEvent('play'); });
+                emitter.on('stalled', function() { handleBufferingEvent('stalled'); });
+                emitter.on('waiting', function() { handleBufferingEvent('waiting'); });
+
+                emitter.on('error', function() {
+                    events.push({
+                        type: 'error',
+                        networkState: player.networkState(),
+                        error: player.error()
+                    });
+                });
+
+                var tsPattern = /^https:\/\/([^\.]+).*\/([0-9]+)\.ts$/i
+                performance.clearResourceTimings();
+                setInterval(function() {
+                    var timings = performance.getEntriesByType('resource');
+                    performance.clearResourceTimings();
+
+                    timings.forEach(function(t) {
+                        var match = t.name.match(tsPattern);
+                        if (match) {
+                            events.push(Object.assign(initEvent(), {
+                                type: 'resource',
+                                host: match[1],
+                                chunk: parseFloat(match[2]),
+                                redirect: Math.round(t.fetchStart - t.startTime),
+                                dns: Math.round(t.domainLookupEnd - t.domainLookupStart),
+                                connect: Math.round(t.connectEnd - t.connectStart),
+                                send: Math.round(t.responseStart - t.requestStart),
+                                receive: Math.round(t.responseEnd - t.responseStart),
+                                total: Math.round(t.duration),
+                                size: t.transferSize
+                            }));
+                        }
+                    });
+                }, RESOURCE_TIMING_FLUSH_INTERVAL);
+            }
+
+            new Monitor(player);
 
             function retry() {
                 setTimeout(function() {
@@ -210,7 +470,7 @@
                     app.authenticate();
                 });
             }
-        
+
 
             function connect() {
                 socket = io(host, {
@@ -248,7 +508,7 @@
             autoServer = server;
             launchPlayer();
         }
-        
+
     </script>
 </body>
 </html>
