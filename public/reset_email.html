@@ -1,17 +1,12 @@
 <title>Email Reset - AngelThump</title>
 <link rel="prefetch" href="/assets/small_logo.png">
-<link rel="stylesheet" href="/css/errors.css">
 <link rel="stylesheet" href="/css/reset_page.css">
 <div class="reset-page">
   <a href="/">
     <img src="/assets/small_logo.png" />
   </a>
-  <div class="error" id="error" style="display: none">
-  </div>
-  <div class="success" id="success" style="display: none">
-  </div>
   <div class="form">
-    <form class="reset-form" onsubmit="return false">
+    <form class="reset-form" method="post" action="/emailChange">
       <input id="email" type="email" name="email" placeholder="email"/>
       <input id="password" type="password" name="password" placeholder="password"/>
       <input id="newEmail" type="email" name="newEmail" placeholder="new email"/>
@@ -37,25 +32,5 @@
   })
   .catch(function(error){
     window.location.href = '/login';
-  });
-
-  const authManagement = client.service('authManagement');
-
-  document.getElementById("reset").addEventListener("click", function(){
-    authManagement.create({ action: 'identityChange',
-      value: {
-        user: {email: document.getElementById('email').value.toLowerCase()},
-        password: document.getElementById('password').value,
-        changes: {email: document.getElementById('newEmail').value}
-      },
-    }).then(x => {
-      //success
-      document.getElementById("success").setAttribute('style','text-align: center; display: block;');
-      document.getElementById("success").innerHTML = "Email has been sent to your inbox! Please confirm your changes!";
-    }).catch(function(error){
-      document.getElementById("error").setAttribute('style','text-align: center; display: block;');
-      document.getElementById("error").innerHTML = error.message;
-      console.log(error);
-    });
   });
 </script>

@@ -1,4 +1,4 @@
-const handler = require('@feathersjs/express/errors');
+const express = require('@feathersjs/express');
 const notFound = require('feathers-errors/not-found');
 const auth = require('@feathersjs/authentication');
 const path = require('path');
@@ -92,6 +92,10 @@ module.exports = function () {
   app.post('/patreon/delete', patreonWebhooks.delete(app));
 
   app.get('/resend-email/:email', authManagement.resend(app));
+  
+  app.post('/emailPasswordReset', authManagement.emailPasswordReset(app));
+  app.post('/passwordReset', authManagement.passwordReset(app));
+  app.post('/emailChange', authManagement.emailChange(app))
 
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
 
@@ -104,9 +108,9 @@ module.exports = function () {
   app.post('/live', events.stream(app));
   app.post('/done', events.done(app));
 
-  app.use(notFound());
+  app.use(express.notFound({ verbose: true }));
 
-  app.use(handler({
+  app.use(express.errorHandler({
     html: function(error, req, res, next) {
         res.render('errors.ejs', {code: error.code, message: error.message});
     }

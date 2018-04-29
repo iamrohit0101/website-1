@@ -1,43 +1,14 @@
 <title>Password Recovery - AngelThump</title>
 <link rel="prefetch" href="/assets/small_logo.png">
 <link rel="stylesheet" href="/css/reset_page.css">
-<link rel="stylesheet" href="/css/errors.css">
 <div class="reset-page">
   <a href="/">
     <img src="/assets/small_logo.png" />
   </a>
-  <div class="error" id="error" style="display: none">
-  </div>
-  <div class="success" id="success" style="display: none">
-  </div>
   <div class="form">
-    <form class="reset-form" onsubmit="return false">
+    <form class="reset-form" method="post" action="/emailPasswordReset">
       <input id="email" type="email" name="email" placeholder="email"/>
       <button type="submit" id="submit">Reset Your Password</button>
     </form>
   </div>
 </div>
-
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<script src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.js"></script>
-<script>
-  const socket = io();
-  const client = feathers();
-
-  client.configure(feathers.socketio(socket));
-  const authManagement = client.service('authManagement');
-
-  document.getElementById("submit").addEventListener("click", function(){
-    authManagement.create({ action: 'sendResetPwd',
-      value: {email: document.getElementById('email').value.toLowerCase()}
-    }).then(x => {
-      //success
-      document.getElementById("success").setAttribute('style','text-align: center; display: block;');
-      document.getElementById("success").innerHTML = "Email has been sent!";
-    }).catch(function(error){
-      document.getElementById("error").setAttribute('style','text-align: center; display: block;');
-      document.getElementById("error").innerHTML = error.message;
-      console.log(error);
-    });
-  });
-</script>

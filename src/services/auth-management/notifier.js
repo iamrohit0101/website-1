@@ -1,7 +1,3 @@
-const feathers = require('@feathersjs/feathers')
-const config = require('../../../config/default.json');
-const path = require('path')
-
 module.exports = function(app) {
     function getLink(type, hash) {
       var url
@@ -9,48 +5,48 @@ module.exports = function(app) {
       var host = app.get('host')
       var protocal = 'https'
       protocal += "://"
-      //console.log(`${protocal}${host}${port}/management/${type}/${hash}`);
       return `${protocal}${host}/management/${type}/${hash}`
     }
-function sendEmail(email) {
+
+    function sendEmail(email) {
         return app.service('emails')
             .create(email)
             .then(function(result) {
-                //console.log('Sent email', result)
             }).catch(err => {
-                console.log('Error sending email', err)
+                console.error('Error sending email', err)
             })
     }
-return {
+
+    return {
         notifier: function(type, user, notifierOptions) {
-            //console.log(`-- Preparing email for ${type}`)
+            console.log(`-- Preparing email for ${type}`)
             var hashLink
             var email
             switch (type) {
-              case 'resendVerifySignup':
+            case 'resendVerifySignup':
                 hashLink = getLink('verify', user.verifyToken)
                 email = {
-                        from: config.email,
+                        from: "noreply@angelthump.com",
                         to: user.email,
                         subject: 'Verify your email',
                         html: 'Thank you for signing up. Please verify your email by clicking the link below!' + '<br><br>' + hashLink + '<br><br>'
-                         + 'If the link does not load, please copy and paste the link into the address bar of your browser.'
+                        + 'If the link does not load, please copy and paste the link into the address bar of your browser.'
                     }
                 return sendEmail(email)
                 break
-             case 'verifySignup':
+            case 'verifySignup':
                 email = {
-                        from: config.email,
+                        from: "noreply@angelthump.com",
                         to: user.email,
                         subject: 'Thank you, your email has been verified',
                         html: 'Your email has been verified. You have access to all of the site\'s functionality now!'
                     }
                 return sendEmail(email)
                 break
-              case 'sendResetPwd':
+            case 'sendResetPwd':
                 hashLink = getLink('reset', user.resetToken)
                 email = {
-                        from: config.email,
+                        from: "noreply@angelthump.com",
                         to: user.email,
                         subject: 'Reset Password',
                         html: 'Hi, ' + user.username + '<br><br>' + 'To reset your password, please click the link below.' + '<br><br>' + hashLink + '<br><br>' 
@@ -58,28 +54,28 @@ return {
                     }
                 return sendEmail(email)
                 break
-              case 'resetPwd':
+            case 'resetPwd':
                 email = {
-                        from: config.email,
+                        from: "noreply@angelthump.com",
                         to: user.email,
                         subject: 'Your password has changed',
                         html: 'Hi, ' + user.username + '<br><br>' + 'Your password was just reset.'
                     }
                 return sendEmail(email)
                 break
-              case 'passwordChange':
+            case 'passwordChange':
                 email = {
-                        from: config.email,
+                        from: "noreply@angelthump.com",
                         to: user.email,
                         subject: 'Your password was changed',
                         html: 'Hi, ' + user.username + '<br><br>' + 'Your password was just reset.'
                     }
                 return sendEmail(email)
                 break
-              case 'identityChange':
+            case 'identityChange':
                 hashLink = getLink('verifyChanges', user.verifyToken)
                 email = {
-                        from: config.email,
+                        from: "noreply@angelthump.com",
                         to: user.email,
                         subject: 'Your email was changed. Please verify the changes',
                         html: 'Hi, ' + user.username + '<br><br>' + 'To change your email, please click the link below.' + '<br><br>' + hashLink + '<br><br>' 
@@ -87,7 +83,7 @@ return {
                     }
                 return sendEmail(email)
                 break
-              default:
+            default:
                 break
             }
         }
