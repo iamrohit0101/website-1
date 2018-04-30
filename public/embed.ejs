@@ -78,9 +78,6 @@
                         default: 'auto',
                         dynamicLabel: true
                     }
-                },
-                hls: {
-                    overrideNative: true
                 }
             };
 
@@ -89,24 +86,21 @@
                 this.poster(poster);
                 this.updateSrc(sources);
                 this.currentResolution(lastKnownServer);
+                this.overlay({
+                    overlays: [{
+                        start: 1,
+                        end: 7,
+                        content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
+                        align: "bottom",
+                        showBackground: false
+                    }]
+                });
+                this.logobrand({
+                    image: "https://angelthump.com/assets/patreon.png",
+                    destination: "https://patreon.com/angelthump"
+                });
             });
             connect();
-            player.overlay({
-                overlays: [{
-                    start: 1,
-                    end: 7,
-                    content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
-                    align: "bottom",
-                    showBackground: false
-                }]
-            });
-
-            player.logobrand({
-                image: "https://angelthump.com/assets/patreon.png",
-                destination: "https://patreon.com/angelthump"
-            });
-
-
 
             player.on("pause", function() {
                 if(socket.connected) {
@@ -119,10 +113,13 @@
                 });
             });
 
-            player.on("resolutionchange", function() {
+            player.on("playing", function() {
                 if(!socket.connected) {
                     connect();
                 }
+            })
+
+            player.on("resolutionchange", function() {
                 player.loadingSpinner.show();
                 if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
                     checkPatreon();
@@ -142,10 +139,9 @@
                     player.error(null);
                     retry();
                 }
-                /*disconnect for api
                 if(socket.connected) {
                     socket.disconnect();
-                }*/
+                }
             });
 
             player.persistvolume({
@@ -456,7 +452,7 @@
                         lastKnownServer = player.currentResolution().label;
                     } else {
                         player.currentResolution(lastKnownServer);
-                        alert("You are not a patreon. If you are, please PM Overpowered on the destiny.gg chat or pm me on Patreon");
+                        alert("You are not a patron!");
                     }
                 })
                 .catch(function(error){
