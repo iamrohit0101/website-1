@@ -10,7 +10,8 @@
       "secret": "token",
       "strategies": [
         "jwt",
-        "local"
+        "local",
+        "local-username"
       ],
       "path": "/authentication",
       "entity": "user",
