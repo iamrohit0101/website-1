@@ -11,7 +11,7 @@
   </div>
   <div class="form">
     <form class="login-form" onsubmit="return false">
-      <input id="username" type="username" name="username" placeholder="username"/>
+      <input id="user" type="user" name="user" placeholder="username/email"/>
       <input id="password" type="password" name="password" placeholder="password"/>
       <button type="submit" id="login">login</button>
       <p class="message">Not registered? <a href="/signup">Create an account</a></p>
@@ -32,18 +32,24 @@
   }));
 
   function getCredentials() {
-    const user = {
-      username: document.getElementById('username').value,
-      password: document.getElementById('password').value
-    };
-
-    return user;
+    var payload;
+    if(document.getElementById('user').value.includes("@")) {
+      var user = {
+        email: document.getElementById('user').value,
+        password: document.getElementById('password').value
+      };
+      payload = user ? Object.assign({ strategy: 'local' }, user) : {};
+    } else {
+      var user = {
+        username: document.getElementById('user').value,
+        password: document.getElementById('password').value
+      };
+      payload = user ? Object.assign({ strategy: 'local-username' }, user) : {};
+    }
+    return payload;
   }
 
-  function login(credentials) {
-    const payload = credentials ?
-      Object.assign({ strategy: 'local' }, credentials) : {};
-
+  function login(payload) {
     return client.authenticate(payload)
       .then(function(result) {
           console.log('Authenticated!');
@@ -60,7 +66,6 @@
   }
 
   document.getElementById("login").addEventListener("click", function(){
-    const user = getCredentials();
-    login(user);
+    login(getCredentials());
   });
 </script>
