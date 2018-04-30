@@ -1,5 +1,6 @@
 <link href="/css/index.css" rel="stylesheet">
 <link rel="prefetch" href="/assets/logo.png">
+<link rel="stylesheet" href="/css/discordInvite.css"/>
 <title>AngelThump</title>
 
 <script type="text/javascript">
@@ -41,7 +42,17 @@
       <a href="https://www.patreon.com/angelthump">Become a Patreon!</a>
     </h4>
     <h3 class="text">
-      <a href="https://status.angelthump.com">Having problems? Check the status page!</a>
+      <a href="https://status.angelthump.com">Having problems? Check the status page</a> or join this discord!
     </h3>
+    <div id="discordInviteBox"></div>
   </div>
 </section>
+
+<script src="/js/discordInvite.js"></script>
+<script>
+  discordInvite.init({
+  inviteCode: 'QGrZXNh',
+  title: 'AngelThump',
+});
+discordInvite.render();
+</script>
