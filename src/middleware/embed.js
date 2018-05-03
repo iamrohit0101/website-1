@@ -36,9 +36,9 @@ module.exports = function(app) {
                                     var servers = [];
 
                                     if(continent == 'NA') {
-                                        servers = ["https://nyc-hub.angelthump.com/", "https://sfo-hub.angelthump.com/"]
+                                        servers = ["https://nyc1.angelthump.com/", "https://sfo1.angelthump.com/"]
                                     } else if (continent == 'SA') {
-                                        servers = ["https://nyc-hub.angelthump.com/", "https://sfo-hub.angelthump.com/"]
+                                        servers = ["https://nyc1.angelthump.com/", "https://sfo1.angelthump.com/"]
                                     } else if (continent == 'EU') { //frankfurt london amsterdam 
                                         servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/"]
                                     } else if (continent == 'AS') { //singapore, bangalore

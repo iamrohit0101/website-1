@@ -247,17 +247,30 @@ class Settings extends React.Component {
 		              {this.state.showStreamKey ? this.state.streamKey : ""}
 		            </p>
 					<h4>
-	            		<strong>US Ingest URL</strong>
+	            		<strong>US-EAST Ingest URL</strong>
 	            	</h4>
 					<h4>
-	            		<strong>rtmp://ingest.angelthump.com:1935/live</strong>
+	            		<strong>rtmp://nyc-ingest.angelthump.com:1935/live</strong>
 	            	</h4>
 					<h4>
-	            		<strong>EU Ingest URL</strong>
+	            		<strong>US-WEST Ingest URL</strong>
 	            	</h4>
 					<h4>
-	            		<strong>rtmp://eu-ingest.angelthump.com:1935/live</strong>
+	            		<strong>rtmp://sfo-ingest.angelthump.com:1935/live</strong>
 	            	</h4>
+					<h4>
+								<strong>AMSTERDAM Ingest URL</strong>
+	            	</h4>
+					<h4>
+	            		<strong>rtmp://ams-ingest.angelthump.com:1935/live</strong>
+	            	</h4>
+					<h4>
+								<strong>(ANOTHER EU Ingest URL COMING SOON)</strong>
+	            	</h4>
+					<h4>
+	            		<strong></strong>
+	            	</h4>
+								
 					<img src="/assets/ingest.png" width="720">
 	            	</img>
 	            	<h4>

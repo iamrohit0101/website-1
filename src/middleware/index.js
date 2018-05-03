@@ -14,16 +14,20 @@ const cache = require('apicache').middleware;
 
 module.exports = function () {
   const app = this;
+  
+  //testing
+  app.get('/embed-test/:username', function(req, res, next){
+    res.render('embed-test', {username: req.params.username});
+  });
+  /*maintenance
+  app.get('*', function(req,res,next) {
+    res.render('errors.ejs', {code: 500, message: "Server is down for maintenance."});
+  });*/
 
   app.set('view engine', 'ejs');
   app.set('views', 'public');
 
   app.get('/embed/:username', embed(app));
-
-  //test-bed
-  app.get('/embed-test/:username', function(req, res, next){
-    res.render('embed-test', {username: req.params.username});
-  });
 
   app.get('/api', cache('30 seconds'), api.all(app));
 

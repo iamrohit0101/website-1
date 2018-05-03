@@ -41,7 +41,8 @@
 
     <script type="text/javascript">
         var socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server'), servers = <%- JSON.stringify(servers) %>, autoServer = localStorage.getItem('auto-server');
-        var freeServerLabels = ['https://nyc-hub.angelthump.com/','https://sfo-hub.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
+        var freeServerLabels = ['https://nyc1.angelthump.com/','https://nyc2.angelthump.com/','https://sfo1.angelthump.com/',
+        'https://sfo2.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/hls/','https://blr1.angelthump.com/hls/','https://sgp1.angelthump.com/hls/'];
         var patreonLabels = ['US-EAST-PATREON','US-WEST-PATREON','EU-PATREON'];
 
@@ -63,11 +64,11 @@
                 label: 'US-EAST-PATREON'
             },{
                 type: "application/x-mpegURL",
-                src: "https://sfo1.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'US-WEST-PATREON'
             },{
                 type: "application/x-mpegURL",
-                src: "https://eu-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'EU-PATREON'
             }];
 
@@ -482,7 +483,7 @@
 
         async function getTiming(url) {
             var startTime = (new Date()).getTime();
-            await axios({timeout: 5000, url: url + "server.file"})
+            await axios({timeout: 5000, url: url + "random.png"})
             .then(function (response) {
                 var endTime = (new Date()).getTime();
                 var elaspedTime = endTime - startTime;
