@@ -25,7 +25,7 @@
       ga('send', 'pageview');
     </script>
 
-    <video id=player class="video-js vjs-default-skin" muted autoplay controls preload="auto"></video>
+    <video id=player class="video-js vjs-default-skin" autoplay muted controls preload="auto"></video>
     <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script type="text/javascript" src="/js/dep/video.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.min.js"></script>
@@ -143,10 +143,6 @@
                 if(socket.connected) {
                     socket.disconnect();
                 }
-            });
-
-            player.persistvolume({
-                namespace: "volume"
             });
 
             function Emitter() {
