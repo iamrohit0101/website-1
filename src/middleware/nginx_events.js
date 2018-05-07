@@ -31,7 +31,6 @@ module.exports.stream = function(app) {
     .then((users) => {
     	const user = users.data[0];
   		if (users.total > 0 && !user.banned && user.isVerified) {
-
         if(!user.banned && user.isVerified) {
           const username = user.username;
           res.redirect(username);
@@ -39,7 +38,7 @@ module.exports.stream = function(app) {
             live: true,
             streamCreatedAt: Date.now()
           }).then(() => {
-            console.log(user.username + " is now live");
+            console.log(username + " is now live");
           });
         } else {
           res.status(403).send('You are banned or your email is not verified!');
@@ -67,12 +66,36 @@ module.exports.done = function(app) {
   		if (users.total > 0) {
         const user = users.data[0];
   			const username = user.username;
-  			res.redirect(username);
         app.service('users').patch(user._id, {
           live: false
         }).then(() => {
-          console.log(user.username + " is now not live");
+          console.log(username + " is now not live");
         });
+        res.status(200).send('ok');
+  		}
+    })
+    .catch(() => res.status(403).send('Forbidden'));
+  };
+};
+
+module.exports.update = function(app) {
+  return function(req, res, next) {
+    const body = req.body;
+    const streamkey = req.body.name;
+
+    app.service('users').find({
+      query: { streamkey: streamkey }
+    })
+    .then((users) => {
+  		if (users.total > 0) {
+        const user = users.data[0];
+  			const username = user.username;
+        app.service('users').patch(user._id, {
+          streamUpdatedAt: Date.now()
+        }).then(() => {
+          console.log(username + " updated!");
+        });
+        res.status(200).send('ok');
   		}
     })
     .catch(() => res.status(403).send('Forbidden'));

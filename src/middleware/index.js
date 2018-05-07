@@ -112,6 +112,7 @@ module.exports = function () {
 
   app.post('/live', events.stream(app));
   app.post('/done', events.done(app));
+  app.post('/update', events.update(app));
 
   app.use(express.notFound({ verbose: true }));
 

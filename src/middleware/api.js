@@ -7,46 +7,54 @@ module.exports.individual = function(app) {
 		app.service('users').find({
 				query: { username: requested_username }
 		}).then((users) => {
-				if (users.total > 0) {
-					const user = users.data[0];
-					if(!user.live) {
+			if (users.total > 0) {
+				const user = users.data[0];
+				if(!user.live || user.streamUpdatedAt == null) {
+					res.json({
+						username: user.username,
+						banned: user.banned,
+						poster: user.poster
+					});
+				} else {
+					var timeDifference =Math.abs(Math.round(((new Date()).getTime() - user.streamUpdatedAt.getTime()) / 1000 / 60));
+					if(timeDifference > 5) {
+						app.service('users').patch(user._id, {
+							live: false
+						}).then(() => {
+							console.log(username + " is now not live due to no update");
+						});
+					}
+					const username = user.username;
+					const io = app.get('socketio');
+					if(io.sockets.adapter.rooms[username] != null) {
 						res.json({
 							username: user.username,
+							live: user.live,
+							title: user.title,
+							viewers: io.sockets.adapter.rooms[username].length,
+							passwordProtected: user.passwordProtected,
 							banned: user.banned,
-							poster: user.poster
+							poster: user.poster,
+							thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
+							created_at: user.streamCreatedAt
 						});
 					} else {
-						const username = user.username;
-						const io = app.get('socketio');
-						if(io.sockets.adapter.rooms[username] != null) {
-							res.json({
-								username: user.username,
-								live: user.live,
-								title: user.title,
-								viewers: io.sockets.adapter.rooms[username].length,
-								passwordProtected: user.passwordProtected,
-								banned: user.banned,
-								poster: user.poster,
-								thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
-								created_at: user.streamCreatedAt
-							});
-						} else {
-							res.json({
-								username: user.username,
-								live: user.live,
-								title: user.title,
-								viewers: 0,
-								passwordProtected: user.passwordProtected,
-								banned: user.banned,
-								poster: user.poster,
-								thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
-								created_at: user.streamCreatedAt
-							});
-						}
+						res.json({
+							username: user.username,
+							live: user.live,
+							title: user.title,
+							viewers: 0,
+							passwordProtected: user.passwordProtected,
+							banned: user.banned,
+							poster: user.poster,
+							thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
+							created_at: user.streamCreatedAt
+						});
 					}
-				} else {
-						res.render('errors.ejs', {code: 404, message: `No Users Named ${requested_username}`});
 				}
+			} else {
+					res.render('errors.ejs', {code: 404, message: `No Users Named ${requested_username}`});
+			}
 		})
 		.catch((e) => {
 			res.render('errors.ejs', {code: 403, message: e.message});
@@ -68,6 +76,17 @@ module.exports.all = function(app) {
 				var number = 0;
 				for(var i = 0; i < users.total; i++) {
 					const user = users.data[i];
+					if(user.streamUpdatedAt != null) {
+						var timeDifference =Math.abs(Math.round(((new Date()).getTime() - user.streamUpdatedAt.getTime()) / 1000 / 60));
+						if(timeDifference > 5) {
+							app.service('users').patch(user._id, {
+								live: false
+							}).then(() => {
+								console.log(username + " is now not live due to no update");
+							});
+							continue;
+						}
+					}
 					const username = user.username;
 					if(io.sockets.adapter.rooms[username] != null) {
 						var jsonObject = {

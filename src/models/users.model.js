@@ -41,6 +41,7 @@ module.exports = function(app) {
     live: {type: Boolean, 'default': false},
     poster: {type: String, 'default': "https://s3.amazonaws.com/offlinescreen/default_offline.jpg"},
     streamCreatedAt: {type: Date, 'default': Date.now },
+    streamUpdatedAt: {type: Date, 'default': Date.now },
     createdAt: { type: Date, 'default': Date.now },
     updatedAt: { type: Date, 'default': Date.now }
   });
