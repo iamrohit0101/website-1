@@ -52,21 +52,12 @@ app.configure(socketio({
 }));
 
 app.configure(socketio(function(io) {
+  app.set('socketio', io);
 	io.on('connection', function(socket) {
-		socket.emit('total_connections', Object.keys(io.sockets.sockets).length);
-		socket.on('channel', function (channel) {
-			socket.join(channel);
-		  	socket.emit('viewers', io.sockets.adapter.rooms[channel].length);
-		});
-	    socket.on('redirect', function (argUsername, url){
-	      console.log("redirecting " + argUsername);
-	      socket.broadcast.emit('redirect', argUsername, url);
-	    });
-	    socket.on('reload', function (argUsername){
-	      console.log("reloading " + argUsername);
-	      socket.broadcast.emit('reload', argUsername);
-	    });
-	  });
+    socket.on('channel', function (channel) {
+      socket.join(channel);
+    });
+	});
 }))
 
 app.configure(authentication);

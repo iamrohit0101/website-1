@@ -25,7 +25,7 @@
       ga('send', 'pageview');
     </script>
 
-    <video id=player class="video-js vjs-default-skin" autoplay muted controls preload="auto"></video>
+    <video id=player class="video-js vjs-default-skin" autoplay controls preload="auto"></video>
     <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script type="text/javascript" src="/js/dep/video.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.min.js"></script>
@@ -139,9 +139,10 @@
                     player.error(null);
                     retry();
                 }
+                /* debug purposes
                 if(socket.connected) {
                     socket.disconnect();
-                }
+                }*/
             });
 
             function Emitter() {
@@ -414,16 +415,12 @@
                 }, requestTime);
             }
 
-            socket.on('reload', function (argUsername) {
-                if(channel.toLowerCase() == argUsername.toLowerCase()) {
-                    location.reload();
-                }
+            socket.on('reload', function () {
+                location.reload();
             });
 
-            socket.on('redirect', function (argUsername, url) {
-                if(channel.toLowerCase() == argUsername.toLowerCase()) {
-                    window.location = url;
-                }
+            socket.on('redirect', function (url) {
+                window.location = url;
             });
 
             function checkPatreon() {
