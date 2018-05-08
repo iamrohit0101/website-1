@@ -86,21 +86,22 @@
                 this.poster(poster);
                 this.updateSrc(sources);
                 this.currentResolution(lastKnownServer);
-                this.overlay({
-                    overlays: [{
-                        start: 1,
-                        end: 7,
-                        content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
-                        align: "bottom",
-                        showBackground: false
-                    }]
-                });
                 this.logobrand({
                     image: "https://angelthump.com/assets/patreon.png",
                     destination: "https://patreon.com/angelthump"
                 });
             });
             connect();
+
+            player.overlay({
+                overlays: [{
+                    start: 1,
+                    end: 5,
+                    content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
+                    align: "bottom",
+                    showBackground: false
+                }]
+            });
 
             player.on("pause", function() {
                 if(socket.connected) {
