@@ -19,7 +19,7 @@ module.exports = function(app) {
                 const referer = req.header('Referer') || '/';
                 if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com')) {
                     console.log('redirecting ' + referer);
-                    res.redirect('https://www.youtube.com/watch?v=mj-v6zCnEaw');
+                    res.redirect('https://www.youtube.com/watch?v=xwU43wHaixU');
                 } else {
                     const user = users.data[0];
                     if(user.banned) {
