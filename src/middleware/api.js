@@ -9,13 +9,14 @@ module.exports.individual = function(app) {
 		}).then((users) => {
 			if (users.total > 0) {
 				const user = users.data[0];
-				if(!user.live || user.streamUpdatedAt == null) {
+				if(!user.live /*|| user.streamUpdatedAt == null*/) {
 					res.json({
 						username: user.username,
 						banned: user.banned,
 						poster: user.poster
 					});
 				} else {
+					/*
 					var timeDifference =Math.abs(Math.round(((new Date()).getTime() - user.streamUpdatedAt.getTime()) / 1000 / 60));
 					if(timeDifference > 5) {
 						app.service('users').patch(user._id, {
@@ -23,7 +24,7 @@ module.exports.individual = function(app) {
 						}).then(() => {
 							console.log(username + " is now not live due to no update");
 						});
-					}
+					}*/
 					const username = user.username;
 					const io = app.get('socketio');
 					if(io.sockets.adapter.rooms[username] != null) {
@@ -76,7 +77,7 @@ module.exports.all = function(app) {
 				var number = 0;
 				for(var i = 0; i < users.total; i++) {
 					const user = users.data[i];
-					if(user.streamUpdatedAt != null) {
+					/*if(user.streamUpdatedAt != null) {
 						var timeDifference =Math.abs(Math.round(((new Date()).getTime() - user.streamUpdatedAt.getTime()) / 1000 / 60));
 						if(timeDifference > 5) {
 							app.service('users').patch(user._id, {
@@ -86,7 +87,7 @@ module.exports.all = function(app) {
 							});
 							continue;
 						}
-					}
+					}*/
 					const username = user.username;
 					if(io.sockets.adapter.rooms[username] != null) {
 						var jsonObject = {
