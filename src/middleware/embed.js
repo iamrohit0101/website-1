@@ -17,7 +17,7 @@ module.exports = function(app) {
         .then((users) => {
             if (users.total > 0) {
                 const referer = req.header('Referer') || '/';
-                if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com') || referer.includes('twitch.tv')) {
+                if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com')) {
                     console.log('redirecting ' + referer);
                     res.redirect('https://www.youtube.com/watch?v=mj-v6zCnEaw');
                 } else {
