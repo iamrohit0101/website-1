@@ -1,12 +1,11 @@
 {
   "name": "angelthump",
-  "description": "Streaming service",
+  "description": "Live Streaming Service",
   "version": "4.0.2",
   "homepage": "https://angelthump.com",
   "main": "src/",
   "keywords": [
-    "live streaming",
-    "live video streaming"
+    "live streaming"
   ],
   "license": "MIT",
   "repository": {},

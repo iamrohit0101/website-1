@@ -53,7 +53,10 @@
         }
 
         async function launchPlayer() {
-                var sources = [{
+            if(autoServer == null) { //find a fix if still undefined. possibly with servers?
+                autoServer = 'https://nyc1.angelthump.com/';
+            }
+            var sources = [{
                 type: "application/x-mpegURL",
                 src: autoServer + "hls/" + channel + "/index.m3u8",
                 label: 'auto'
@@ -109,15 +112,55 @@
                 }
                 player.one("play", function() {
                     connect();
-                    player.updateSrc(sources);
-                    player.currentResolution(lastKnownServer);
                 });
             });
-
+            
+            var bufferedEventsCount = 0, serversUsedAlready=[autoServer];
             player.on("playing", function() {
                 if(!socket.connected) {
                     connect();
                 }
+                player.one('waiting', function() {
+                    if(player.readyState() == 2) {
+                        bufferedEventsCount++;
+                        var server;
+                        if(bufferedEventsCount >= 5) {
+                            bufferedEventsCount = 0;
+                            for(server of servers) {
+                                if(!serversUsedAlready.includes(server)) {
+                                    serversUsedAlready.push(server);
+                                    console.log('trying new server: ' + server);
+                                    newServer = server;
+                                    break;
+                                }
+                            }
+                            if(newServer != null) {
+                                sources = [{
+                                    type: "application/x-mpegURL",
+                                    src: newServer + "hls/" + channel + "/index.m3u8",
+                                    label: 'auto'
+                                },{
+                                    type: "application/x-mpegURL",
+                                    src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                                    label: 'US-EAST-PATREON'
+                                },{
+                                    type: "application/x-mpegURL",
+                                    src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                                    label: 'US-WEST-PATREON'
+                                },{
+                                    type: "application/x-mpegURL",
+                                    src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                                    label: 'EU-PATREON'
+                                }];
+                                player.updateSrc(sources);
+                                player.currentResolution('auto');
+                            } else {
+                                console.log('no new servers to try... still buffering');
+                                console.log(servers);
+                            }
+                        }
+                    }
+                })
             })
 
             player.on("resolutionchange", function() {
