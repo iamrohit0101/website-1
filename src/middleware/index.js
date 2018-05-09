@@ -36,11 +36,10 @@ module.exports = function () {
     res.render('embed-test', {username: req.params.username});
   });
 
-  app.post('/patron', patreonAPI(app));
-
+  /*
   app.get('*', function(req,res,next) {
     res.render('errors.ejs', {code: 500, message: "Server is down for maintenance."});
-  });
+  });*/
 
   app.set('view engine', 'ejs');
   app.set('views', 'public');
