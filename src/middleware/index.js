@@ -17,6 +17,14 @@ const client = require('redis').createClient()
 module.exports = function () {
   const app = this;
 
+  //redirect http to https
+  app.all("*", function (req, res, next) {
+    if(req.secure){
+      return next();
+    };
+    res.redirect('https://' + req.hostname + req.url);
+  });
+
   const limiter = require('express-limiter')(app, client)
 
   //limit post requests to 5 request per 30 seconds

@@ -8,30 +8,27 @@ const port = app.get('port');
 const http = require('http');
 
 //force ipv4
-const httpServer = http.createServer(app).listen(80, "0.0.0.0");
-
-app.get("*", function (req, res, next) {
-    res.redirect("https://" + req.headers.host + "/" + req.path);
-});
+const httpServer = http.createServer(app).listen(port, "0.0.0.0");
 
 const server = https.createServer({
    key: fs.readFileSync(path.resolve(__dirname, app.get('key'))),
    cert: fs.readFileSync(path.resolve(__dirname, app.get('cert'))),
    ca: fs.readFileSync(path.resolve(__dirname, app.get('ca')))
    //force ipv4
-}, app).listen(port, "0.0.0.0");
+}, app).listen(443, "0.0.0.0");
 
 // Call app.setup to initialize all services and SocketIO
 app.setup(server);
+app.setup(httpServer);
 
 process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)
 );
 
 httpServer.on('listening', () =>
-  logger.info(`Feathers application started on ${app.get('host')}:80`)
+  logger.info(`Feathers application started on ${app.get('host')}:${port}`)
 );
 
 server.on('listening', () =>
-  logger.info(`Feathers application started on ${app.get('host')}:${port}`)
+  logger.info(`Feathers application started on ${app.get('host')}:443`)
 );

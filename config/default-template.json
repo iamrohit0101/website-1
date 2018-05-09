@@ -1,7 +1,10 @@
 {
-    "host": "angelthump.com",
+    "host": "YOUR_HOST",
     "port": 80,
     "public": "../public/",
+    "key": "YOUR_PRIVKEY_SSL_FILE",
+    "cert": "YOUR_CERT_SSL_FILE",
+    "ca": "YOUR_CHAIN_SSL_FILE",
     "paginate": {
       "default": 10,
       "max": 50
@@ -28,7 +31,7 @@
         "header": {
           "type": "access"
         },
-        "audience": "https://angelthump.com",
+        "audience": "YOUR_HOST",
         "subject": "anonymous",
         "issuer": "feathers",
         "algorithm": "HS256",
@@ -37,19 +40,19 @@
       "local": {
         "entity": "user",
         "service": "users",
-        "usernameField": "username",
+        "usernameField": "email",
         "passwordField": "password"
       },
       "patreon": {
-        "clientID": "",
-        "clientSecret": "",
-        "campaignID": ""
+        "clientID": "YOUR_PATREON_CLIENT_ID",
+        "clientSecret": "YOUR_PATREON_CLIENT_SECRET",
+        "campaignID": "YOUR_CAMPAIGN_ID"
       }
     },
-    "skipIPs": [""],
-    "adminIPs": [""],
-    "mongodb": "mongodb://",
-    "awsAccessKey": "",
-    "awsSecretKey": ""
+    "skipIPs": ["SKIP_IPS"],
+    "adminIPs": ["ADMIN_IPS"],
+    "mongodb": "MONGODB_URI",
+    "awsAccessKey": "YOUR_AWS_ACCESS_KEY",
+    "awsSecretKey": "YOUR_AWS_SECRET_KEY"
   }
   
