@@ -19,7 +19,7 @@ module.exports = function () {
 
   //redirect http to https
   app.all("*", function (req, res, next) {
-    if(req.secure){
+    if(req.secure || req.url.contains('/.well-known')){
       return next();
     };
     res.redirect('https://' + req.hostname + req.url);
