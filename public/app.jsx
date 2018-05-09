@@ -265,10 +265,10 @@ class Settings extends React.Component {
 	            		<strong>rtmp://ams-ingest.angelthump.com:1935/live</strong>
 	            	</h4>
 					<h4>
-								<strong>(ANOTHER EU Ingest URL COMING SOON)</strong>
+								<strong>FRANKFURT (GERMANY) Ingest URL</strong>
 	            	</h4>
 					<h4>
-	            		<strong></strong>
+								<strong>rtmp://fra-ingest.angelthump.com:1935/live</strong>
 	            	</h4>
 								
 					<img src="/assets/ingest.png" width="720">
