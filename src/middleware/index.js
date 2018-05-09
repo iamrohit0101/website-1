@@ -51,6 +51,23 @@ module.exports = function () {
     }
   })
 
+  /* for testing emails
+  app.get('/test-email', function(req,res,next) {
+    var email = {
+      from: "noreply@angelthump.com",
+      to: 'success@simulator.amazonses.com',
+      subject: 'test'
+    }
+    return app.service('emails')
+        .create(email)
+        .then(function(result) {
+          console.log(result)
+          res.status(200).send(result);
+        }).catch(err => {
+          res.status(200).send(err);
+        })
+  })*/
+
   //testing
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
@@ -122,6 +139,10 @@ module.exports = function () {
     res.sendFile('reset_password.html', { root: path.join(__dirname, '../../public') });
   });
 
+  app.get('/resend_email', function(req, res, next){
+    res.sendFile('resend_email.html', { root: path.join(__dirname, '../../public') });
+  });
+
   app.get('/patron', function(req, res, next){
     res.sendFile('patron.html', { root: path.join(__dirname, '../../public') });
   });
@@ -131,8 +152,8 @@ module.exports = function () {
   app.post('/patreon/update', patreonWebhooks.update(app));
   app.post('/patreon/delete', patreonWebhooks.delete(app));
 
-  app.get('/resend-email/:email', authManagement.resend(app));
   
+  app.post('/resendVerification', authManagement.resend(app));
   app.post('/emailPasswordReset', authManagement.emailPasswordReset(app));
   app.post('/passwordReset', authManagement.passwordReset(app));
   app.post('/passwordChange', authManagement.passwordChange(app));

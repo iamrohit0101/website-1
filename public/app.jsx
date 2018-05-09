@@ -61,7 +61,7 @@ function WarningBanner(props) {
 
   return (
     <div className="warning">
-      Please verify your email to use all of the site's functionality! If you did not recieve a email, please click <a href={'https://angelthump.com/resend-email/' + props.email}>here.</a>
+      Please verify your email to use all of the site's functionality! If you did not recieve a email, please click <a href={'https://angelthump.com/resend_email'}>here.</a>
     </div>
   );
 }

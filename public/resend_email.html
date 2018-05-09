@@ -1,0 +1,34 @@
+<title>Resend Email Verification - AngelThump</title>
+<link rel="prefetch" href="/assets/small_logo.png">
+<link rel="stylesheet" href="/css/reset_page.css">
+<div class="reset-page">
+  <a href="/">
+    <img src="/assets/small_logo.png" />
+  </a>
+  <div class="form">
+    <form class="reset-form" method="post" action="/resendVerification">
+      <input id="email" type="email" name="email" placeholder="email"/>
+      <button type="submit" id="reset">Resend Email Verification</button>
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.js"></script>
+<script>
+  const socket = io();
+  const client = feathers();
+
+  client.configure(feathers.socketio(socket));
+  client.configure(feathers.authentication({
+    storage: window.localStorage
+  }));
+
+  client.authenticate()
+  .then(response => {
+    console.log('Authenticated!', response);
+  })
+  .catch(function(error){
+    window.location.href = '/login';
+  });
+</script>

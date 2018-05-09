@@ -14,7 +14,7 @@ module.exports = function(app) {
 
             if (message['Type'] === 'Notification') {
                 // Do whatever you want with the message body and data.
-                const json = message['Message'];
+                const json = JSON.parse(message['Message']);
                 const notificationType = json.notificationType;
                 if(notificationType === 'Bounce') {
                     const bounceObject = json.bounce;
@@ -29,7 +29,7 @@ module.exports = function(app) {
                             if(doc == null) {
                                 var emailModel = {email: bounceRecipient};
                                 datastore.insert(emailModel, function(err, doc) {  
-                                    console.log('Inserted ', doc.email + " into blacklisted email database");
+                                    console.log('Inserted', doc.email + " into blacklisted email database");
                                 });
                             }
                         })

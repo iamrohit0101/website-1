@@ -28,14 +28,26 @@ module.exports = function(app) {
 
 module.exports.resend = function(app) {
   return function(req, res, next) {
-    const authManagement = app.service('authManagement');
-      authManagement.create({ action: 'resendVerifySignup',
-        value: {email: req.params.email},
-      }).then(x => {
-      res.render('success.ejs', {message: "Email sent!"});
-    }).catch(function(error){
-      res.render('errors.ejs', {code: error.code, message: error.message});
-    });;
+    app.service('users').find({
+      query: { email: req.body.email }
+    }).then((users) => {
+      if (users.total > 0) {
+        if(!users.data[0].isVerified) {
+          const authManagement = app.service('authManagement');
+          authManagement.create({ action: 'resendVerifySignup',
+              value: {email: req.body.email},
+            }).then(x => {
+            res.render('success.ejs', {message: "Email sent!"});
+          }).catch(function(error){
+            res.render('errors.ejs', {code: error.code, message: error.message});
+          });
+        } else {
+          res.render('errors.ejs', {code: 400, message: 'user already verified..'});
+        }
+      } else {
+        res.render('errors.ejs', {code: 404, message: 'no user found'});
+      }
+    })
   };
 };
 
@@ -54,14 +66,23 @@ module.exports.passwordChange = function(app) {
 
 module.exports.emailPasswordReset = function(app) {
   return function(req, res, next) {
-    const authManagement = app.service('authManagement');
-      authManagement.create({ action: 'sendResetPwd',
-        value: {email: req.body.email},
-      }).then(x => {
-      res.render('success.ejs', {message: "Email sent!"});
-    }).catch(function(error){
-      res.render('errors.ejs', {code: error.code, message: error.message});
-    });;
+    app.service('users').find({
+      query: { email: req.body.email }
+    }).then((users) => {
+      const user = users.data[0];
+      if (users.total > 0) {
+        const authManagement = app.service('authManagement');
+        authManagement.create({ action: 'sendResetPwd',
+            value: {email: req.body.email},
+          }).then(x => {
+          res.render('success.ejs', {message: "Email sent!"});
+        }).catch(function(error){
+          res.render('errors.ejs', {code: error.code, message: error.message});
+        });
+      } else {
+        res.render('errors.ejs', {code: 404, message: 'no user found'});
+      }
+    })
   };
 };
 

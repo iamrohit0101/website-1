@@ -8,10 +8,11 @@ module.exports = function () {
   	const app = this;
 
   	var sesConfig = {
-  		accessKeyId: app.get('awsAccessKey'),
-        secretAccessKey: app.get('awsSecretKey'),
-        rateLimit: 12
-  	};
+		accessKeyId: app.get('awsAccessKey'),
+		secretAccessKey: app.get('awsSecretKey'),
+		rateLimit: 12
+	};
+	
 	app.use('/emails', mailer(sesTransport(sesConfig)));
 
 	// Get our initialized service so that we can register hooks and filters
