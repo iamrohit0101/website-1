@@ -6,12 +6,11 @@ const path = require('path');
 const app = require('./app');
 const port = app.get('port');
 const http = require('http');
-const httpApp = require('./app');
 
 //force ipv4
-const httpServer = http.createServer(httpApp).listen(80, "0.0.0.0");
+const httpServer = http.createServer(app).listen(80, "0.0.0.0");
 
-httpApp.get("*", function (req, res, next) {
+app.get("*", function (req, res, next) {
     res.redirect("https://" + req.headers.host + "/" + req.path);
 });
 

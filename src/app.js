@@ -23,6 +23,7 @@ const fs = require('fs');
 const morgan = require('morgan');
 const requestIp = require('request-ip');
 const accessLogStream = fs.createWriteStream(path.join(__dirname, '../logs/access.log'), {flags: 'a'});
+const util = require('./middleware/util');
 
 const app = express(feathers());
 
@@ -34,6 +35,7 @@ app.use(helmet({
   frameguard: false
 }));
 app.use(compress());
+app.use(util.overrideContentType());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));

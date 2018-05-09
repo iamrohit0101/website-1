@@ -11,23 +11,43 @@ const api = require('./api');
 const admin = require('./admin');
 const embed = require('./embed');
 const cache = require('apicache').middleware;
+const email = require('./email');
+const client = require('redis').createClient()
 
 module.exports = function () {
   const app = this;
-  
+
+  const limiter = require('express-limiter')(app, client)
+
+  //limit post requests to 5 request per 30 seconds
+  limiter({
+    path: '*',
+    method: 'post',
+    lookup: 'connection.remoteAddress',
+    total: 5,
+    expire: 1000 * 30,
+    onRateLimited: function (req, res, next) {
+      next({ message: 'Rate limit exceeded', code: 429 })
+    }
+  })
+
   //testing
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
   });
-  /*maintenance
+
+  app.post('/patron', patreonAPI(app));
+
   app.get('*', function(req,res,next) {
     res.render('errors.ejs', {code: 500, message: "Server is down for maintenance."});
-  });*/
+  });
 
   app.set('view engine', 'ejs');
   app.set('views', 'public');
 
   app.get('/embed/:username', embed(app));
+
+  app.post('/email-notifications', email(app))
 
   app.get('/api', cache('30 seconds'), api.all(app));
 
@@ -100,7 +120,7 @@ module.exports = function () {
   app.post('/emailPasswordReset', authManagement.emailPasswordReset(app));
   app.post('/passwordReset', authManagement.passwordReset(app));
   app.post('/passwordChange', authManagement.passwordChange(app));
-  app.post('/emailChange', authManagement.emailChange(app))
+  app.post('/emailChange', authManagement.emailChange(app));
 
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
 
