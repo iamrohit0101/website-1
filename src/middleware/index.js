@@ -17,9 +17,21 @@ const client = require('redis').createClient()
 module.exports = function () {
   const app = this;
 
+  app.set('view engine', 'ejs');
+  app.set('views', 'public');
+  
+  app.post('/live', events.stream(app));
+  app.post('/done', events.done(app));
+  app.post('/update', events.update(app));
+
   //redirect http to https
   app.all("*", function (req, res, next) {
-    if(req.secure || req.url.contains('/.well-known')){
+    if(req.url != null) {
+      if(req.url.includes('/.well-known')) {
+        return next();
+      }
+    }
+    if(req.secure){
       return next();
     };
     res.redirect('https://' + req.hostname + req.url);
@@ -48,9 +60,6 @@ module.exports = function () {
   app.get('*', function(req,res,next) {
     res.render('errors.ejs', {code: 500, message: "Server is down for maintenance."});
   });*/
-
-  app.set('view engine', 'ejs');
-  app.set('views', 'public');
 
   app.get('/embed/:username', embed(app));
 
@@ -136,10 +145,6 @@ module.exports = function () {
     res.sendFile('checkPassword.html', { root: path.join(__dirname, '../../public') });
   });
   app.post('/checkPassword', admin.checkPassword(app));
-
-  app.post('/live', events.stream(app));
-  app.post('/done', events.done(app));
-  app.post('/update', events.update(app));
 
   app.use(express.notFound({ verbose: true }));
 
