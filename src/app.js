@@ -40,6 +40,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
+
+//redirect root www to root non www
+app.get("/", function (req, res, next) {
+  if(req.hostname.includes('www')) {
+    res.redirect("https://angelthump.com");
+  } else {
+    res.sendFile('index.html', { root: path.join(__dirname, '../public/') });
+  }
+});
 app.use('/', express.static(app.get('public')));
 
 //log to file
