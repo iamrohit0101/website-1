@@ -12,7 +12,8 @@ const admin = require('./admin');
 const embed = require('./embed');
 const cache = require('apicache').middleware;
 const email = require('./email');
-const client = require('redis').createClient()
+const client = require('redis').createClient();
+const recaptcha = require('./recaptcha.js');
 
 module.exports = function () {
   const app = this;
@@ -146,6 +147,7 @@ module.exports = function () {
   app.get('/patron', function(req, res, next){
     res.sendFile('patron.html', { root: path.join(__dirname, '../../public') });
   });
+
   app.post('/patron', patreonAPI(app));
 
   app.post('/patreon/create', patreonWebhooks.create(app));
@@ -153,8 +155,8 @@ module.exports = function () {
   app.post('/patreon/delete', patreonWebhooks.delete(app));
 
   
-  app.post('/resendVerification', authManagement.resend(app));
-  app.post('/emailPasswordReset', authManagement.emailPasswordReset(app));
+  app.post('/resendVerification', [recaptcha.verify(),authManagement.resend(app)]);
+  app.post('/emailPasswordReset', [recaptcha.verify(),authManagement.emailPasswordReset(app)]);
   app.post('/passwordReset', authManagement.passwordReset(app));
   app.post('/passwordChange', authManagement.passwordChange(app));
   app.post('/emailChange', authManagement.emailChange(app));

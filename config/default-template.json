@@ -53,6 +53,7 @@
     "adminIPs": ["ADMIN_IPS"],
     "mongodb": "MONGODB_URI",
     "awsAccessKey": "YOUR_AWS_ACCESS_KEY",
-    "awsSecretKey": "YOUR_AWS_SECRET_KEY"
+    "awsSecretKey": "YOUR_AWS_SECRET_KEY",
+    "recaptchaSecret": "YOUR_RECAPTCHA_SECRET"
   }
   

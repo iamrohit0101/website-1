@@ -1,6 +1,7 @@
 <title>Password Recovery - AngelThump</title>
 <link rel="prefetch" href="/assets/small_logo.png">
 <link rel="stylesheet" href="/css/reset_page.css">
+<script src='https://www.google.com/recaptcha/api.js'></script>
 <div class="reset-page">
   <a href="/">
     <img src="/assets/small_logo.png" />
@@ -8,6 +9,7 @@
   <div class="form">
     <form class="reset-form" method="post" action="/emailPasswordReset">
       <input id="email" type="email" name="email" placeholder="email"/>
+      <div class="g-recaptcha" data-sitekey="6Lf6TVgUAAAAAFfSioc-cykEjZnF7_ol0eXp2wKG"></div>
       <button type="submit" id="submit">Reset Your Password</button>
     </form>
   </div>
