@@ -43,7 +43,7 @@ app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 
 //redirect root www to root non www
 app.get("/", function (req, res, next) {
-  if(req.hostname.includes('www')) {
+  if(!req.secure) {
     res.redirect("https://angelthump.com");
   } else {
     res.sendFile('index.html', { root: path.join(__dirname, '../public/') });
