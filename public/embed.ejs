@@ -31,6 +31,7 @@
     <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.min.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-hlsjs-plugin.js"></script>
     <script type="text/javascript" src="/js/dep/videojs.logobrand.js"></script>
+    <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-chromecast.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.5.5/core.min.js"></script>
@@ -42,7 +43,7 @@
         var socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server'), servers = <%- JSON.stringify(servers) %>, autoServer = localStorage.getItem('auto-server');
         var freeServerLabels = ['https://nyc1.angelthump.com/','https://nyc2.angelthump.com/','https://sfo1.angelthump.com/',
         'https://sfo2.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
-        'https://ams1.angelthump.com/','https://lon1.angelthump.com/hls/','https://blr1.angelthump.com/','https://sgp1.angelthump.com/'];
+        'https://ams1.angelthump.com/','https://lon1.angelthump.com/','https://blr1.angelthump.com/','https://sgp1.angelthump.com/'];
         var patreonLabels = ['US-EAST-PATREON','US-WEST-PATREON','EU-PATREON'];
 
         if((lastKnownServer == null && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
@@ -95,6 +96,9 @@
                 });
             });
             connect();
+            player.persistvolume({
+                namespace: "volume"
+            });
 
             player.overlay({
                 overlays: [{
@@ -115,11 +119,12 @@
                 });
             });
             
-            var bufferedEventsCount = 0, serversUsedAlready=[autoServer];
+            //var bufferedEventsCount = 0, serversUsedAlready=[autoServer];
             player.on("playing", function() {
                 if(!socket.connected) {
                     connect();
                 }
+                /*
                 player.one('waiting', function() {
                     if(player.readyState() == 2) {
                         bufferedEventsCount++;
@@ -160,7 +165,7 @@
                             }
                         }
                     }
-                })
+                })*/
             })
 
             player.on("resolutionchange", function() {
