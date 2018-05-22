@@ -79,7 +79,7 @@ module.exports = function(app) {
                             } else if (continent == 'AN') { //none
                                 console.log("?????? where " + data.city.names[0]);
                             } else {
-                                console.log(continent + " help");
+                                console.log(data + " help");
                             }
 
                             res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});

@@ -163,7 +163,7 @@ module.exports = function () {
 
   app.get('/management/:type(verify||reset||verifyChanges)/:hash', authManagement(app));
 
-  app.post('/signup', signup(app));
+  app.post('/signup', [recaptcha.verify(),signup(app)]);
   app.get('/checkPassword', function(req, res, next){
     res.sendFile('checkPassword.html', { root: path.join(__dirname, '../../public') });
   });
