@@ -1,8 +1,8 @@
-const feathers = require('@feathersjs/client');
-const React = require('react');
-const ReactDOM = require('react-dom');
-const socketio = require('@feathersjs/socketio-client');
-const authentication = require('@feathersjs/authentication-client');
+import feathers from '@feathersjs/client';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import socketio from '@feathersjs/socketio-client';
+import authentication from '@feathersjs/authentication-client';
 
 const socket = io('https://angelthump.com');
 const client = feathers();
@@ -280,10 +280,7 @@ class Settings extends React.Component {
 	            		<strong>Bitrate: 3500</strong>
 	            	</h4>
 	            	<h4>
-	            		<strong>Keyframe Interval: 1</strong>
-	            	</h4>
-	            	<h4>
-	            		<strong>x264 option: scenecut=-1</strong>
+	            		<strong>Keyframe Interval: 2</strong>
 	            	</h4>
 	            	<img src="/assets/options.png" width="720">
 	            	</img>
@@ -413,38 +410,70 @@ class Patreon extends React.Component {
 class ImageUpload extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {file: '',imagePreviewUrl: props.url};
-  }
+		this.state = {
+			file: '',
+			imagePreviewUrl: props.url,
+			acceptedFileTypes: ['.jpg', '.jpeg', '.png'],
+			acceptedFileSize: 3242880
+		};
+	}
 
-  _handleSubmit(e) {
+	_handleSubmit(e) {
     e.preventDefault();
-    console.log('handle uploading-', this.state.file);
+		
+		if(this.state.file != '') {
+			const uploadService = client.service('uploads');
+			uploadService
+			.create({uri: this.state.imagePreviewUrl})
+			.then(function(response){
+				patchUser(response.id);
+			}).catch(function(error) {
+				console.log(error);
+			});
+		} else {
+			alert('choose a file');
+		}
+	}
+	
+	_handleImageChange(e) {
+		e.preventDefault();
+		let file = e.target.files[0];
+		if(file.size >= this.state.acceptedFileSize) {
+			alert("file is too big");
+			this.reset();
+			return;
+		}
+		if(!this.hasExtension(file.name)) {
+			alert("can't use this type of file");
+			this.reset();
+			return;
+		}
 
-    const uploadService = client.service('uploads');
-    uploadService
-    .create({uri: this.state.imagePreviewUrl})
-    .then(function(response){
-    	patchUser(response.id);
-    }).catch(function(error) {
-    	console.log(error);
-    });
-  }
+		let reader = new FileReader();
 
-  _handleImageChange(e) {
-    e.preventDefault();
+		reader.onloadend = () => {
+			this.setState({
+				file: file,
+				imagePreviewUrl: reader.result
+			});
+		}
 
-    let reader = new FileReader();
-    let file = e.target.files[0];
+		reader.readAsDataURL(file)
+	}
 
-    reader.onloadend = () => {
-      this.setState({
-        file: file,
-        imagePreviewUrl: reader.result
-      });
-    }
-
-    reader.readAsDataURL(file)
-  }
+	reset() {
+		this.setState({
+			file: '',
+			imagePreviewUrl: this.props.url
+		});
+	}
+	
+	/*
+	 Check file extension
+	 */
+	hasExtension(fileName) {
+		return (new RegExp('(' + this.state.acceptedFileTypes.join('|').replace(/\./g, '\\.') + ')$')).test(fileName);
+	}
 
   render() {
     let {imagePreviewUrl} = this.state;
@@ -460,7 +489,8 @@ class ImageUpload extends React.Component {
       		{$imagePreview}
 	        <div className="input file optional user_channel_offline_image">
 	        	<form onSubmit={(e)=>this._handleSubmit(e)}>
-		          <input className="file optional" 
+							<input className="file optional" 
+								accept="image/jpg,image/jpeg,image/x-png"
 		            type="file" 
 		            onChange={(e)=>this._handleImageChange(e)} />
 		          <button className="button upload" 
