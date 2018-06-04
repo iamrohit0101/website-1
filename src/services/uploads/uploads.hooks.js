@@ -7,12 +7,15 @@ module.exports = {
     get: [],
     create: [
       function(hook) {
-            hook.params.s3 = { ACL: 'public-read' };
-            if (!hook.data.uri && hook.params.file){
-                const file = hook.params.file;
-                const uri = dauria.getBase64DataURI(file.buffer, file.mimetype);
-                hook.data = {uri: uri};
-            }
+          hook.params.s3 = { 
+            ACL: 'public-read',
+            CacheControl: 'max-age=31536000'
+          };
+          if (!hook.data.uri && hook.params.file){
+              const file = hook.params.file;
+              const uri = dauria.getBase64DataURI(file.buffer, file.mimetype);
+              hook.data = {uri: uri};
+          }
         }
     ],
     update: [],
