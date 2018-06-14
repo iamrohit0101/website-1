@@ -32,6 +32,9 @@ module.exports = function () {
         return next();
       }
     }
+    if (req.hostname.includes('www')) {
+      res.redirect('https://angelthump.com' + req.url);
+    }
     if(req.secure){
       return next();
     };
