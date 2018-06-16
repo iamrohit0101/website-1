@@ -10,6 +10,10 @@ const rp = require('request-promise');
 
 module.exports = function(app) {
     return function(req, res, next) {
+        if (req.hostname.includes('www')) {
+            res.redirect('https://angelthump.com' + req.url);
+            return;
+        }
         const requested_username = req.params.username;
         app.service('users').find({
             query: { username: requested_username }
@@ -73,13 +77,11 @@ module.exports = function(app) {
                             } else if (continent == 'AS') { //singapore, bangalore
                                 servers = ["https://sgp1.angelthump.com/", "https://blr1.angelthump.com/"]
                             } else if (continent == 'OC') { //singapore
-                                servers = ["https://sgp1.angelthump.com/"]
+                                "https://sgp1.angelthump.com/", "https://blr1.angelthump.com/", "https://ams1.angelthump.com/"
                             } else if (continent == 'AF') { //none
-                                servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/", "https://blr1.angelthump.com/"]
+                                servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/"]
                             } else if (continent == 'AN') { //none
-                                console.log("?????? where " + data.city.names[0]);
-                            } else {
-                                console.log(data + " help");
+                                "https://sgp1.angelthump.com/", "https://blr1.angelthump.com/", "https://ams1.angelthump.com/"
                             }
 
                             res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
