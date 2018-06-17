@@ -6,11 +6,11 @@
     <link rel="prefetch" href="/assets/patreon-overlay.png">
     <link rel="stylesheet" href="/css/errors.css">
 	<link href="/css/embed.min.css" rel="stylesheet">
-    <link href="/css/video-js.min.css" rel="stylesheet">
-    <link href="/css/videojs-chromecast.min.css" rel="stylesheet">
-    <link href="/css/videojs.logobrand.min.css" rel="stylesheet">
-    <link href="/css/videojs-resolution-switcher.min.css" rel="stylesheet">
-    <link href="/css/videojs-overlay.css" rel="stylesheet">
+    <link href="/css/vjs6/video-js.min.css" rel="stylesheet">
+    <link href="/css/vjs6/videojs-chromecast.min.css" rel="stylesheet">
+    <link href="/css/vjs6/videojs.logobrand.min.css" rel="stylesheet">
+    <link href="/css/vjs6/videojs-resolution-switcher.min.css" rel="stylesheet">
+    <link href="/css/vjs6/videojs-overlay.css" rel="stylesheet">
     <link rel="shortcut icon" href="/favicon.ico">
 </head>
 
@@ -26,81 +26,60 @@
     </script>
 
     <video id=player class="video-js vjs-default-skin" autoplay controls playsinline preload="auto"></video>
-    <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
-    <script type="text/javascript" src="/js/dep/video.min.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs-resolution-switcher.min.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs-hlsjs-plugin.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs.logobrand.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs-persistvolume.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs-chromecast.js"></script>
+    <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script type="text/javascript" src="/js/dep/vjs6/video.min.js"></script>
+    <script type="text/javascript" src="/js/dep/vjs6/videojs-resolution-switcher.js"></script>
+    <script type="text/javascript" src="/js/dep/vjs6/videojs-hlsjs-plugin.js"></script>
+    <script type="text/javascript" src="/js/dep/vjs6/videojs.logobrand.js"></script>
+    <script type="text/javascript" src="/js/dep/vjs6/videojs-persistvolume.js"></script>
+    <script type="text/javascript" src="/js/dep/vjs6/videojs-chromecast.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.5.5/core.min.js"></script>
-    <script type="text/javascript" src="//unpkg.com/@feathersjs/client@3.3.0/dist/feathers.min.js"></script>
-    <script type="text/javascript" src="/js/dep/videojs-overlay.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.5.7/core.min.js"></script>
+    <script type="text/javascript" src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.min.js"></script>
+    <script type="text/javascript" src="/js/dep/vjs6/videojs-overlay.min.js"></script>
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="text/javascript">
-        var socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server'), servers = <%- JSON.stringify(servers) %>, autoServer = localStorage.getItem('auto-server');
-        var freeServerLabels = ['https://nyc1.angelthump.com/','https://nyc2.angelthump.com/','https://sfo1.angelthump.com/',
-        'https://sfo2.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
+        var socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server'), 
+        servers = <%- JSON.stringify(servers) %>, autoServer = localStorage.getItem('autoServer');
+        var freeServerLabels = ['https://nyc1.angelthump.com/','https://sfo1.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/','https://blr1.angelthump.com/','https://sgp1.angelthump.com/'];
         var patreonLabels = ['US-EAST-PATREON','US-WEST-PATREON','EU-PATREON'];
+        
+        connect();
 
-        if((lastKnownServer == null && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
-            lastKnownServer = 'auto';
-            getServer();
-        } else {
-            launchPlayer();
-        }
-
-        async function launchPlayer() {
-            if(autoServer == null) { //find a fix if still undefined. possibly with servers?
-                autoServer = 'https://nyc1.angelthump.com/';
-            }
-            var sources = [{
-                type: "application/x-mpegURL",
-                src: autoServer + "hls/" + channel + "/index.m3u8",
-                label: 'auto'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-EAST-PATREON'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'US-WEST-PATREON'
-            },{
-                type: "application/x-mpegURL",
-                src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                label: 'EU-PATREON'
-            }];
-
-            var options = {
-                errorDisplay: false,
-                plugins: {
-                    videoJsResolutionSwitcher: {
-                        default: 'auto',
-                        dynamicLabel: true
-                    }
+        var options = {
+            errorDisplay: false,
+            plugins: {
+                videoJsResolutionSwitcher: {
+                    dynamicLabel: true
                 }
-            };
+            },
+            html5: {
+                hlsjsConfig: {
+                    debug: false
+                }
+            },
+            chromecast:{
+                appId:'50E3A992',
+                metadata:{
+                    title: channel + "'s stream"
+                }
+            }
+        };
 
-            var player = videojs('player', options);
-            player.ready(function() {
-                this.poster(poster);
-                this.updateSrc(sources);
-                this.currentResolution(lastKnownServer);
-                this.logobrand({
-                    image: "https://angelthump.com/assets/patreon.png",
-                    destination: "https://patreon.com/angelthump"
-                });
+        var player = videojs('player', options);
+        player.ready(function() {
+            this.loadingSpinner.hide();
+            this.poster(poster);
+            this.logobrand({
+                image: "https://angelthump.com/assets/patreon.png",
+                destination: "https://patreon.com/angelthump"
             });
-            connect();
-            player.persistvolume({
+            this.persistvolume({
                 namespace: "volume"
             });
-
-            player.overlay({
+            this.overlay({
                 overlays: [{
                     start: 1,
                     end: 5,
@@ -109,226 +88,247 @@
                     showBackground: false
                 }]
             });
-
-            player.on("pause", function() {
-                if(socket.connected) {
-                    socket.disconnect();
+            if(((lastKnownServer == null || lastKnownServer == 'auto') && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
+                getServer();
+            } else {
+                startStream();
+            }
+        });
+        
+        //var bufferedEventsCount = 0, serversUsedAlready=[autoServer];
+        player.on("playing", function() {
+            if(!socket.connected) {
+                connect();
+            }
+            /*
+            player.one('waiting', function() {
+                if(player.readyState() == 2) {
+                    bufferedEventsCount++;
+                    var server;
+                    if(bufferedEventsCount >= 5) {
+                        bufferedEventsCount = 0;
+                        for(server of servers) {
+                            if(!serversUsedAlready.includes(server)) {
+                                serversUsedAlready.push(server);
+                                console.log('trying new server: ' + server);
+                                newServer = server;
+                                break;
+                            }
+                        }
+                        if(newServer != null) {
+                            sources = [{
+                                type: "application/x-mpegURL",
+                                src: newServer + "hls/" + channel + "/index.m3u8",
+                                label: 'auto'
+                            },{
+                                type: "application/x-mpegURL",
+                                src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                                label: 'US-EAST-PATREON'
+                            },{
+                                type: "application/x-mpegURL",
+                                src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                                label: 'US-WEST-PATREON'
+                            },{
+                                type: "application/x-mpegURL",
+                                src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                                label: 'EU-PATREON'
+                            }];
+                            player.updateSrc(sources);
+                            player.currentResolution('auto');
+                        } else {
+                            console.log('no new servers to try... still buffering');
+                            console.log(servers);
+                        }
+                    }
                 }
-                player.one("play", function() {
-                    connect();
+            })*/
+        })
+
+        player.on("resolutionchange", function() {
+            player.loadingSpinner.show();
+            if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
+                checkPatreon();
+            } else {
+                lastKnownServer = player.currentResolution().label;
+                localStorage.setItem('server', lastKnownServer);
+            }
+        });
+
+        function Emitter() {
+            var handlers = {};
+
+            function getEventHandlers(name) {
+                return handlers.hasOwnProperty(name) ? handlers[name] : (handlers[name] = {on: [], one: []});
+            }
+
+            function on(name, handler) {
+                getEventHandlers(name).on.push(handler);
+            }
+
+            function one(name, handler) {
+                getEventHandlers(name).one.push(handler);
+            }
+
+            function remove(arr, v) {
+                var i = arr.indexOf(v);
+                if (i !== -1) {
+                    arr.splice(i, 1);
+                }
+            }
+
+            function off(name, handler) {
+                var eventHandlers = handlers[name];
+                if (eventHandlers !== undefined) {
+                    remove(eventHandlers.on, handler);
+                    remove(eventHandlers.one, handler);
+                    if (eventHandlers.on.length === 0 && eventHandlers.one.length === 0) {
+                        delete handlers[name];
+                    }
+                }
+            }
+
+            function emit(name) {
+                var eventHandlers = handlers[name];
+                if (eventHandlers !== undefined) {
+                    var args = Array.prototype.slice.call(arguments, 1);
+                    var onHandlers = eventHandlers.on;
+                    var oneHandlers = eventHandlers.one;
+
+                    eventHandlers.one = [];
+
+                    for (var i = 0, l = onHandlers.length; i < l; i ++) {
+                        onHandlers[i].apply(this, args);
+                    }
+                    for (var i = 0, l = oneHandlers.length; i < l; i ++) {
+                        oneHandlers[i].apply(this, args);
+                    }
+
+                }
+            }
+
+            return {
+                on: on,
+                off: off,
+                one: one,
+                emit: emit,
+            };
+        }
+
+        function Monitor(player) {
+            var REPORT_INTERVAL = 5000;
+            var REPORT_SERVER = 'https://stats.angelthump.com';
+            var RESOURCE_TIMING_FLUSH_INTERVAL = 100;
+
+            var active = {};
+            var events = [];
+            var live = false;
+
+            function publishReport() {
+                Object.keys(active).forEach(function(k) {
+                    events.push(Object.assign({active: true}, active[k]));
                 });
-            });
-            
-            //var bufferedEventsCount = 0, serversUsedAlready=[autoServer];
-            player.on("playing", function() {
-                if(!socket.connected) {
-                    connect();
-                }
-                /*
-                player.one('waiting', function() {
-                    if(player.readyState() == 2) {
-                        bufferedEventsCount++;
-                        var server;
-                        if(bufferedEventsCount >= 5) {
-                            bufferedEventsCount = 0;
-                            for(server of servers) {
-                                if(!serversUsedAlready.includes(server)) {
-                                    serversUsedAlready.push(server);
-                                    console.log('trying new server: ' + server);
-                                    newServer = server;
-                                    break;
-                                }
-                            }
-                            if(newServer != null) {
-                                sources = [{
-                                    type: "application/x-mpegURL",
-                                    src: newServer + "hls/" + channel + "/index.m3u8",
-                                    label: 'auto'
-                                },{
-                                    type: "application/x-mpegURL",
-                                    src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                                    label: 'US-EAST-PATREON'
-                                },{
-                                    type: "application/x-mpegURL",
-                                    src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                                    label: 'US-WEST-PATREON'
-                                },{
-                                    type: "application/x-mpegURL",
-                                    src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                                    label: 'EU-PATREON'
-                                }];
-                                player.updateSrc(sources);
-                                player.currentResolution('auto');
-                            } else {
-                                console.log('no new servers to try... still buffering');
-                                console.log(servers);
-                            }
+
+                var report = {};
+                events.forEach(function(event) {
+                    for (var k in event) {
+                        if (event.hasOwnProperty(k) && event[k] === 0 || event[k] == null) {
+                            delete event[k];
                         }
                     }
-                })*/
-            })
 
-            player.on("resolutionchange", function() {
-                player.loadingSpinner.show();
-                if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
-                    checkPatreon();
-                } else {
-                    lastKnownServer = player.currentResolution().label;
-                    localStorage.setItem('server', lastKnownServer);
+                    event.sent = Date.now();
+
+                    (report[event.type] || (report[event.type] = [])).push(event);
+                });
+
+                var req = new XMLHttpRequest();
+                req.open('POST', REPORT_SERVER + '/api/v1/report', true);
+                req.setRequestHeader('Content-type', 'application/javascript');
+                req.send(JSON.stringify(report));
+            }
+
+            setInterval(function() {
+                if (live) {
+                    publishReport();
                 }
-            });
+                events = [];
+            }, REPORT_INTERVAL);
 
-            player.on('error', function(e) {
-                if (player.error().code == 4) {
-                    player.loadingSpinner.hide();
-                    player.error(null);
-                    retry();
-                } else if (player.error().code == 2) {
-                    player.loadingSpinner.hide();
-                    player.error(null);
-                    retry();
-                }
-                /* debug purposes
-                if(socket.connected) {
-                    socket.disconnect();
-                }*/
-            });
+            var clientId = Date.now();
+            var eventId = 0;
+            var hostPattern = /https:\/\/([^\.]+)/i;
+            function initEvent() {
+                var match = player.currentSrc().match(hostPattern);
 
-            function Emitter() {
-                var handlers = {};
-
-                function getEventHandlers(name) {
-                    return handlers.hasOwnProperty(name) ? handlers[name] : (handlers[name] = {on: [], one: []});
-                }
-
-                function on(name, handler) {
-                    getEventHandlers(name).on.push(handler);
-                }
-
-                function one(name, handler) {
-                    getEventHandlers(name).one.push(handler);
-                }
-
-                function remove(arr, v) {
-                    var i = arr.indexOf(v);
-                    if (i !== -1) {
-                        arr.splice(i, 1);
-                    }
-                }
-
-                function off(name, handler) {
-                    var eventHandlers = handlers[name];
-                    if (eventHandlers !== undefined) {
-                        remove(eventHandlers.on, handler);
-                        remove(eventHandlers.one, handler);
-                        if (eventHandlers.on.length === 0 && eventHandlers.one.length === 0) {
-                            delete handlers[name];
-                        }
-                    }
-                }
-
-                function emit(name) {
-                    var eventHandlers = handlers[name];
-                    if (eventHandlers !== undefined) {
-                        var args = Array.prototype.slice.call(arguments, 1);
-                        var onHandlers = eventHandlers.on;
-                        var oneHandlers = eventHandlers.one;
-
-                        eventHandlers.one = [];
-
-                        for (var i = 0, l = onHandlers.length; i < l; i ++) {
-                            onHandlers[i].apply(this, args);
-                        }
-                        for (var i = 0, l = oneHandlers.length; i < l; i ++) {
-                            oneHandlers[i].apply(this, args);
-                        }
-
-                    }
-                }
+                var dimensions = player.currentDimensions();
+                var sourceRatio = player.videoHeight() / player.videoWidth();
+                var playerRatio = dimensions.height / dimensions.width;
+                var scale = playerRatio > sourceRatio
+                    ? dimensions.width / player.videoWidth()
+                    : dimensions.height / player.videoHeight();
 
                 return {
-                    on: on,
-                    off: off,
-                    one: one,
-                    emit: emit,
+                    clientId: clientId,
+                    eventId: eventId ++,
+                    source: match ? match[1] : '',
+                    videoHeight: player.videoHeight(),
+                    videoWidth: player.videoWidth(),
+                    scale: Math.round(scale * 100) / 100,
+                    channel: channel,
                 };
             }
 
-            function Monitor(player) {
-                var REPORT_INTERVAL = 5000;
-                var REPORT_SERVER = 'https://stats.angelthump.com';
-                var RESOURCE_TIMING_FLUSH_INTERVAL = 100;
+            var emitter = Emitter();
 
-                var active = {};
-                var events = [];
-                var live = false;
-
-                function publishReport() {
-                    Object.keys(active).forEach(function(k) {
-                        events.push(Object.assign({active: true}, active[k]));
+            function eventProxy(src) {
+                return function(name) {
+                    src.on(name, function() {
+                        var args = [name];
+                        Array.prototype.push.apply(args, arguments);
+                        emitter.emit.apply(this, args);
                     });
-
-                    var report = {};
-                    events.forEach(function(event) {
-                        for (var k in event) {
-                            if (event.hasOwnProperty(k) && event[k] === 0 || event[k] == null) {
-                                delete event[k];
-                            }
-                        }
-
-                        event.sent = Date.now();
-
-                        (report[event.type] || (report[event.type] = [])).push(event);
-                    });
-
-                    var req = new XMLHttpRequest();
-                    req.open('POST', REPORT_SERVER + '/api/v1/report', true);
-                    req.setRequestHeader('Content-type', 'application/javascript');
-                    req.send(JSON.stringify(report));
                 }
+            }
 
-                setInterval(function() {
-                    if (live) {
-                        publishReport();
-                    }
-                    events = [];
-                }, REPORT_INTERVAL);
+            [
+                'waiting',
+                'loadstart',
+                'loadedmetadata',
+                'loadeddata',
+                'canplay',
+                'canplaythrough',
+                'playing',
+                'play',
+                'stalled',
+                'error'
+            ].forEach(eventProxy(player));
 
-                var clientId = Date.now();
-                var eventId = 0;
-                var hostPattern = /https:\/\/([^\.]+)/i;
-                function initEvent() {
-                    var match = player.currentSrc().match(hostPattern);
+            videojs.Html5Hlsjs.addHook('beforeinitialize', function(player, hlsjs) {
+                [
+                    'hlsError',
+                    'hlsMediaAttaching',
+                ].forEach(eventProxy(hlsjs));
+            });
 
-                    var dimensions = player.currentDimensions();
-                    var sourceRatio = player.videoHeight() / player.videoWidth();
-                    var playerRatio = dimensions.height / dimensions.width;
-                    var scale = playerRatio > sourceRatio
-                        ? dimensions.width / player.videoWidth()
-                        : dimensions.height / player.videoHeight();
-
-                    return {
-                        clientId: clientId,
-                        eventId: eventId ++,
-                        source: match ? match[1] : '',
-                        videoHeight: player.videoHeight(),
-                        videoWidth: player.videoWidth(),
-                        scale: Math.round(scale * 100) / 100,
-                        channel: channel,
-                    };
+            emitter.on('hlsError', function(type, e) {
+                if (e.response !== undefined && e.response.code === 404) {
+                    live = false;
+                    emitter.emit('streamOffline');
                 }
+            });
 
-                var emitter = Emitter();
+            emitter.on('hlsMediaAttaching', function() {
+                live = true;
+                events = [];
+                emitter.emit('streamOnline');
+            });
 
-                function eventProxy(src) {
-                    return function(name) {
-                        src.on(name, function() {
-                            var args = [name];
-                            Array.prototype.push.apply(args, arguments);
-                            emitter.emit.apply(this, args);
-                        });
-                    }
-                }
+            function beginBufferingEvent(type, done) {
+                var event = Object.assign(initEvent(), {
+                    type: type,
+                    start: Date.now(),
+                    cancelled: false
+                });
 
                 [
                     'waiting',
@@ -337,188 +337,154 @@
                     'loadeddata',
                     'canplay',
                     'canplaythrough',
-                    'playing',
-                    'play',
-                    'stalled',
-                    'error'
-                ].forEach(eventProxy(player));
-
-                videojs.Html5Hlsjs.addHook('beforeinitialize', function(player, hlsjs) {
-                    [
-                        'hlsError',
-                        'hlsMediaAttaching',
-                    ].forEach(eventProxy(hlsjs));
-                });
-
-                emitter.on('hlsError', function(type, e) {
-                    if (e.response !== undefined && e.response.code === 404) {
-                        live = false;
-                        emitter.emit('streamOffline');
-                    }
-                });
-
-                emitter.on('hlsMediaAttaching', function() {
-                    live = true;
-                    events = [];
-                    emitter.emit('streamOnline');
-                });
-
-                function beginBufferingEvent(type, done) {
-                    var event = Object.assign(initEvent(), {
-                        type: type,
-                        start: Date.now(),
-                        cancelled: false
+                    'playing'
+                ].forEach(function(name) {
+                    emitter.one(name, function() {
+                        event[name] = Date.now() - event.start;
                     });
+                });
 
-                    [
-                        'waiting',
-                        'loadstart',
-                        'loadedmetadata',
-                        'loadeddata',
-                        'canplay',
-                        'canplaythrough',
-                        'playing'
-                    ].forEach(function(name) {
-                        emitter.one(name, function() {
-                            event[name] = Date.now() - event.start;
-                        });
-                    });
+                function cancel() {
+                    event.cancelled = true;
+                    done(event);
+                }
+                emitter.one('pause', cancel);
+                emitter.one('streamOnline', cancel);
 
-                    function cancel() {
-                        event.cancelled = true;
+                emitter.one('canplaythrough', function() {
+                    if (!event.cancelled) {
+                        emitter.off('pause', cancel);
                         done(event);
                     }
-                    emitter.one('pause', cancel);
-                    emitter.one('streamOnline', cancel);
+                });
 
-                    emitter.one('canplaythrough', function() {
+                return event;
+            }
+
+            function handleBufferingEvent(type) {
+                if (active[type] === undefined) {
+                    active[type] = beginBufferingEvent(type, function(event) {
                         if (!event.cancelled) {
-                            emitter.off('pause', cancel);
-                            done(event);
+                            events.push(active[type])
+                        }
+                        if (active[type] === event) {
+                            delete active[type];
                         }
                     });
-
-                    return event;
                 }
+            }
 
-                function handleBufferingEvent(type) {
-                    if (active[type] === undefined) {
-                        active[type] = beginBufferingEvent(type, function(event) {
-                            if (!event.cancelled) {
-                                events.push(active[type])
-                            }
-                            if (active[type] === event) {
-                                delete active[type];
-                            }
-                        });
-                    }
-                }
+            emitter.on('play', function() { handleBufferingEvent('play'); });
+            emitter.on('stalled', function() { handleBufferingEvent('stalled'); });
+            emitter.on('waiting', function() { handleBufferingEvent('waiting'); });
 
-                emitter.on('play', function() { handleBufferingEvent('play'); });
-                emitter.on('stalled', function() { handleBufferingEvent('stalled'); });
-                emitter.on('waiting', function() { handleBufferingEvent('waiting'); });
-
-                emitter.on('error', function() {
-                    events.push({
-                        type: 'error',
-                        networkState: player.networkState(),
-                        error: player.error()
-                    });
+            emitter.on('error', function() {
+                events.push({
+                    type: 'error',
+                    networkState: player.networkState(),
+                    error: player.error()
                 });
+            });
 
-                var tsPattern = /^https:\/\/([^\.]+).*\/([0-9]+)\.ts$/i
+            var tsPattern = /^https:\/\/([^\.]+).*\/([0-9]+)\.ts$/i
+            performance.clearResourceTimings();
+            setInterval(function() {
+                var timings = performance.getEntriesByType('resource');
                 performance.clearResourceTimings();
-                setInterval(function() {
-                    var timings = performance.getEntriesByType('resource');
-                    performance.clearResourceTimings();
 
-                    timings.forEach(function(t) {
-                        var match = t.name.match(tsPattern);
-                        if (match) {
-                            events.push(Object.assign(initEvent(), {
-                                type: 'resource',
-                                host: match[1],
-                                chunk: parseFloat(match[2]),
-                                redirect: Math.round(t.fetchStart - t.startTime),
-                                dns: Math.round(t.domainLookupEnd - t.domainLookupStart),
-                                connect: Math.round(t.connectEnd - t.connectStart),
-                                send: Math.round(t.responseStart - t.requestStart),
-                                receive: Math.round(t.responseEnd - t.responseStart),
-                                total: Math.round(t.duration),
-                                size: t.transferSize
-                            }));
-                        }
-                    });
-                }, RESOURCE_TIMING_FLUSH_INTERVAL);
-            }
-
-            new Monitor(player);
-
-            function retry() {
-                setTimeout(function() {
-                    player.currentResolution(lastKnownServer);
-
-                    if (requestTime < 16000) {
-                        requestTime = requestTime * 2;
+                timings.forEach(function(t) {
+                    var match = t.name.match(tsPattern);
+                    if (match) {
+                        events.push(Object.assign(initEvent(), {
+                            type: 'resource',
+                            host: match[1],
+                            chunk: parseFloat(match[2]),
+                            redirect: Math.round(t.fetchStart - t.startTime),
+                            dns: Math.round(t.domainLookupEnd - t.domainLookupStart),
+                            connect: Math.round(t.connectEnd - t.connectStart),
+                            send: Math.round(t.responseStart - t.requestStart),
+                            receive: Math.round(t.responseEnd - t.responseStart),
+                            total: Math.round(t.duration),
+                            size: t.transferSize
+                        }));
                     }
-                }, requestTime);
-            }
-
-            socket.on('reload', function () {
-                location.reload();
-            });
-
-            socket.on('redirect', function (url) {
-                window.location = url;
-            });
-
-            function checkPatreon() {
-                var app = feathers()
-                    .configure(feathers.socketio(socket))
-                    .configure(feathers.authentication({
-                        storage: window.localStorage
-                    }));
-                app.authenticate()
-                .then(response => {
-                    console.log('Authenticated!');
-                    return app.passport.verifyJWT(response.accessToken);
-                })
-                .then(payload => {
-                    return app.service('users').get(payload.userId);
-                })
-                .then(user => {
-                    app.set('user', user);
-                    var user = app.get('user');
-                    if (user.ifPatreon) {
-                        localStorage.setItem('server', player.currentResolution().label);
-                        lastKnownServer = player.currentResolution().label;
-                    } else {
-                        player.currentResolution(lastKnownServer);
-                        alert("You are not a patron!");
-                    }
-                })
-                .catch(function(error){
-                    player.currentResolution(lastKnownServer);
-                    window.location = 'https://angelthump.com/login';
-                    console.error('Error authenticating!', error);
                 });
-
-                socket.io.engine.on('upgrade', function(transport) {
-                    console.log('transport changed');
-                    app.authenticate();
-                });
-            }
-
-
-            function connect() {
-                socket = io(host, {
-                    transports: ['websocket']
-                });
-                socket.on('connect', function() {
-                    socket.emit('channel', channel);
-                });
-            }
+            }, RESOURCE_TIMING_FLUSH_INTERVAL);
         }
+
+        new Monitor(player);
+
+        player.on('error', function(e) {
+            player.loadingSpinner.hide();
+            player.error(null);
+            retry();
+        });
+
+        function retry() {
+            setTimeout(function() {
+                player.currentResolution(lastKnownServer);
+
+                if (requestTime < 16000) {
+                    requestTime = requestTime * 2;
+                }
+            }, requestTime);
+        }
+
+        socket.on('reload', function () {
+            location.reload();
+        });
+
+        socket.on('redirect', function (url) {
+            window.location = url;
+        });
+
+        function checkPatreon() {
+            var app = feathers()
+                .configure(feathers.socketio(socket))
+                .configure(feathers.authentication({
+                    storage: window.localStorage
+                }));
+            app.authenticate()
+            .then(response => {
+                console.log('Authenticated!');
+                return app.passport.verifyJWT(response.accessToken);
+            })
+            .then(payload => {
+                return app.service('users').get(payload.userId);
+            })
+            .then(user => {
+                app.set('user', user);
+                var user = app.get('user');
+                if (user.ifPatreon) {
+                    localStorage.setItem('server', player.currentResolution().label);
+                    lastKnownServer = player.currentResolution().label;
+                } else {
+                    player.currentResolution(lastKnownServer);
+                    alert("You are not a patron!");
+                }
+            })
+            .catch(function(error){
+                player.currentResolution(lastKnownServer);
+                window.location = 'https://angelthump.com/login';
+                console.error('Error authenticating!', error);
+            });
+
+            socket.io.engine.on('upgrade', function(transport) {
+                console.log('transport changed');
+                app.authenticate();
+            });
+        }
+
+
+        function connect() {
+            socket = io(host, {
+                transports: ['websocket']
+            });
+            socket.on('connect', function() {
+                socket.emit('channel', channel);
+            });
+        }
+        
 
         var responseTime = [];
 
@@ -540,11 +506,50 @@
                 await getTiming(server);
             }
             var server = servers[responseTime.indexOf(Math.min.apply(null , responseTime))];
-            localStorage.setItem('auto-server', server);
+            localStorage.setItem('autoServer', server);
             console.log(Math.min.apply(null , responseTime));
             console.log(server);
             autoServer = server;
-            launchPlayer();
+            const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
+            lastKnownServer = 'auto (' + label + ')';
+            if(autoServer == null) { //find a fix if still undefined. possibly with servers?
+                autoServer = 'https://tor1.angelthump.com/';
+                console.log('autoServer was null, forced to tor1');
+            }
+            startStream();
+        }
+
+        function startStream() {
+            const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
+            var sources = [];
+            sources.push({
+                    type: "application/x-mpegURL",
+                    src: autoServer + "hls/" + channel + "/index.m3u8",
+                    label: 'auto (' + label + ')'
+                },{
+                    type: "application/x-mpegURL",
+                    src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'US-EAST-PATREON'
+                },{
+                    type: "application/x-mpegURL",
+                    src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'US-WEST-PATREON'
+                },{
+                    type: "application/x-mpegURL",
+                    src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'EU-PATREON'
+            })
+            /*
+            servers.forEach(function(server) {
+                const label = server.substring(server.indexOf('/') + 2, server.indexOf('.') - 1);
+                sources.push({
+                    type: "application/x-mpegURL",
+                    src: server + "hls/" + channel + "/index.m3u8",
+                    label: label + " (free)"
+                });
+            })*/
+            player.updateSrc(sources);
+            player.currentResolution(lastKnownServer);
         }
 
     </script>
