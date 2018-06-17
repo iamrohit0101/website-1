@@ -32,7 +32,6 @@ public/embed-test*
 *.conf
 public/.old
 package-lock.json
-public/uploads
 public/js/
 public/css/
 public/assets

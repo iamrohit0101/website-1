@@ -521,6 +521,9 @@
 
         function startStream() {
             const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
+            if(lastKnownServer.startsWith('auto')) {
+                lastKnownServer = 'auto (' + label + ')';
+            }
             var sources = [];
             sources.push({
                     type: "application/x-mpegURL",
