@@ -69,10 +69,12 @@ module.exports = function () {
         })
   })*/
 
-  //testing
+  testing
   app.get('/embed-test/:username', function(req, res, next){
     res.render('embed-test', {username: req.params.username});
   });
+
+  /*app.get('/embed-test/:username', embed.test(app))*/
 
   /*
   app.get('*', function(req,res,next) {

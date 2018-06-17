@@ -37,25 +37,18 @@ module.exports = function(app) {
                                     const ip = requestIp.getClientIp(req); 
                                     const data = lookup.get(ip);
                                     const continent = data.continent.code;
-                                    var servers = [];
-
-                                    if(continent == 'NA') {
-                                        servers = ["https://nyc1.angelthump.com/", "https://sfo1.angelthump.com/", "https://tor1.angelthump.com/"]
-                                    } else if (continent == 'SA') {
-                                        servers = ["https://nyc1.angelthump.com/", "https://sfo1.angelthump.com/", "https://tor1.angelthump.com/"]
-                                    } else if (continent == 'EU') { //frankfurt london amsterdam 
-                                        servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/"]
-                                    } else if (continent == 'AS') { //singapore, bangalore
-                                        servers = ["https://sgp1.angelthump.com/", "https://blr1.angelthump.com/"]
-                                    } else if (continent == 'OC') { //singapore
-                                        servers = ["https://sgp1.angelthump.com/"]
-                                    } else if (continent == 'AF') { //none
-                                        servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/", "https://blr1.angelthump.com/"]
-                                    } else if (continent == 'AN') { //none
-                                        console.log("?????? where " + data.city.names[0]);
-                                    } else {
-                                        console.log(continent + " help");
-                                    }
+                                    var continentPoPs = {
+                                        'NA': ['nyc1', 'sfo1', 'tor1', 'ams1'],
+                                        'SA': ['nyc1', 'sfo1', 'tor1'],
+                                        'EU': ['fra1', 'lon1', 'ams1', 'tor1'],
+                                        'AS': ['sgp1', 'blr1', 'fra1', 'ams1'],
+                                        'OC': ['sgp1', 'blr1', 'sfo1'],
+                                        'AF': ['fra1', 'ams1', 'lon1', 'nyc1'],
+                                        'AN': ['sgp1', 'blr1', 'ams1'],
+                                    };
+                                    var allPoPs = ['nyc1', 'sfo1', 'tor1', 'fra1', 'lon1', 'ams1', 'sgp1', 'blr1'];
+                                    var formatHost = function(sub) { return 'https://' + sub + '.angelthump.com/'; };
+                                    var servers = (continentPoPs[continent] || allPoPs).map(formatHost);
 
                                     res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
                                 } else {
@@ -68,23 +61,104 @@ module.exports = function(app) {
                             const continent = data.continent.code;
                             var servers = [];
 
-                            if(continent == 'NA') {
-                                servers = ["https://nyc1.angelthump.com/", "https://sfo1.angelthump.com/", "https://tor1.angelthump.com/"]
-                            } else if (continent == 'SA') {
-                                servers = ["https://nyc1.angelthump.com/", "https://sfo1.angelthump.com/", "https://tor1.angelthump.com/"]
-                            } else if (continent == 'EU') { //frankfurt london amsterdam 
-                                servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/"]
-                            } else if (continent == 'AS') { //singapore, bangalore
-                                servers = ["https://sgp1.angelthump.com/", "https://blr1.angelthump.com/"]
-                            } else if (continent == 'OC') { //singapore
-                                "https://sgp1.angelthump.com/", "https://blr1.angelthump.com/", "https://ams1.angelthump.com/"
-                            } else if (continent == 'AF') { //none
-                                servers = ["https://fra1.angelthump.com/", "https://lon1.angelthump.com/", "https://ams1.angelthump.com/"]
-                            } else if (continent == 'AN') { //none
-                                "https://sgp1.angelthump.com/", "https://blr1.angelthump.com/", "https://ams1.angelthump.com/"
-                            }
+                            var continentPoPs = {
+                                'NA': ['nyc1', 'sfo1', 'tor1', 'ams1'],
+                                'SA': ['nyc1', 'sfo1', 'tor1'],
+                                'EU': ['fra1', 'lon1', 'ams1', 'tor1'],
+                                'AS': ['sgp1', 'blr1', 'fra1', 'ams1'],
+                                'OC': ['sgp1', 'blr1', 'sfo1'],
+                                'AF': ['fra1', 'ams1', 'lon1', 'nyc1'],
+                                'AN': ['sgp1', 'blr1', 'ams1'],
+                            };
+                            var allPoPs = ['nyc1', 'sfo1', 'tor1', 'fra1', 'lon1', 'ams1', 'sgp1', 'blr1'];
+                            var formatHost = function(sub) { return 'https://' + sub + '.angelthump.com/'; };
+                            var servers = (continentPoPs[continent] || allPoPs).map(formatHost);
+
 
                             res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
+                        }
+                    }
+                }
+            } else {
+                res.render('errors.ejs', {code: 404, message: `there is no stream named: ${requested_username}`});
+            }
+        }).catch((e) => {
+            res.render('errors.ejs', {code: 400, message: `wtf did u do? ` + e});
+        });
+    };
+};
+
+/** 
+ * Test-Bed
+*/
+module.exports.test = function(app) {
+    return function(req, res, next) {
+        if (req.hostname.includes('www')) {
+            res.redirect('https://angelthump.com' + req.url);
+            return;
+        }
+        const requested_username = req.params.username;
+        app.service('users').find({
+            query: { username: requested_username }
+        })
+        .then((users) => {
+            if (users.total > 0) {
+                const referer = req.header('Referer') || '/';
+                if(referer.includes("t.co") || referer.includes("reddit.com") || referer.includes('facebook.com')) {
+                    console.log('redirecting ' + referer);
+                    res.redirect('https://www.youtube.com/watch?v=xwU43wHaixU');
+                } else {
+                    const user = users.data[0];
+                    if(user.banned) {
+                        res.render('errors.ejs', {code: 401, message: "User is banned"});
+                    } else {
+                        if(user.passwordProtected) {
+                            if(req.query.password == null) {
+                                res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
+                            } else {
+                                if(req.query.password == user.streamPassword) {
+                                    const ip = requestIp.getClientIp(req); 
+                                    const data = lookup.get(ip);
+                                    const continent = data.continent.code;
+                                    var continentPoPs = {
+                                        'NA': ['nyc1', 'sfo1', 'tor1', 'ams1'],
+                                        'SA': ['nyc1', 'sfo1', 'tor1'],
+                                        'EU': ['fra1', 'lon1', 'ams1', 'tor1'],
+                                        'AS': ['sgp1', 'blr1', 'fra1', 'ams1'],
+                                        'OC': ['sgp1', 'blr1', 'sfo1'],
+                                        'AF': ['fra1', 'ams1', 'lon1', 'nyc1'],
+                                        'AN': ['sgp1', 'blr1', 'ams1'],
+                                    };
+                                    var allPoPs = ['nyc1', 'sfo1', 'tor1', 'fra1', 'lon1', 'ams1', 'sgp1', 'blr1'];
+                                    var formatHost = function(sub) { return 'https://' + sub + '.angelthump.com/'; };
+                                    var servers = (continentPoPs[continent] || allPoPs).map(formatHost);
+
+                                    res.render('embed-test', {username: req.params.username, poster: user.poster, servers: servers});
+                                } else {
+                                    res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
+                                }
+                            }
+                        } else {
+                            const ip = requestIp.getClientIp(req); 
+                            const data = lookup.get(ip);
+                            const continent = data.continent.code;
+                            var servers = [];
+
+                            var continentPoPs = {
+                                'NA': ['nyc1', 'sfo1', 'tor1', 'ams1'],
+                                'SA': ['nyc1', 'sfo1', 'tor1'],
+                                'EU': ['fra1', 'lon1', 'ams1', 'tor1'],
+                                'AS': ['sgp1', 'blr1', 'fra1', 'ams1'],
+                                'OC': ['sgp1', 'blr1', 'sfo1'],
+                                'AF': ['fra1', 'ams1', 'lon1', 'nyc1'],
+                                'AN': ['sgp1', 'blr1', 'ams1'],
+                            };
+                            var allPoPs = ['nyc1', 'sfo1', 'tor1', 'fra1', 'lon1', 'ams1', 'sgp1', 'blr1'];
+                            var formatHost = function(sub) { return 'https://' + sub + '.angelthump.com/'; };
+                            var servers = (continentPoPs[continent] || allPoPs).map(formatHost);
+
+
+                            res.render('embed-test', {username: req.params.username, poster: user.poster, servers: servers});
                         }
                     }
                 }
