@@ -412,7 +412,9 @@
             }, RESOURCE_TIMING_FLUSH_INTERVAL);
         }
 
-        new Monitor(player);
+        if (videojs.Html5Hlsjs) {
+            new Monitor(player);
+        }
 
         player.on('error', function(e) {
             player.loadingSpinner.hide();
@@ -484,34 +486,33 @@
                 socket.emit('channel', channel);
             });
         }
-        
-
-        var responseTime = [];
 
         async function getTiming(url) {
             var startTime = (new Date()).getTime();
+            var elaspedTime = null;
             await axios({timeout: 5000, url: url + "random.png"})
             .then(function (response) {
                 var endTime = (new Date()).getTime();
-                var elaspedTime = endTime - startTime;
-                responseTime.push(elaspedTime);
+                elaspedTime = endTime - startTime;
                 console.log(url + ": " + elaspedTime);
             }).catch(function(error){
                 console.log(error);
             });
+            return elaspedTime;
         }
 
         async function getServer() {
-            for(const server of servers) {
-                await getTiming(server);
-            }
-            var server = servers[responseTime.indexOf(Math.min.apply(null , responseTime))];
+            const responseTime = servers.map(async server => await getTiming(server));
+            var server;
+            await Promise.all(responseTime).then((results) => {
+                server = servers[results.indexOf(Math.min.apply(null , results))];
+                console.log(server);
+            });
             localStorage.setItem('autoServer', server);
-            console.log(Math.min.apply(null , responseTime));
-            console.log(server);
             autoServer = server;
             const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
             lastKnownServer = 'auto (' + label + ')';
+            localStorage.setItem('server', lastKnownServer);
             if(autoServer == null) { //find a fix if still undefined. possibly with servers?
                 autoServer = 'https://tor1.angelthump.com/';
                 console.log('autoServer was null, forced to tor1');
