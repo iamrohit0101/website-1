@@ -40,15 +40,15 @@
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="text/javascript">
-        var socket, host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", requestTime = 1000, lastKnownServer = localStorage.getItem('server'), 
-        servers = <%- JSON.stringify(servers) %>, autoServer = localStorage.getItem('autoServer');
-        var freeServerLabels = ['https://nyc1.angelthump.com/','https://sfo1.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
+        const host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", servers = <%- JSON.stringify(servers) %>;
+        var socket, requestTime = 1000, lastKnownServer = localStorage.getItem('server'), autoServer = localStorage.getItem('autoServer');
+        const freeServerLabels = ['https://nyc1.angelthump.com/','https://sfo1.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/','https://blr1.angelthump.com/','https://sgp1.angelthump.com/'];
-        var patreonLabels = ['US-EAST-PATREON','US-WEST-PATREON','EU-PATREON'];
+        const patreonLabels = ['US-EAST-PREMIUM','TORONTO-PREMIUM','US-WEST-PREMIUM','AMSDERTAM-PREMIUM','GERMANY-PREMIUM','LONDON-PREMIUM'];
         
         connect();
 
-        var options = {
+        const options = {
             errorDisplay: false,
             plugins: {
                 videoJsResolutionSwitcher: {
@@ -68,7 +68,7 @@
             }
         };
 
-        var player = videojs('player', options);
+        const player = videojs('player', options);
         player.ready(function() {
             this.loadingSpinner.hide();
             this.poster(poster);
@@ -146,7 +146,7 @@
 
         player.on("resolutionchange", function() {
             player.loadingSpinner.show();
-            if (player.currentResolution().label == 'US-EAST-PATREON' || player.currentResolution().label == 'EU-PATREON' || player.currentResolution().label == 'US-WEST-PATREON') {
+            if (patreonLabels.includes(player.currentResolution().label)) {
                 checkPatreon();
             } else {
                 lastKnownServer = player.currentResolution().label;
@@ -526,23 +526,37 @@
                 lastKnownServer = 'auto (' + label + ')';
             }
             var sources = [];
-            sources.push({
+            sources.push(
+                {
                     type: "application/x-mpegURL",
                     src: autoServer + "hls/" + channel + "/index.m3u8",
                     label: 'auto (' + label + ')'
                 },{
                     type: "application/x-mpegURL",
                     src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                    label: 'US-EAST-PATREON'
+                    label: 'US-EAST-PREMIUM'
+                },{
+                    type: "application/x-mpegURL",
+                    src: "https://tor-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'TORONTO-PREMIUM'
                 },{
                     type: "application/x-mpegURL",
                     src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                    label: 'US-WEST-PATREON'
+                    label: 'US-WEST-PREMIUM'
+                },{
+                    type: "application/x-mpegURL",
+                    src: "https://lon-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'LONDON-PREMIUM'
+                },{
+                    type: "application/x-mpegURL",
+                    src: "https://fra-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'GERMANY-PREMIUM'
                 },{
                     type: "application/x-mpegURL",
                     src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
-                    label: 'EU-PATREON'
-            })
+                    label: 'AMSTERDAM-PREMIUM'
+                }
+            );
             /*
             servers.forEach(function(server) {
                 const label = server.substring(server.indexOf('/') + 2, server.indexOf('.') - 1);
