@@ -45,11 +45,12 @@
         const freeServerLabels = ['https://nyc1.angelthump.com/','https://sfo1.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/','https://blr1.angelthump.com/','https://sgp1.angelthump.com/'];
         const patreonLabels = ['US-EAST-PREMIUM','TORONTO-PREMIUM','US-WEST-PREMIUM','AMSDERTAM-PREMIUM','GERMANY-PREMIUM','LONDON-PREMIUM'];
-
+        var disablePatreonServers = false;
         try {
             lastKnownServer = localStorage.getItem('server');
             autoServer = localStorage.getItem('autoServer');
         } catch (e) {
+            disablePatreonServers = true;
             console.log(e);
             console.log("Please enable 3rd party cookies in your browser, so the site runs more smoothly :) !");
         }
@@ -158,7 +159,7 @@
                 checkPatreon();
             } else {
                 lastKnownServer = player.currentResolution().label;
-                localStorage.setItem('server', lastKnownServer);
+                updateServer(lastKnownServer);
             }
         });
 
@@ -449,40 +450,45 @@
         });
 
         function checkPatreon() {
-            var app = feathers()
+            if(!disablePatreonServers) {
+                var app = feathers()
                 .configure(feathers.socketio(socket))
                 .configure(feathers.authentication({
                     storage: window.localStorage
                 }));
-            app.authenticate()
-            .then(response => {
-                console.log('Authenticated!');
-                return app.passport.verifyJWT(response.accessToken);
-            })
-            .then(payload => {
-                return app.service('users').get(payload.userId);
-            })
-            .then(user => {
-                app.set('user', user);
-                var user = app.get('user');
-                if (user.ifPatreon) {
-                    localStorage.setItem('server', player.currentResolution().label);
-                    lastKnownServer = player.currentResolution().label;
-                } else {
+                app.authenticate()
+                .then(response => {
+                    console.log('Authenticated!');
+                    return app.passport.verifyJWT(response.accessToken);
+                })
+                .then(payload => {
+                    return app.service('users').get(payload.userId);
+                })
+                .then(user => {
+                    app.set('user', user);
+                    var user = app.get('user');
+                    if (user.ifPatreon) {
+                        lastKnownServer = player.currentResolution().label;
+                        updateServer();
+                    } else {
+                        player.currentResolution(lastKnownServer);
+                        alert("You are not a patron!");
+                    }
+                })
+                .catch(function(error){
                     player.currentResolution(lastKnownServer);
-                    alert("You are not a patron!");
-                }
-            })
-            .catch(function(error){
-                player.currentResolution(lastKnownServer);
-                window.location = 'https://angelthump.com/login';
-                console.error('Error authenticating!', error);
-            });
+                    window.location = 'https://angelthump.com/login';
+                    console.error('Error authenticating!', error);
+                });
 
-            socket.io.engine.on('upgrade', function(transport) {
-                console.log('transport changed');
-                app.authenticate();
-            });
+                socket.io.engine.on('upgrade', function(transport) {
+                    console.log('transport changed');
+                    app.authenticate();
+                });
+            } else {
+                alert('You must enable 3rd party cookies in your browser before using Patreon servers!');
+                player.currentResolution(lastKnownServer);
+            }
         }
 
 
@@ -519,13 +525,7 @@
             autoServer = server;
             const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
             lastKnownServer = 'auto (' + label + ')';
-            try {
-                localStorage.setItem('autoServer', autoServer);
-                localStorage.setItem('server', lastKnownServer);
-            } catch(e) {
-                console.log(e); 
-                console.log("Please enable 3rd party cookies in your browser, so the site runs more smoothly :) !");
-            }
+            updateServer(lastKnownServer);
             if(autoServer == null) { //find a fix if still undefined. possibly with servers?
                 autoServer = 'https://tor1.angelthump.com/';
                 console.log('autoServer was null, forced to tor1');
@@ -581,6 +581,16 @@
             })*/
             player.updateSrc(sources);
             player.currentResolution(lastKnownServer);
+        }
+
+        function updateServer() {
+            try {
+                localStorage.setItem('autoServer', autoServer);
+                localStorage.setItem('server', lastKnownServer);
+            } catch(e) {
+                console.log(e); 
+                console.log("Please enable 3rd party cookies in your browser, so the site runs more smoothly :) !");
+            }
         }
 
     </script>
