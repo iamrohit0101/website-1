@@ -41,10 +41,18 @@
 
     <script type="text/javascript">
         const host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", servers = <%- JSON.stringify(servers) %>;
-        var socket, requestTime = 1000, lastKnownServer = localStorage.getItem('server'), autoServer = localStorage.getItem('autoServer');
+        var socket, requestTime = 1000, lastKnownServer, autoServer;
         const freeServerLabels = ['https://nyc1.angelthump.com/','https://sfo1.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/','https://blr1.angelthump.com/','https://sgp1.angelthump.com/'];
         const patreonLabels = ['US-EAST-PREMIUM','TORONTO-PREMIUM','US-WEST-PREMIUM','AMSDERTAM-PREMIUM','GERMANY-PREMIUM','LONDON-PREMIUM'];
+
+        try {
+            lastKnownServer = localStorage.getItem('server');
+            autoServer = localStorage.getItem('autoServer');
+        } catch (e) {
+            console.log(e);
+            console.log("Please enable 3rd party cookies in your browser, so the site runs more smoothly :) !");
+        }
         
         connect();
 
@@ -508,11 +516,16 @@
                 server = servers[results.indexOf(Math.min.apply(null , results))];
                 console.log(server);
             });
-            localStorage.setItem('autoServer', server);
             autoServer = server;
             const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
             lastKnownServer = 'auto (' + label + ')';
-            localStorage.setItem('server', lastKnownServer);
+            try {
+                localStorage.setItem('autoServer', autoServer);
+                localStorage.setItem('server', lastKnownServer);
+            } catch(e) {
+                console.log(e); 
+                console.log("Please enable 3rd party cookies in your browser, so the site runs more smoothly :) !");
+            }
             if(autoServer == null) { //find a fix if still undefined. possibly with servers?
                 autoServer = 'https://tor1.angelthump.com/';
                 console.log('autoServer was null, forced to tor1');
