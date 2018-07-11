@@ -104,23 +104,24 @@ module.exports.test = function(app) {
 function render(req, res, user, test) {
     const ip = requestIp.getClientIp(req); 
     const data = lookup.get(ip);
-    const continent = data.continent.code;
+    var continent = null;
+    if(data !== null) {
+        continent = data.continent.code;
+    }
     var formatHost = function(sub) { return 'https://' + sub + '.angelthump.com/'; };
     var allPoPs = ['nyc1', 'sfo1', 'tor1', 'fra1', 'lon1', 'ams1', 'sgp1', 'blr1'];
-    if(continent != null) {
-        var continentPoPs = {
-            'NA': ['nyc1', 'sfo1', 'tor1', 'ams1'],
-            'SA': ['nyc1', 'sfo1', 'tor1'],
-            'EU': ['fra1', 'lon1', 'ams1', 'tor1'],
-            'AS': ['sgp1', 'blr1', 'fra1', 'ams1'],
-            'OC': ['sgp1', 'blr1', 'sfo1'],
-            'AF': ['fra1', 'ams1', 'lon1', 'nyc1'],
-            'AN': ['sgp1', 'blr1', 'ams1'],
-        };
-        var servers = (continentPoPs[continent] || allPoPs).map(formatHost);
-    } else {
-        var servers = allPoPs.map(formatHost);
-    }
+    var servers;
+    var continentPoPs = {
+        'NA': ['nyc1', 'sfo1', 'tor1', 'ams1'],
+        'SA': ['nyc1', 'sfo1', 'tor1'],
+        'EU': ['fra1', 'lon1', 'ams1', 'tor1'],
+        'AS': ['sgp1', 'blr1', 'fra1', 'ams1'],
+        'OC': ['sgp1', 'blr1', 'sfo1'],
+        'AF': ['fra1', 'ams1', 'lon1', 'nyc1'],
+        'AN': ['sgp1', 'blr1', 'ams1'],
+    };
+    servers = (continentPoPs[continent] || allPoPs).map(formatHost);
+
 
     if(!test) {
         res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});

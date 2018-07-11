@@ -503,15 +503,15 @@
 
         async function getTiming(url) {
             var startTime = (new Date()).getTime();
-            var elaspedTime = null;
+            var elaspedTime = Infinity;
             await axios({timeout: 5000, url: url + "random.png"})
             .then(function (response) {
                 var endTime = (new Date()).getTime();
                 elaspedTime = endTime - startTime;
-                console.log(url + ": " + elaspedTime);
             }).catch(function(error){
                 console.log(error);
             });
+            console.log(url + ": " + elaspedTime);
             return elaspedTime;
         }
 
