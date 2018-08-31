@@ -90,8 +90,9 @@ module.exports = function () {
   app.get('/api/:username', cache('30 seconds'), api.individual(app));
 
   app.get('/admin/reload/:username', admin.reload(app));
-
   app.get('/admin/redirect/:username/:puntUsername', admin.redirect(app));
+  app.get('/admin/ban/:username', admin.ban(app));
+  app.get('/admin/unban/:username/', admin.unban(app));
 
   app.get('/dmca', function(req, res, next){
     res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });

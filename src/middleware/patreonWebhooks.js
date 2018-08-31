@@ -12,7 +12,7 @@ module.exports.create = function(app) {
 	          query: { email: includedEmail }
 	        })
 	        .then((users) => {
-	            const user = users.data[0];
+				const user = users.data[0];
 	            if (users.total > 0 && !user.banned && user.isVerified) {
 	                if(!user.ifPatreon) {
 	                	app.service('users').patch(user._id, {
@@ -21,7 +21,9 @@ module.exports.create = function(app) {
 	                        console.log(user.email + " is now a patron!");
 	                        res.status(200).send("ok!");
 	                    });
-	                }
+	                } else {
+						res.status(200).send("already a patron!");
+					}
 	            } else {
 	            	console.log(includedEmail + " may not be verified or is banned or not found in system!");
 	            	res.status(200).send("not found");
