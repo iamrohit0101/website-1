@@ -40,7 +40,7 @@
     <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="text/javascript">
-        const host = 'https://angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", servers = <%- JSON.stringify(servers) %>;
+        const host = 'https://viewer-api.angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", servers = <%- JSON.stringify(servers) %>;
         var socket, requestTime = 1000, lastKnownServer, autoServer;
         const freeServerLabels = ['https://nyc1.angelthump.com/','https://sfo1.angelthump.com/','https://tor1.angelthump.com/','https://fra1.angelthump.com/',
         'https://ams1.angelthump.com/','https://lon1.angelthump.com/','https://blr1.angelthump.com/','https://sgp1.angelthump.com/'];
@@ -451,8 +451,12 @@
 
         function checkPatreon() {
             if(!disablePatreonServers) {
+                var auth = io("https://angelthump.com", {
+                    transports: ['websocket']
+                });
+
                 var app = feathers()
-                .configure(feathers.socketio(socket))
+                .configure(feathers.socketio(auth))
                 .configure(feathers.authentication({
                     storage: window.localStorage
                 }));
@@ -474,6 +478,7 @@
                         player.currentResolution(lastKnownServer);
                         alert("You are not a patron!");
                     }
+                    auth.disconnect();
                 })
                 .catch(function(error){
                     player.currentResolution(lastKnownServer);
@@ -481,13 +486,14 @@
                     console.error('Error authenticating!', error);
                 });
 
-                socket.io.engine.on('upgrade', function(transport) {
+                auth.io.engine.on('upgrade', function(transport) {
                     console.log('transport changed');
                     app.authenticate();
                 });
             } else {
                 alert('You must enable 3rd party cookies in your browser before using Patreon servers!');
                 player.currentResolution(lastKnownServer);
+                auth.disconnect();
             }
         }
 

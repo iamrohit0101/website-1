@@ -1,4 +1,5 @@
 'use strict';
+const request = require('request-promise');
 
 module.exports.individual = function(app) {
 	return function(req, res, next) {
@@ -27,31 +28,22 @@ module.exports.individual = function(app) {
 					}*/
 					const username = user.username;
 					const io = app.get('socketio');
-					if(io.sockets.adapter.rooms[username] != null) {
+					request({
+						url: 'https://viewer-api.angelthump.com/viewers/' + username,
+						json: true
+					}).then(function (json) {
 						res.json({
 							username: user.username,
 							live: user.live,
 							title: user.title,
-							viewers: io.sockets.adapter.rooms[username].length,
+							viewers: json.viewers,
 							passwordProtected: user.passwordProtected,
 							banned: user.banned,
 							poster: user.poster,
 							thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
 							created_at: user.streamCreatedAt
 						});
-					} else {
-						res.json({
-							username: user.username,
-							live: user.live,
-							title: user.title,
-							viewers: 0,
-							passwordProtected: user.passwordProtected,
-							banned: user.banned,
-							poster: user.poster,
-							thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
-							created_at: user.streamCreatedAt
-						});
-					}
+					});
 				}
 			} else {
 					res.render('errors.ejs', {code: 404, message: `No Users Named ${requested_username}`});
@@ -89,23 +81,21 @@ module.exports.all = function(app) {
 						}
 					}*/
 					const username = user.username;
-					if(io.sockets.adapter.rooms[username] != null) {
+
+					request({
+						url: 'https://viewer-api.angelthump.com/viewers/' + username,
+						json: true
+					}).then(function (json) {
 						var jsonObject = {
 							username: username,
-							viewers: io.sockets.adapter.rooms[username].length
+							viewers: json.viewers
 						};
 						jsonArray.push(jsonObject);
-						total_viewers += io.sockets.adapter.rooms[username].length;
-					} else {
-						var jsonObject = {
-							username: username,
-							viewers: 0
-						};
-						jsonArray.push(jsonObject);
-					}
-					if (++number == users.total) {
-						callback(jsonArray);
-					}
+						total_viewers += json.viewers;
+						if (++number == users.total) {
+							callback(jsonArray);
+						}
+					});
 				}
 			}
 
@@ -123,10 +113,10 @@ module.exports.all = function(app) {
 			if(users.total != 0) {
 				api(function(data) {
 						data.sort(sortBy("viewers"));
-						res.json({stream_list: data, streams: users.total, total_viewers: total_viewers, connections: io.engine.clientsCount});
+						res.json({stream_list: data, streams: users.total, total_viewers: total_viewers/*, connections: io.engine.clientsCount*/});
 				});
 			} else {
-				res.json({stream_list: [], streams: users.total, total_viewers: total_viewers, connections: io.engine.clientsCount});
+				res.json({stream_list: [], streams: users.total, total_viewers: total_viewers/*, connections: io.engine.clientsCount*/});
 			}
 		})
 		.catch((e) => {

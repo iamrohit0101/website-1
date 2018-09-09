@@ -6,10 +6,14 @@ module.exports.reload = function(app) {
   return function(req, res, next) {
     const requested_username = req.params.username;
     const apiKey = req.headers.authorization.split(' ')[1];
-    const io = app.get('socketio');
     if (config.adminKeys.includes(apiKey)) {
       console.log("reloading " + requested_username);
-      io.to(requested_username).emit('reload');
+      request.post({
+        url: 'https://viewer-api.angelthump.com/admin/reload/' + requested_username,
+        headers: {
+          'Authorization': 'Bearer ' + apiKey
+        }
+      });
       res.status(200).send("ok");
     } else {
       res.status(403).send('wrong key');
@@ -22,9 +26,13 @@ module.exports.redirect = function(app) {
     const requested_username = req.params.username;
     const puntUsername = req.params.puntUsername;
     const apiKey = req.headers.authorization.split(' ')[1];
-    const io = app.get('socketio');
     if (config.adminKeys.includes(apiKey)) {
-      io.to(requested_username).emit('redirect', puntUsername);
+      request.post({
+        url: 'https://viewer-api.angelthump.com/admin/redirect/' + requested_username + '/' + puntUsername,
+        headers: {
+          'Authorization': 'Bearer ' + apiKey
+        }
+      });
       res.status(200).send("ok");
     } else {
       res.status(403).send('wrong key');
@@ -36,7 +44,6 @@ module.exports.ban = function(app) {
   return function(req, res, next) {
     const requested_username = req.params.username;
     const apiKey = req.headers.authorization.split(' ')[1];
-    const io = app.get('socketio');
     if (config.adminKeys.includes(apiKey)) {
       app.service('users').find({
         query: { username: requested_username }
@@ -58,7 +65,12 @@ module.exports.ban = function(app) {
           res.status(404).send("user not found");
         }
       });
-      io.to(requested_username).emit('reload');
+      request.post({
+        url: 'https://viewer-api.angelthump.com/admin/reload/' + requested_username,
+        headers: {
+          'Authorization': 'Bearer ' + apiKey
+        }
+      });
     } else {
       res.status(403).send('Not Authorized');
     }
@@ -69,7 +81,6 @@ module.exports.unban = function(app) {
   return function(req, res, next) {
     const requested_username = req.params.username;
     const apiKey = req.headers.authorization.split(' ')[1];
-    const io = app.get('socketio');
     if (config.adminKeys.includes(apiKey)) {
       app.service('users').find({
         query: { username: requested_username }
@@ -90,7 +101,6 @@ module.exports.unban = function(app) {
           res.status(404).send("user not found");
         }
       });
-      io.to(requested_username).emit('reload');
     } else {
       res.status(403).send('Not Authorized');
     }
