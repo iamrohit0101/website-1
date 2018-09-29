@@ -109,16 +109,16 @@ function render(req, res, user, test) {
         continent = data.continent.code;
     }
     var formatHost = function(sub) { return 'https://' + sub + '.angelthump.com/'; };
-    var allPoPs = ['nyc1', 'sfo1', 'tor1', 'fra1', 'lon1', 'ams1', 'sgp1', 'blr1'];
+    var allPoPs = ['nyc', 'sfo', 'tor', 'fra1', 'lon', 'ams', 'sgp', 'blr'];
     var servers;
     var continentPoPs = {
-        'NA': ['nyc1', 'sfo1', 'tor1', 'ams1'],
-        'SA': ['nyc1', 'sfo1', 'tor1'],
-        'EU': ['fra1', 'lon1', 'ams1', 'tor1'],
-        'AS': ['sgp1', 'blr1', 'fra1', 'ams1'],
-        'OC': ['sgp1', 'blr1', 'sfo1'],
-        'AF': ['fra1', 'ams1', 'lon1', 'nyc1'],
-        'AN': ['sgp1', 'blr1', 'ams1'],
+        'NA': ['nyc', 'sfo', 'tor', 'ams'],
+        'SA': ['nyc', 'sfo', 'tor'],
+        'EU': ['fra', 'lon', 'ams', 'tor'],
+        'AS': ['sgp', 'blr', 'fra', 'ams'],
+        'OC': ['sgp', 'blr', 'sfo'],
+        'AF': ['fra', 'ams', 'lon', 'nyc'],
+        'AN': ['sgp', 'blr', 'ams'],
     };
     servers = (continentPoPs[continent] || allPoPs).map(formatHost);
 

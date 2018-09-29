@@ -64,11 +64,12 @@ app.configure(socketio({
 
 app.configure(socketio(function(io) {
   app.set('socketio', io);
+  /*
 	io.on('connection', function(socket) {
     socket.on('channel', function (channel) {
       socket.join(channel);
     });
-	});
+	});*/
 }))
 
 app.configure(authentication);
