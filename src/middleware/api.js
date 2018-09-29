@@ -124,3 +124,17 @@ module.exports.all = function(app) {
 		});
 	};
 };
+
+module.exports.changeTitle = function(app) {
+	return function(req, res, next) {
+		const user = req.user
+		const title = req.body.title;
+		app.service('users').patch(user._id, {
+			title: title
+		}).then(() => {
+			res.status(200).send("Changed " + user.username + "'s stream title to: " + title);
+		}).catch((e) => {
+			res.status(500).send(e);
+		});
+	};
+};

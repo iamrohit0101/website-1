@@ -49,6 +49,7 @@
     "babel-preset-env": "^1.7.0",
     "body-parser": "^1.18.3",
     "compression": "^1.7.2",
+    "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "css-modulesify": "^0.28.0",
     "dauria": "^2.0.0",

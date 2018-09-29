@@ -14,6 +14,7 @@ const cache = require('apicache').middleware;
 const email = require('./email');
 const client = require('redis').createClient();
 const recaptcha = require('./recaptcha.js');
+const cookieParser = require('cookie-parser');
 
 module.exports = function () {
   const app = this;
@@ -86,14 +87,13 @@ module.exports = function () {
   app.post('/email-notifications', email(app))
 
   app.get('/api', cache('30 seconds'), api.all(app));
-
   app.get('/api/:username', cache('30 seconds'), api.individual(app));
+  app.post('/api/title', cookieParser(), auth.express.authenticate('jwt'), api.changeTitle(app));
 
   app.get('/admin/reload/:username', admin.reload(app));
   app.get('/admin/redirect/:username/:puntUsername', admin.redirect(app));
   app.get('/admin/ban/:username', admin.ban(app));
   app.get('/admin/unban/:username/', admin.unban(app));
-  app.post('/admin/title/:username', admin.changeTitle(app));
 
   app.get('/dmca', function(req, res, next){
     res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });

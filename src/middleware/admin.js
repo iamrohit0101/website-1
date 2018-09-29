@@ -107,36 +107,6 @@ module.exports.unban = function(app) {
   };
 };
 
-module.exports.changeTitle = function(app) {
-  return function(req, res, next) {
-    const requested_username = req.params.username;
-    const apiKey = req.headers.authorization.split(' ')[1];
-    const title = req.body.title;
-    console.log(req);
-    if (config.adminKeys.includes(apiKey)) {
-      app.service('users').find({
-        query: { username: requested_username }
-      })
-      .then((users) => {
-        if(users.total > 0) {
-          const user = users.data[0];
-          app.service('users').patch(user._id, {
-            title: title
-          }).then(() => {
-            res.status(200).send("Changed " + requested_username + "'s stream title to: " + title);
-          }).catch((e) => {
-            res.status(500).send(e);
-          });
-        } else {
-          res.status(404).send("user not found");
-        }
-      });
-    } else {
-      res.status(403).send('Not Authorized');
-    }
-  };
-};
-
 function drop(username) {
   for(const server of config.ingestServers) {
     request('https://' + server + '.angelthump.com/control/drop/publisher?app=live&name=' + username);
