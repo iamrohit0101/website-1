@@ -93,6 +93,7 @@ module.exports = function () {
   app.get('/admin/redirect/:username/:puntUsername', admin.redirect(app));
   app.get('/admin/ban/:username', admin.ban(app));
   app.get('/admin/unban/:username/', admin.unban(app));
+  app.post('/admin/title/:username', admin.changeTitle(app));
 
   app.get('/dmca', function(req, res, next){
     res.sendFile('dmca.html', { root: path.join(__dirname, '../../public') });
