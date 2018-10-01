@@ -30,7 +30,7 @@ module.exports.stream = function(app) {
     // Then we're good to stream
     .then((users) => {
     	const user = users.data[0];
-  		if (users.total > 0 && !user.banned && user.isVerified) {
+  		if (users.total > 0) {
         if(!user.banned && user.isVerified) {
           const username = user.username;
           res.redirect(username);
