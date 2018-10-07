@@ -47,7 +47,7 @@
         const patreonLabels = ['US-EAST-PREMIUM','TORONTO-PREMIUM','US-WEST-PREMIUM','AMSDERTAM-PREMIUM','GERMANY-PREMIUM','LONDON-PREMIUM'];
         var disablePatreonServers = false;
         try {
-            lastKnownServer = localStorage.getItem('server');
+            lastKnownServer = localStorage.getItem('lastKnownServer');
             autoServer = localStorage.getItem('auto-server');
         } catch (e) {
             disablePatreonServers = true;
@@ -99,7 +99,7 @@
                     showBackground: false
                 }]
             });
-            if(((lastKnownServer == null || lastKnownServer == 'auto') && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
+            if(((lastKnownServer == null) && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
                 getServer();
             } else {
                 startStream();
