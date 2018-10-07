@@ -93,7 +93,7 @@
                     showBackground: false
                 }]
             });
-            if(lastKnownServer == null) {
+            if(lastKnownServer == null || autoServer == null) {
                 getServer();
             } else {
                 startStream();
@@ -441,6 +441,7 @@
         }
 
         function startStream() {
+
             const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
             var sources = [];
             sources.push(

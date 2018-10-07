@@ -1,5 +1,6 @@
 'use strict';
 const request = require('request-promise');
+const config = require('../../config/default.json');
 
 module.exports.individual = function(app) {
 	return function(req, res, next) {
@@ -135,6 +136,58 @@ module.exports.changeTitle = function(app) {
 			res.status(200).send("Changed " + user.username + "'s stream title to: " + title);
 		}).catch((e) => {
 			res.status(500).send(e);
+		});
+	};
+};
+
+module.exports.edgeServerList = function(app) {
+	return function(req, res, next) {
+		request({
+			url: 'https://api.digitalocean.com/v2/droplets/?tag_name=edge&page=1&per_page=200',
+			auth: {
+				'bearer': config.doAPIKey
+			},
+			json: true
+		}).then(function (json) {
+			const droplets = json.droplets;
+			var nyc = [], sfo = [], tor = [], ams = [], fra = [], lon = [], blr = [], sgp = [];
+			for(var i = 0; i < droplets.length; i++) {
+				const droplet = droplets[i];
+				const dropletName = droplet.name;
+				const tags = droplet.tags;
+				if(tags.includes("nyc")) {
+					nyc.push(dropletName);
+				} else if (tags.includes("sfo")) {
+					sfo.push(dropletName)
+				} else if (tags.includes("tor")) {
+					tor.push(dropletName)
+				} else if (tags.includes("ams")) {
+					ams.push(dropletName)
+				} else if (tags.includes("fra")) {
+					fra.push(dropletName)
+				} else if (tags.includes("lon")) {
+					lon.push(dropletName)
+				} else if (tags.includes("blr")) {
+					blr.push(dropletName)
+				} else if (tags.includes("sgp")) {
+					sgp.push(dropletName)
+				}
+			}
+			res.json({
+				regions: {
+					nyc: nyc,
+					sfo: sfo,
+					tor: tor,
+					ams: ams,
+					fra: fra,
+					lon: lon,
+					blr: blr,
+					sgp: sgp
+				},
+				total_edge_servers: nyc.length + sfo.length + tor.length + ams.length + fra.length + lon.length + blr.length + sgp.length
+			});
+		}).catch(function (e) {
+			res.render('errors.ejs', {code: 403, message: e.message});
 		});
 	};
 };

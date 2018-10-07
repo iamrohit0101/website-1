@@ -88,6 +88,7 @@ module.exports = function () {
 
   app.get('/api', cache('30 seconds'), api.all(app));
   app.get('/api/:username', cache('30 seconds'), api.individual(app));
+  app.get('/edges', api.edgeServerList(app));
   app.post('/api/title', cookieParser(), auth.express.authenticate('jwt'), api.changeTitle(app));
 
   app.get('/admin/reload/:username', admin.reload(app));
