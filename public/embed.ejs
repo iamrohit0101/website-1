@@ -28,6 +28,7 @@
     <video id=player class="video-js vjs-default-skin vjs-big-play-centered vjs-has-started" autoplay controls playsinline preload="auto"></video>
     <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
     <script type="text/javascript" src="/js/dep/vjs7/video.min.js"></script>
+    <script type="text/javascript" src="/js/dep/vjs7/videojs-hlsjs-plugin.js"></script>
     <script type="text/javascript" src="/js/dep/vjs6/videojs-resolution-switcher.js"></script>
     <script type="text/javascript" src="/js/dep/vjs6/videojs.logobrand.js"></script>
     <script type="text/javascript" src="/js/dep/vjs6/videojs-persistvolume.js"></script>
@@ -41,14 +42,19 @@
     <script type="text/javascript">
         const host = 'https://viewer-api.angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", servers = <%- JSON.stringify(servers) %>;
         var socket, requestTime = 1000, lastKnownServer, autoServer;
+        const freeServerLabels = ['https://nyc.angelthump.com/','https://sfo.angelthump.com/','https://tor.angelthump.com/','https://fra.angelthump.com/',
+        'https://ams.angelthump.com/','https://lon.angelthump.com/','https://blr.angelthump.com/','https://sgp.angelthump.com/'];
+        const patreonLabels = ['US-EAST-PREMIUM','TORONTO-PREMIUM','US-WEST-PREMIUM','AMSDERTAM-PREMIUM','GERMANY-PREMIUM','LONDON-PREMIUM'];
+        var disablePatreonServers = false;
         try {
-            lastKnownServer = localStorage.getItem('lastKnownServer');
+            lastKnownServer = localStorage.getItem('server');
             autoServer = localStorage.getItem('auto-server');
         } catch (e) {
             disablePatreonServers = true;
             console.log(e);
             console.log("Please enable 3rd party cookies in your browser, so the site runs more smoothly :) !");
         }
+        
         
         connect();
 
@@ -93,7 +99,7 @@
                     showBackground: false
                 }]
             });
-            if(lastKnownServer == null || autoServer == null) {
+            if(((lastKnownServer == null || lastKnownServer == 'auto') && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
                 getServer();
             } else {
                 startStream();
@@ -108,9 +114,14 @@
 
         player.on("resolutionchange", function() {
             player.loadingSpinner.show();
-            lastKnownServer = player.currentResolution().label;
-            updateServer(lastKnownServer);
+            if (patreonLabels.includes(player.currentResolution().label)) {
+                checkPatreon();
+            } else {
+                lastKnownServer = player.currentResolution().label;
+                updateServer(lastKnownServer);
+            }
         });
+        
 
         function Emitter() {
             var handlers = {};
@@ -398,7 +409,6 @@
             window.location = url;
         });
 
-
         function connect() {
             socket = io(host, {
                 transports: ['websocket']
@@ -406,6 +416,54 @@
             socket.on('connect', function() {
                 socket.emit('channel', channel);
             });
+        }
+
+        function checkPatreon() {
+            if(!disablePatreonServers) {
+                var auth = io("https://angelthump.com", {
+                    transports: ['websocket']
+                });
+
+                var app = feathers()
+                .configure(feathers.socketio(auth))
+                .configure(feathers.authentication({
+                    storage: window.localStorage
+                }));
+                app.authenticate()
+                .then(response => {
+                    console.log('Authenticated!');
+                    return app.passport.verifyJWT(response.accessToken);
+                })
+                .then(payload => {
+                    return app.service('users').get(payload.userId);
+                })
+                .then(user => {
+                    app.set('user', user);
+                    var user = app.get('user');
+                    if (user.ifPatreon) {
+                        lastKnownServer = player.currentResolution().label;
+                        updateServer();
+                    } else {
+                        player.currentResolution(lastKnownServer);
+                        alert("You are not a patron!");
+                    }
+                    auth.disconnect();
+                })
+                .catch(function(error){
+                    player.currentResolution(lastKnownServer);
+                    window.location = 'https://angelthump.com/login';
+                    console.error('Error authenticating!', error);
+                });
+
+                auth.io.engine.on('upgrade', function(transport) {
+                    console.log('transport changed');
+                    app.authenticate();
+                });
+            } else {
+                alert('You must enable 3rd party cookies in your browser before using Patreon servers!');
+                player.currentResolution(lastKnownServer);
+                auth.disconnect();
+            }
         }
 
         async function getTiming(url) {
@@ -460,6 +518,36 @@
                     src: autoServer + "hls/" + channel + "_mobile/index.m3u8",
                     label: '240p (' + label + ')'
                 },
+                {
+                    type: "application/x-mpegURL",
+                    src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'US-EAST-PREMIUM'
+                },
+                {
+                    type: "application/x-mpegURL",
+                    src: "https://tor-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'TORONTO-PREMIUM'
+                },
+                {
+                    type: "application/x-mpegURL",
+                    src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'US-WEST-PREMIUM'
+                },
+                {
+                    type: "application/x-mpegURL",
+                    src: "https://lon-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'LONDON-PREMIUM'
+                },
+                {
+                    type: "application/x-mpegURL",
+                    src: "https://fra-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'GERMANY-PREMIUM'
+                },
+                {
+                    type: "application/x-mpegURL",
+                    src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                    label: 'AMSTERDAM-PREMIUM'
+                }
             );
             player.updateSrc(sources);
             player.currentResolution(lastKnownServer);
