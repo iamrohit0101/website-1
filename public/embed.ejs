@@ -386,9 +386,11 @@
         }
 
         player.on('error', function(e) {
-            player.loadingSpinner.hide();
-            player.error(null);
-            retry();
+            if(player.error().code != 3) {
+                player.loadingSpinner.hide();
+                player.error(null);
+                retry();
+            }
         });
 
         function retry() {

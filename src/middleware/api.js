@@ -143,48 +143,78 @@ module.exports.changeTitle = function(app) {
 module.exports.edgeServerList = function(app) {
 	return function(req, res, next) {
 		request({
-			url: 'https://api.digitalocean.com/v2/droplets/?tag_name=edge&page=1&per_page=200',
+			url: 'https://api.digitalocean.com/v2/droplets?tag_name=edge&page=1&per_page=200',
 			auth: {
 				'bearer': config.doAPIKey
 			},
 			json: true
 		}).then(function (json) {
 			const droplets = json.droplets;
-			var nyc = [], sfo = [], tor = [], ams = [], fra = [], lon = [], blr = [], sgp = [];
+
+			var nyc = [], sfo = [], tor = [], ams = [], fra = [], lon = [], blr = [], sgp = [], sfo_patreon = [], 
+				nyc_patreon = [], tor_patreon = [], ams_patreon = [], fra_patreon = [], lon_patreon = [], blr_patreon = [], sgp_patreon = [];
+
 			for(var i = 0; i < droplets.length; i++) {
 				const droplet = droplets[i];
 				const dropletName = droplet.name;
 				const tags = droplet.tags;
-				if(tags.includes("nyc")) {
-					nyc.push(dropletName);
-				} else if (tags.includes("sfo")) {
-					sfo.push(dropletName)
-				} else if (tags.includes("tor")) {
-					tor.push(dropletName)
-				} else if (tags.includes("ams")) {
-					ams.push(dropletName)
-				} else if (tags.includes("fra")) {
-					fra.push(dropletName)
-				} else if (tags.includes("lon")) {
-					lon.push(dropletName)
-				} else if (tags.includes("blr")) {
-					blr.push(dropletName)
-				} else if (tags.includes("sgp")) {
-					sgp.push(dropletName)
+				if(!tags.includes("patreon")) {
+					if(tags.includes("nyc")) {
+						nyc.push(dropletName);
+					} else if (tags.includes("sfo")) {
+						sfo.push(dropletName)
+					} else if (tags.includes("tor")) {
+						tor.push(dropletName)
+					} else if (tags.includes("ams")) {
+						ams.push(dropletName)
+					} else if (tags.includes("fra")) {
+						fra.push(dropletName)
+					} else if (tags.includes("lon")) {
+						lon.push(dropletName)
+					} else if (tags.includes("blr")) {
+						blr.push(dropletName)
+					} else if (tags.includes("sgp")) {
+						sgp.push(dropletName)
+					}
+				} else {
+					if(tags.includes("nyc")) {
+						nyc_patreon.push(dropletName);
+					} else if (tags.includes("sfo")) {
+						sfo_patreon.push(dropletName)
+					} else if (tags.includes("tor")) {
+						tor_patreon.push(dropletName)
+					} else if (tags.includes("ams")) {
+						ams_patreon.push(dropletName)
+					} else if (tags.includes("fra")) {
+						fra_patreon.push(dropletName)
+					} else if (tags.includes("lon")) {
+						lon_patreon.push(dropletName)
+					} else if (tags.includes("blr")) {
+						blr_patreon.push(dropletName)
+					} else if (tags.includes("sgp")) {
+						sgp_patreon.push(dropletName)
+					}
 				}
 			}
 			res.json({
 				regions: {
 					nyc: nyc,
+					nyc_patreon: nyc_patreon,
 					sfo: sfo,
+					sfo_patreon: sfo_patreon,
 					tor: tor,
+					tor_patreon: tor_patreon,
 					ams: ams,
+					ams_patreon: ams_patreon,
 					fra: fra,
+					fra_patreon: fra_patreon,
 					lon: lon,
+					lon_patreon, lon_patreon,
 					blr: blr,
-					sgp: sgp
-				},
-				total_edge_servers: nyc.length + sfo.length + tor.length + ams.length + fra.length + lon.length + blr.length + sgp.length
+					blr_patreon: blr_patreon,
+					sgp: sgp,
+					sgp_patreon: sgp_patreon
+				}
 			});
 		}).catch(function (e) {
 			res.render('errors.ejs', {code: 403, message: e.message});
