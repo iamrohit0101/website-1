@@ -27,6 +27,7 @@
 
     <video id=player class="video-js vjs-default-skin vjs-big-play-centered vjs-has-started" autoplay controls playsinline preload="auto"></video>
     <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script type="text/javascript" src="/js/dep/can-autoplay.js"></script>
     <script type="text/javascript" src="/js/dep/vjs7/video.min.js"></script>
     <script type="text/javascript" src="/js/dep/vjs7/videojs-hlsjs-plugin.js"></script>
     <script type="text/javascript" src="/js/dep/vjs6/videojs-resolution-switcher.js"></script>
@@ -82,6 +83,12 @@
         player.ready(function() {
             //remove to show loading spinner at start while buffering for .ts files
             //this.loadingSpinner.hide();
+            canAutoplay.video().then(function(obj) {
+                console.log(obj.result);
+                if (obj.result === false) {
+                    player.muted(true);
+                }
+            });
             this.poster(poster);
             this.logobrand({
                 image: "https://angelthump.com/assets/patreon.png",
@@ -114,11 +121,14 @@
 
         player.on("resolutionchange", function() {
             player.loadingSpinner.show();
-            if (patreonLabels.includes(player.currentResolution().label)) {
+            const currentLabel = player.currentResolution().label;
+            if (patreonLabels.includes(currentLabel)) {
                 checkPatreon();
             } else {
-                lastKnownServer = player.currentResolution().label;
-                updateServer(lastKnownServer);
+                if(!currentLabel.startsWith("240p") && !currentLabel.startsWith("720p")) { //temp fix
+                    lastKnownServer = player.currentResolution().label;
+                    updateServer(lastKnownServer);
+                }
             }
         });
         
