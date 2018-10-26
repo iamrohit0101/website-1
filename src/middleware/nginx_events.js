@@ -67,7 +67,8 @@ module.exports.done = function(app) {
         const user = users.data[0];
   			const username = user.username;
         app.service('users').patch(user._id, {
-          live: false
+          live: false,
+          transcode: false
         }).then(() => {
           console.log(username + " is now not live");
         });

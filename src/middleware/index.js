@@ -15,6 +15,7 @@ const email = require('./email');
 const client = require('redis').createClient();
 const recaptcha = require('./recaptcha.js');
 const cookieParser = require('cookie-parser');
+const transcodeAPI = require('./transcodeAPI.js')
 
 module.exports = function () {
   const app = this;
@@ -86,10 +87,17 @@ module.exports = function () {
 
   app.post('/email-notifications', email(app))
 
-  app.get('/api', cache('30 seconds'), api.all(app));
-  app.get('/api/:username', cache('30 seconds'), api.individual(app));
+  app.get('/api', cache('5 seconds'), api.all(app));
+  app.get('/api/:username', api.individual(app));
   app.get('/edges', cache('5 seconds'), api.edgeServerList(app));
   app.post('/api/title', cookieParser(), auth.express.authenticate('jwt'), api.changeTitle(app));
+
+  app.get('/transcodes', cache('10 seconds'), transcodeAPI.transcodable(app));
+  app.post('/transcode', transcodeAPI.transcode(app));
+  app.get('/droplets', transcodeAPI.listDroplets(app));
+  app.post('/droplet', transcodeAPI.addDroplet(app));
+  app.delete('/droplet', transcodeAPI.deleteDroplet(app));
+  app.put('/droplet', transcodeAPI.updateDroplet(app));
 
   app.get('/admin/reload/:username', admin.reload(app));
   app.get('/admin/redirect/:username/:puntUsername', admin.redirect(app));

@@ -1,7 +1,5 @@
 'use strict';
 
-/** TODO: BESIDES GEOIP, RETURN BY AVAILABLITY (LOAD IS IMPORTANT) */
-
 const geolite2 = require('geolite2');
 const maxmind = require('maxmind');
 const requestIp = require('request-ip');
@@ -40,7 +38,7 @@ module.exports = function(app) {
                                 }
                             }
                         } else {
-                            render(req, res, user, false);
+                            render(req, res, user, false, user.transcode);
                         }
                     }
                 }
@@ -88,7 +86,7 @@ module.exports.test = function(app) {
                                 }
                             }
                         } else {
-                            render(req, res, user, true)
+                            render(req, res, user, true, user.transcode);
                         }
                     }
                 }
@@ -101,7 +99,7 @@ module.exports.test = function(app) {
     };
 };
 
-function render(req, res, user, test) {
+function render(req, res, user, test, transcoding) {
     const ip = requestIp.getClientIp(req); 
     const data = lookup.get(ip);
     var continent = null;
@@ -122,9 +120,12 @@ function render(req, res, user, test) {
     };
     servers = (continentPoPs[continent] || allPoPs).map(formatHost);
 
-
     if(!test) {
-        res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
+        if(transcoding) {
+            res.render('embed-transcode', {username: req.params.username, poster: user.poster, servers: servers});
+        } else {
+            res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
+        }
     } else {
         res.render('embed-test', {username: req.params.username, poster: user.poster, servers: servers});
     }

@@ -4,105 +4,121 @@ const request = require('request');
 
 module.exports.reload = function(app) {
   return function(req, res, next) {
-    const requested_username = req.params.username;
-    const apiKey = req.headers.authorization.split(' ')[1];
-    if (config.adminKeys.includes(apiKey)) {
-      console.log("reloading " + requested_username);
-      request.post({
-        url: 'https://viewer-api.angelthump.com/admin/reload/' + requested_username,
-        headers: {
-          'Authorization': 'Bearer ' + apiKey
-        }
-      });
-      res.status(200).send("ok");
+    if(req.headers['authorization']) {
+      const requested_username = req.params.username;
+      const apiKey = req.headers.authorization.split(' ')[1];
+      if (config.adminKeys.includes(apiKey)) {
+        console.log("reloading " + requested_username);
+        request.post({
+          url: 'https://viewer-api.angelthump.com/admin/reload/' + requested_username,
+          headers: {
+            'Authorization': 'Bearer ' + apiKey
+          }
+        });
+        res.status(200).send("ok");
+      } else {
+        res.status(403).send('wrong key');
+      }
     } else {
-      res.status(403).send('wrong key');
+      res.status(403).send('no key');
     }
   };
 };
 
 module.exports.redirect = function(app) {
   return function(req, res, next) {
-    const requested_username = req.params.username;
-    const puntUsername = req.params.puntUsername;
-    const apiKey = req.headers.authorization.split(' ')[1];
-    if (config.adminKeys.includes(apiKey)) {
-      request.post({
-        url: 'https://viewer-api.angelthump.com/admin/redirect/' + requested_username + '/' + puntUsername,
-        headers: {
-          'Authorization': 'Bearer ' + apiKey
-        }
-      });
-      res.status(200).send("ok");
+    if(req.headers['authorization']) {
+      const requested_username = req.params.username;
+      const puntUsername = req.params.puntUsername;
+      const apiKey = req.headers.authorization.split(' ')[1];
+      if (config.adminKeys.includes(apiKey)) {
+        request.post({
+          url: 'https://viewer-api.angelthump.com/admin/redirect/' + requested_username + '/' + puntUsername,
+          headers: {
+            'Authorization': 'Bearer ' + apiKey
+          }
+        });
+        res.status(200).send("ok");
+      } else {
+        res.status(403).send('wrong key');
+      }
     } else {
-      res.status(403).send('wrong key');
+      res.status(403).send('no key');
     }
   };
 };
 
 module.exports.ban = function(app) {
   return function(req, res, next) {
-    const requested_username = req.params.username;
-    const apiKey = req.headers.authorization.split(' ')[1];
-    if (config.adminKeys.includes(apiKey)) {
-      app.service('users').find({
-        query: { username: requested_username }
-      })
-      .then((users) => {
-        if(users.total > 0) {
-          const user = users.data[0];
-          if(!user.banned) {
-            app.service('users').patch(user._id, {
-              banned: true
-            }).then(() => {
-              drop(requested_username); 
-              res.status(200).send(requested_username + " is now banned!");
-            });
+    if(req.headers['authorization']) {
+      const requested_username = req.params.username;
+      const apiKey = req.headers.authorization.split(' ')[1];
+      if (config.adminKeys.includes(apiKey)) {
+        app.service('users').find({
+          query: { username: requested_username }
+        })
+        .then((users) => {
+          if(users.total > 0) {
+            const user = users.data[0];
+            if(!user.banned) {
+              app.service('users').patch(user._id, {
+                banned: true
+              }).then(() => {
+                drop(requested_username); 
+                res.status(200).send(requested_username + " is now banned!");
+              });
+            } else {
+              res.status(400).send("user is already banned");
+            }
           } else {
-            res.status(400).send("user is already banned");
+            res.status(404).send("user not found");
           }
-        } else {
-          res.status(404).send("user not found");
-        }
-      });
-      request.post({
-        url: 'https://viewer-api.angelthump.com/admin/reload/' + requested_username,
-        headers: {
-          'Authorization': 'Bearer ' + apiKey
-        }
-      });
+        });
+        request.post({
+          url: 'https://viewer-api.angelthump.com/admin/reload/' + requested_username,
+          headers: {
+            'Authorization': 'Bearer ' + apiKey
+          }
+        });
+      } else {
+        res.status(403).send('Not Authorized');
+      }
     } else {
-      res.status(403).send('Not Authorized');
+      res.status(403).send('no key');
     }
   };
 };
 
 module.exports.unban = function(app) {
   return function(req, res, next) {
-    const requested_username = req.params.username;
-    const apiKey = req.headers.authorization.split(' ')[1];
-    if (config.adminKeys.includes(apiKey)) {
-      app.service('users').find({
-        query: { username: requested_username }
-      })
-      .then((users) => {
-        if(users.total > 0) {
-          const user = users.data[0];
-          if(user.banned) {
-            app.service('users').patch(user._id, {
-              banned: false
-            }).then(() => {
-              res.status(200).send(requested_username + " is now unbanned!");
-            });
+    if(req.headers['authorization']) {
+      const requested_username = req.params.username;
+      const apiKey = req.headers.authorization.split(' ')[1];
+      if (config.adminKeys.includes(apiKey)) {
+        app.service('users').find({
+          query: { username: requested_username }
+        })
+        .then((users) => {
+          if(users.total > 0) {
+            const user = users.data[0];
+            if(user.banned) {
+              app.service('users').patch(user._id, {
+                banned: false
+              }).then(() => {
+                res.status(200).send(requested_username + " is now unbanned!");
+              });
+            } else {
+              res.status(400).send("user is already not banned");
+            }
           } else {
-            res.status(400).send("user is already not banned");
+            res.status(404).send("user not found");
           }
-        } else {
-          res.status(404).send("user not found");
-        }
-      });
+        });
+      } else {
+        res.status(403).send('Not Authorized');
+      }
     } else {
-      res.status(403).send('Not Authorized');
+      res.status(403).send('no key');
     }
   };
 };

@@ -48,8 +48,8 @@
         const patreonLabels = ['US-EAST-PREMIUM','TORONTO-PREMIUM','US-WEST-PREMIUM','AMSDERTAM-PREMIUM','GERMANY-PREMIUM','LONDON-PREMIUM'];
         var disablePatreonServers = false;
         try {
-            lastKnownServer = localStorage.getItem('lastKnownServer');
-            autoServer = localStorage.getItem('auto-server');
+            lastKnownServer = sessionStorage.getItem('lastKnownServer');
+            autoServer = sessionStorage.getItem('auto-server');
         } catch (e) {
             disablePatreonServers = true;
             console.log(e);
@@ -84,7 +84,6 @@
             //remove to show loading spinner at start while buffering for .ts files
             //this.loadingSpinner.hide();
             canAutoplay.video().then(function(obj) {
-                console.log(obj.result);
                 if (obj.result === false) {
                     player.muted(true);
                 }
@@ -125,10 +124,8 @@
             if (patreonLabels.includes(currentLabel)) {
                 checkPatreon();
             } else {
-                if(!currentLabel.startsWith("240p") && !currentLabel.startsWith("720p")) { //temp fix
-                    lastKnownServer = player.currentResolution().label;
-                    updateServer(lastKnownServer);
-                }
+                lastKnownServer = player.currentResolution().label;
+                updateServer(lastKnownServer);
             }
         });
         
@@ -522,16 +519,6 @@
                 },
                 {
                     type: "application/x-mpegURL",
-                    src: autoServer + "hls/" + channel + "_high/index.m3u8",
-                    label: '720p (' + label + ')'
-                },
-                {
-                    type: "application/x-mpegURL",
-                    src: autoServer + "hls/" + channel + "_mobile/index.m3u8",
-                    label: '240p (' + label + ')'
-                },
-                {
-                    type: "application/x-mpegURL",
                     src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                     label: 'US-EAST-PREMIUM'
                 },
@@ -567,8 +554,8 @@
 
         function updateServer() {
             try {
-                localStorage.setItem('auto-server', autoServer);
-                localStorage.setItem('lastKnownServer', lastKnownServer);
+                sessionStorage.setItem('auto-server', autoServer);
+                sessionStorage.setItem('lastKnownServer', lastKnownServer);
             } catch(e) {
                 console.log(e); 
                 console.log("Please enable 3rd party cookies in your browser, so the site runs more smoothly :) !");

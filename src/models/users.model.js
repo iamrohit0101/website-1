@@ -35,6 +35,8 @@ module.exports = function(app) {
     resetExpires: { type: Date },
     banned:    {type: Boolean, 'default': false},
     ifPatreon: {type: Boolean, 'default': false},
+    partner: {type: Boolean, 'default': false},
+    transcode: {type: Boolean, 'default': false},
     streamPassword: {type: String},
     passwordProtected: {type: Boolean, 'default': false},
     title: {type: String},

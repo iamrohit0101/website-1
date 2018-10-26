@@ -15,7 +15,9 @@ module.exports.individual = function(app) {
 					res.json({
 						username: user.username,
 						banned: user.banned,
-						poster: user.poster
+						poster: user.poster,
+						patron: user.ifPatreon,
+						transcode: user.transcode
 					});
 				} else {
 					/*
@@ -39,8 +41,10 @@ module.exports.individual = function(app) {
 							title: user.title,
 							viewers: json.viewers,
 							passwordProtected: user.passwordProtected,
+							transcode: user.transcode,
 							banned: user.banned,
 							poster: user.poster,
+							patron: user.ifPatreon,
 							thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
 							created_at: user.streamCreatedAt
 						});
