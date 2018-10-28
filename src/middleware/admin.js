@@ -2,52 +2,6 @@
 const config = require('../../config/default.json');
 const request = require('request');
 
-module.exports.reload = function(app) {
-  return function(req, res, next) {
-    if(req.headers['authorization']) {
-      const requested_username = req.params.username;
-      const apiKey = req.headers.authorization.split(' ')[1];
-      if (config.adminKeys.includes(apiKey)) {
-        console.log("reloading " + requested_username);
-        request.post({
-          url: 'https://viewer-api.angelthump.com/admin/reload/' + requested_username,
-          headers: {
-            'Authorization': 'Bearer ' + apiKey
-          }
-        });
-        res.status(200).send("ok");
-      } else {
-        res.status(403).send('wrong key');
-      }
-    } else {
-      res.status(403).send('no key');
-    }
-  };
-};
-
-module.exports.redirect = function(app) {
-  return function(req, res, next) {
-    if(req.headers['authorization']) {
-      const requested_username = req.params.username;
-      const puntUsername = req.params.puntUsername;
-      const apiKey = req.headers.authorization.split(' ')[1];
-      if (config.adminKeys.includes(apiKey)) {
-        request.post({
-          url: 'https://viewer-api.angelthump.com/admin/redirect/' + requested_username + '/' + puntUsername,
-          headers: {
-            'Authorization': 'Bearer ' + apiKey
-          }
-        });
-        res.status(200).send("ok");
-      } else {
-        res.status(403).send('wrong key');
-      }
-    } else {
-      res.status(403).send('no key');
-    }
-  };
-};
-
 module.exports.ban = function(app) {
   return function(req, res, next) {
     if(req.headers['authorization']) {

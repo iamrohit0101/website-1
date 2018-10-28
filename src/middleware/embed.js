@@ -121,11 +121,7 @@ function render(req, res, user, test, transcoding) {
     servers = (continentPoPs[continent] || allPoPs).map(formatHost);
 
     if(!test) {
-        if(transcoding) {
-            res.render('embed-transcode', {username: req.params.username, poster: user.poster, servers: servers});
-        } else {
-            res.render('embed', {username: req.params.username, poster: user.poster, servers: servers});
-        }
+        res.render('embed', {username: req.params.username, poster: user.poster, servers: servers, transcode: transcoding});
     } else {
         res.render('embed-test', {username: req.params.username, poster: user.poster, servers: servers});
     }

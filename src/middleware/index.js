@@ -99,8 +99,6 @@ module.exports = function () {
   app.delete('/droplet', transcodeAPI.deleteDroplet(app));
   app.put('/droplet', transcodeAPI.updateDroplet(app));
 
-  app.get('/admin/reload/:username', admin.reload(app));
-  app.get('/admin/redirect/:username/:puntUsername', admin.redirect(app));
   app.get('/admin/ban/:username', admin.ban(app));
   app.get('/admin/unban/:username/', admin.unban(app));
 

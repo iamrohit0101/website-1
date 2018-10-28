@@ -145,9 +145,11 @@ module.exports.deleteDroplet = function(app) {
                 const dropletJSON = require('../../config/droplet.json');
                 const dropletID = req.body.dropletID;
                 var exists = false;
+                var stream;
                 for(var i=0; i<dropletJSON.length; i++) {
                     const droplet = dropletJSON[i];
                     if(droplet.dropletID == dropletID) {
+                        stream = droplet.username;
                         exists = true;
                         dropletJSON.splice(i,1);
                         break;
@@ -161,7 +163,7 @@ module.exports.deleteDroplet = function(app) {
                             console.log("removed " + dropletID);
                         }
                     });
-                    res.status(200).send("removed " + dropletID);
+                    res.status(200).send("removed " + dropletID + " from " + stream);
                 } else {
                     res.status(404).send(dropletID + " does not exist!");
                 }
