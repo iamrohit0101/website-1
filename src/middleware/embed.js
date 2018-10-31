@@ -32,7 +32,7 @@ module.exports = function(app) {
                                 res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                             } else {
                                 if(req.query.password == user.streamPassword) {
-                                    render(req, res, user, false);
+                                    render(req, res, user, false, user.transcode);
                                 } else {
                                     res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                                 }
@@ -80,7 +80,7 @@ module.exports.test = function(app) {
                                 res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                             } else {
                                 if(req.query.password == user.streamPassword) {
-                                    render(req, res, user, true);
+                                    render(req, res, user, true, user.transcode);
                                 } else {
                                     res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                                 }
