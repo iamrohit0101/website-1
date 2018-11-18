@@ -4,7 +4,6 @@ const geolite2 = require('geolite2');
 const maxmind = require('maxmind');
 const requestIp = require('request-ip');
 const lookup = maxmind.openSync(geolite2.paths.city);
-const rp = require('request-promise');
 
 module.exports = function(app) {
     return function(req, res, next) {

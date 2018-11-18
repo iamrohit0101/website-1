@@ -32,8 +32,7 @@ module.exports.transcodable = function(app) {
                     await getUser(function(data) {
                         if((data.patron || data.partner) && !data.transcode) {
                             transcodableStreams.push({username: stream.username});
-                        }
-                        if(index < 2 && !data.transcode) {
+                        } else if(index < 2 && !data.transcode) {
                             transcodableStreams.push({username: stream.username});
                         }
                         if (++index == json.stream_list.length) {

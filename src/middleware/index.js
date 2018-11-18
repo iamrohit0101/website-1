@@ -96,7 +96,7 @@ module.exports = function () {
   app.post('/transcode', transcodeAPI.transcode(app));
   app.get('/droplets', transcodeAPI.listDroplets(app));
   app.post('/droplet', transcodeAPI.addDroplet(app));
-  app.delete('/droplet', transcodeAPI.deleteDroplet(app));
+  app.post('/droplet/delete', transcodeAPI.deleteDroplet(app));
   app.put('/droplet', transcodeAPI.updateDroplet(app));
 
   app.get('/admin/ban/:username', admin.ban(app));
