@@ -573,13 +573,23 @@
             var sources = [];
             sources.push({
                 type: "application/x-mpegURL",
-                src: autoServer + "hls/" + channel + "_src/index.m3u8",
+                src: autoServer + "hls/" + channel + "/index.m3u8",
                 label: 'Source (' + label + ')'
             },
             {
                 type: "application/x-mpegURL",
                 src: autoServer + "hls/" + channel + "_high/index.m3u8",
                 label: '720p (' + label + ')'
+            },
+            {
+                type: "application/x-mpegURL",
+                src: autoServer + "hls/" + channel + "_medium/index.m3u8",
+                label: '480p (' + label + ')'
+            },
+            {
+                type: "application/x-mpegURL",
+                src: autoServer + "hls/" + channel + "_low/index.m3u8",
+                label: '360p (' + label + ')'
             },
             {
                 type: "application/x-mpegURL",

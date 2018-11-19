@@ -31,6 +31,20 @@
     storage: window.localStorage
   }));
 
+  client.authenticate()
+  .then(response => {
+      console.log('Authenticated!');
+      const referrer = document.referrer;
+      if(referrer != null && referrer.includes('embed')) {
+        window.location.href = referrer;
+      } else {
+        window.location.href = '/dashboard';
+      }
+  })
+  .catch(function(error){
+      console.error('Error authenticating!', error);
+  });
+
   function getCredentials() {
     var payload;
     if(document.getElementById('user').value.includes("@")) {
