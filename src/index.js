@@ -1,11 +1,35 @@
 /* eslint-disable no-console */
-const logger = require('winston');
+const winston = require('winston');
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
 const app = require('./app');
 const port = app.get('port');
 const http = require('http');
+
+const logger = winston.createLogger(
+  {
+    level: 'info',
+    format: winston.format.simple(),
+    transports: [
+      new winston.transports.Console()
+    ]
+  },
+  {
+    level: 'debug',
+    format: winston.format.simple(),
+    transports: [
+      new winston.transports.Console()
+    ]
+  },
+  {
+    level: 'error',
+    format: winston.format.simple(),
+    transports: [
+      new winston.transports.Console()
+    ]
+  }
+);
 
 //force ipv4
 const httpServer = http.createServer(app).listen(port, "0.0.0.0");
