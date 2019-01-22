@@ -17,7 +17,8 @@ module.exports.individual = function(app) {
 						banned: user.banned,
 						poster: user.poster,
 						patron: user.ifPatreon,
-						transcode: user.transcode
+						transcode: user.transcode,
+						playerTranscodeReady: user.playerTranscodeReady
 					});
 				} else {
 					/*
@@ -42,11 +43,12 @@ module.exports.individual = function(app) {
 							viewers: json.viewers,
 							passwordProtected: user.passwordProtected,
 							transcode: user.transcode,
+							playerTranscodeReady: user.playerTranscodeReady,
 							banned: user.banned,
 							poster: user.poster,
 							patron: user.ifPatreon,
 							thumbnail: `https://thumbnail.angelthump.com/thumbnails/${user.username}.jpeg`,
-							created_at: user.streamCreatedAt
+							created_at: user.streamCreatedAt,
 						});
 					});
 				}
@@ -67,40 +69,34 @@ module.exports.all = function(app) {
 		app.service('users').find({
 			query: { live: true }
 		}).then((users) => {
-			var total_connections = 0;
 			var total_viewers = 0;
 			function api(callback) {
 				var jsonArray = [];
 				var number = 0;
 				for(var i = 0; i < users.total; i++) {
 					const user = users.data[i];
-					/*if(user.streamUpdatedAt != null) {
-						var timeDifference =Math.abs(Math.round(((new Date()).getTime() - user.streamUpdatedAt.getTime()) / 1000 / 60));
-						if(timeDifference > 5) {
-							app.service('users').patch(user._id, {
-								live: false
-							}).then(() => {
-								console.log(username + " is now not live due to no update");
-							});
-							continue;
-						}
-					}*/
-					const username = user.username;
+					if(typeof user !== 'undefined') {
+						const username = user.username;
 
-					request({
-						url: 'https://viewer-api.angelthump.com/viewers/' + username,
-						json: true
-					}).then(function (json) {
-						var jsonObject = {
-							username: username,
-							viewers: json.viewers
-						};
-						jsonArray.push(jsonObject);
-						total_viewers += json.viewers;
+						request({
+							url: 'https://viewer-api.angelthump.com/viewers/' + username,
+							json: true
+						}).then(function (json) {
+							var jsonObject = {
+								username: username,
+								viewers: json.viewers
+							};
+							jsonArray.push(jsonObject);
+							total_viewers += json.viewers;
+							if (++number == users.total) {
+								callback(jsonArray);
+							}
+						});
+					} else {
 						if (++number == users.total) {
 							callback(jsonArray);
 						}
-					});
+					}
 				}
 			}
 
@@ -161,45 +157,47 @@ module.exports.edgeServerList = function(app) {
 			for(var i = 0; i < droplets.length; i++) {
 				const droplet = droplets[i];
 				const dropletName = droplet.name;
-				const tags = droplet.tags;
-				if(!tags.includes("patreon")) {
-					if(tags.includes("nyc")) {
-						nyc.push(dropletName);
-					} else if (tags.includes("sfo")) {
-						sfo.push(dropletName)
-					} else if (tags.includes("tor")) {
-						tor.push(dropletName)
-					} else if (tags.includes("ams")) {
-						ams.push(dropletName)
-					} else if (tags.includes("fra")) {
-						fra.push(dropletName)
-					} else if (tags.includes("lon")) {
-						lon.push(dropletName)
-					} else if (tags.includes("blr")) {
-						blr.push(dropletName)
-					} else if (tags.includes("sgp")) {
-						sgp.push(dropletName)
-					}
-				} else {
-					if(tags.includes("nyc")) {
-						nyc_patreon.push(dropletName);
-					} else if (tags.includes("sfo")) {
-						sfo_patreon.push(dropletName)
-					} else if (tags.includes("tor")) {
-						tor_patreon.push(dropletName)
-					} else if (tags.includes("ams")) {
-						ams_patreon.push(dropletName)
-					} else if (tags.includes("fra")) {
-						fra_patreon.push(dropletName)
-					} else if (tags.includes("lon")) {
-						lon_patreon.push(dropletName)
-					} else if (tags.includes("blr")) {
-						blr_patreon.push(dropletName)
-					} else if (tags.includes("sgp")) {
-						sgp_patreon.push(dropletName)
+				//if(await dropletAlive(dropletName)) {
+					const tags = droplet.tags;
+					if(!tags.includes("patreon")) {
+						if(tags.includes("nyc")) {
+							nyc.push(dropletName);
+						} else if (tags.includes("sfo")) {
+							sfo.push(dropletName)
+						} else if (tags.includes("tor")) {
+							tor.push(dropletName)
+						} else if (tags.includes("ams")) {
+							ams.push(dropletName)
+						} else if (tags.includes("fra")) {
+							fra.push(dropletName)
+						} else if (tags.includes("lon")) {
+							lon.push(dropletName)
+						} else if (tags.includes("blr")) {
+							blr.push(dropletName)
+						} else if (tags.includes("sgp")) {
+							sgp.push(dropletName)
+						}
+					} else {
+						if(tags.includes("nyc")) {
+							nyc_patreon.push(dropletName);
+						} else if (tags.includes("sfo")) {
+							sfo_patreon.push(dropletName)
+						} else if (tags.includes("tor")) {
+							tor_patreon.push(dropletName)
+						} else if (tags.includes("ams")) {
+							ams_patreon.push(dropletName)
+						} else if (tags.includes("fra")) {
+							fra_patreon.push(dropletName)
+						} else if (tags.includes("lon")) {
+							lon_patreon.push(dropletName)
+						} else if (tags.includes("blr")) {
+							blr_patreon.push(dropletName)
+						} else if (tags.includes("sgp")) {
+							sgp_patreon.push(dropletName)
+						}
 					}
 				}
-			}
+			//}
 			res.json({
 				regions: {
 					nyc: nyc,
@@ -223,5 +221,18 @@ module.exports.edgeServerList = function(app) {
 		}).catch(function (e) {
 			res.render('errors.ejs', {code: 403, message: e.message});
 		});
+
+		async function dropletAlive(host) {
+			request
+			.get('https://' + host + '.angelthump.com/ping')
+			.on('response', function(response) {
+				console.log(response.statusCode);
+				if(response.statusCode == 200) {
+					return true;
+				} else {
+					return false;
+				}
+			})
+		}
 	};
 };

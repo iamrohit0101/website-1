@@ -10,16 +10,19 @@
     Wrong Username/Password! Please try again!
   </div>
   <div class="form">
-    <form class="login-form" onsubmit="return false">
-      <input id="user" type="user" name="user" placeholder="username/email"/>
-      <input id="password" type="password" name="password" placeholder="password"/>
-      <button type="submit" id="login">login</button>
-      <p class="message">Not registered? <a href="/signup">Create an account</a></p>
-      <p class="message"><a href="/reset">Forgot your password?</a></p>
+    <form id="loginForm" class="login-form" onsubmit="return false">
+        <input id="strategy" type="hidden" name="strategy" value="local-username">
+        <input id="user" type="user" name="user" placeholder="username/email"/>
+        <input id="password" type="password" name="password" placeholder="password"/>
+        <button type="submit" id="login">login</button>
+        <p class="message">Not registered? <a href="/signup">Create an account</a></p>
+        <p class="message"><a href="/reset_pass">Forgot your password?</a></p>
+        <p class="message"><a href="/resend_email">Email not Verified?</a></p>
     </form>
   </div>
 </div>
 
+<script type="text/javascript" src="/js/dep/axios.min.js"></script>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.js"></script>
 <script type="text/javascript">
@@ -31,6 +34,7 @@
     storage: window.localStorage
   }));
 
+  /*
   client.authenticate()
   .then(response => {
       console.log('Authenticated!');
@@ -40,10 +44,7 @@
       } else {
         window.location.href = '/dashboard';
       }
-  })
-  .catch(function(error){
-      console.error('Error authenticating!', error);
-  });
+  })*/
 
   function getCredentials() {
     var payload;
@@ -63,23 +64,23 @@
     return payload;
   }
 
-  function login(payload) {
-    return client.authenticate(payload)
-      .then(function(result) {
-          console.log('Authenticated!');
-          const referrer = document.referrer;
-          if(referrer != null && referrer.includes('embed')) {
-            window.location.href = referrer;
-          } else {
-            window.location.href = '/dashboard';
-          }
-      }).catch(function(error) {
-          document.getElementById("error").style.display = 'block';
-          console.error('Error authenticating!', error);
-      });
+  function login() {
+    axios.post('/authentication', getCredentials())
+    .then(function (response) {
+      const referrer = document.referrer;
+      if(referrer != null && referrer.includes('embed')) {
+        window.location.href = referrer;
+      } else {
+        window.location.href = '/dashboard';
+      }
+    })
+    .catch(function (error) {
+      document.getElementById("error").style.display = 'block';
+      console.log(error);
+    });
   }
 
   document.getElementById("login").addEventListener("click", function(){
-    login(getCredentials());
+    login();
   });
 </script>

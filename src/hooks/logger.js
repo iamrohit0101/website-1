@@ -42,7 +42,7 @@ module.exports = function () {
     }
 
     if (hook.error) {
-      logger.error(hook.error);
+      logger.debug(hook.error);
     }
   };
 };

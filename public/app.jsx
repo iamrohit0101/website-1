@@ -124,7 +124,7 @@ class Dashboard extends React.Component {
 	}
 
 	logout() {
-		client.logout().then(() => window.location.href = '/');
+		client.logout().then(() => window.location.href = '/logout');
 	}
 
 	render() {
@@ -157,7 +157,7 @@ class Dashboard extends React.Component {
 						</div>
 						<div className="dash-player-contain js-dash-player-contain"> 
 							<div id="video_player">
-								<iframe id="player" width="100%" height="100%" marginHeight="0" marginWidth="0" frameBorder="0" allowtransparency='true' allowFullScreen='true' src={src} scrolling="yes"></iframe>
+								<iframe id="player" width="100%" height="100%" marginHeight="0" marginWidth="0" frameBorder="0" allowtransparency='true' allowFullScreen={true} src={src} scrolling="yes"></iframe>
 							</div>
 						</div>
 						<div id="stats">
@@ -213,7 +213,7 @@ class Settings extends React.Component {
 	}
 
 	logout() {
-		client.logout().then(() => window.location.href = '/');
+		client.logout().then(() => window.location.href = '/logout');
 	}
 
 	render() {

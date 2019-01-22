@@ -25,8 +25,8 @@
       ga('send', 'pageview');
     </script>
 
-    <video id=player class="video-js vjs-default-skin vjs-big-play-centered vjs-has-started" autoplay controls playsinline preload="auto"></video>
-    <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <video id=player class="video-js vjs-default-skin vjs-has-started" autoplay controls playsinline preload="auto"></video>
+    <script src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
     <script type="text/javascript" src="/js/dep/can-autoplay.js"></script>
     <script type="text/javascript" src="/js/dep/vjs7/video.min.js"></script>
     <script type="text/javascript" src="/js/dep/vjs7/videojs-hlsjs-plugin.js"></script>
@@ -35,10 +35,10 @@
     <script type="text/javascript" src="/js/dep/vjs6/videojs-persistvolume.js"></script>
     <script type="text/javascript" src="/js/dep/videojs-chromecast.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/core-js/2.5.7/core.min.js"></script>
-    <script type="text/javascript" src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.min.js"></script>
+    <script type="text/javascript" src="/js/dep/core.min.js"></script>
+    <script type="text/javascript" src="/js/dep/feathers.min.js"></script>
     <script type="text/javascript" src="/js/dep/vjs6/videojs-overlay.min.js"></script>
-    <script type="text/javascript" src="//unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="/js/dep/axios.min.js"></script>
 
     <script type="text/javascript">
         const host = 'https://viewer-api.angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", servers = <%- JSON.stringify(servers) %>;
@@ -78,7 +78,7 @@
             }
         };
 
-        const player = videojs('player', options);
+        var player = videojs('player', options);
         player.ready(function() {
             //remove to show loading spinner at start while buffering for .ts files
             //this.loadingSpinner.hide();
@@ -105,13 +105,13 @@
                 }]
             });
             if(((lastKnownServer == null) && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
+                //start stream with random edge in client's country, then update the src when getServer() is done
                 getServer();
+            }
+            if(transcode) {
+                updateTranscode();
             } else {
-                if(transcode) {
-                    updateTranscode();
-                } else {
-                    startStream();
-                }
+                startStream();
             }
         });
         
@@ -127,273 +127,11 @@
             if (patreonLabels.includes(currentLabel)) {
                 checkPatreon();
             } else {
-                lastKnownServer = player.currentResolution().label;
-                updateServer(lastKnownServer);
+                lastKnownServer = currentLabel;
+                updateServer();
             }
         });
         
-
-        function Emitter() {
-            var handlers = {};
-
-            function getEventHandlers(name) {
-                return handlers.hasOwnProperty(name) ? handlers[name] : (handlers[name] = {on: [], one: []});
-            }
-
-            function on(name, handler) {
-                getEventHandlers(name).on.push(handler);
-            }
-
-            function one(name, handler) {
-                getEventHandlers(name).one.push(handler);
-            }
-
-            function remove(arr, v) {
-                var i = arr.indexOf(v);
-                if (i !== -1) {
-                    arr.splice(i, 1);
-                }
-            }
-
-            function off(name, handler) {
-                var eventHandlers = handlers[name];
-                if (eventHandlers !== undefined) {
-                    remove(eventHandlers.on, handler);
-                    remove(eventHandlers.one, handler);
-                    if (eventHandlers.on.length === 0 && eventHandlers.one.length === 0) {
-                        delete handlers[name];
-                    }
-                }
-            }
-
-            function emit(name) {
-                var eventHandlers = handlers[name];
-                if (eventHandlers !== undefined) {
-                    var args = Array.prototype.slice.call(arguments, 1);
-                    var onHandlers = eventHandlers.on;
-                    var oneHandlers = eventHandlers.one;
-
-                    eventHandlers.one = [];
-
-                    for (var i = 0, l = onHandlers.length; i < l; i ++) {
-                        onHandlers[i].apply(this, args);
-                    }
-                    for (var i = 0, l = oneHandlers.length; i < l; i ++) {
-                        oneHandlers[i].apply(this, args);
-                    }
-
-                }
-            }
-
-            return {
-                on: on,
-                off: off,
-                one: one,
-                emit: emit,
-            };
-        }
-
-        function Monitor(player) {
-            var REPORT_INTERVAL = 5000;
-            var REPORT_SERVER = 'https://stats.angelthump.com';
-            var RESOURCE_TIMING_FLUSH_INTERVAL = 100;
-
-            var active = {};
-            var events = [];
-            var live = false;
-
-            function publishReport() {
-                Object.keys(active).forEach(function(k) {
-                    events.push(Object.assign({active: true}, active[k]));
-                });
-
-                var report = {};
-                events.forEach(function(event) {
-                    for (var k in event) {
-                        if (event.hasOwnProperty(k) && event[k] === 0 || event[k] == null) {
-                            delete event[k];
-                        }
-                    }
-
-                    event.sent = Date.now();
-
-                    (report[event.type] || (report[event.type] = [])).push(event);
-                });
-
-                var req = new XMLHttpRequest();
-                req.open('POST', REPORT_SERVER + '/api/v1/report', true);
-                req.setRequestHeader('Content-type', 'application/javascript');
-                req.send(JSON.stringify(report));
-            }
-
-            setInterval(function() {
-                if (live) {
-                    publishReport();
-                }
-                events = [];
-            }, REPORT_INTERVAL);
-
-            var clientId = Date.now();
-            var eventId = 0;
-            var hostPattern = /https:\/\/([^\.]+)/i;
-            function initEvent() {
-                var match = player.currentSrc().match(hostPattern);
-
-                var dimensions = player.currentDimensions();
-                var sourceRatio = player.videoHeight() / player.videoWidth();
-                var playerRatio = dimensions.height / dimensions.width;
-                var scale = playerRatio > sourceRatio
-                    ? dimensions.width / player.videoWidth()
-                    : dimensions.height / player.videoHeight();
-
-                return {
-                    clientId: clientId,
-                    eventId: eventId ++,
-                    source: match ? match[1] : '',
-                    videoHeight: player.videoHeight(),
-                    videoWidth: player.videoWidth(),
-                    scale: Math.round(scale * 100) / 100,
-                    channel: channel,
-                };
-            }
-
-            var emitter = Emitter();
-
-            function eventProxy(src) {
-                return function(name) {
-                    src.on(name, function() {
-                        var args = [name];
-                        Array.prototype.push.apply(args, arguments);
-                        emitter.emit.apply(this, args);
-                    });
-                }
-            }
-
-            [
-                'waiting',
-                'loadstart',
-                'loadedmetadata',
-                'loadeddata',
-                'canplay',
-                'canplaythrough',
-                'playing',
-                'play',
-                'stalled',
-                'error'
-            ].forEach(eventProxy(player));
-
-            videojs.Html5Hlsjs.addHook('beforeinitialize', function(player, hlsjs) {
-                [
-                    'hlsError',
-                    'hlsMediaAttaching',
-                ].forEach(eventProxy(hlsjs));
-            });
-
-            emitter.on('hlsError', function(type, e) {
-                if (e.response !== undefined && e.response.code === 404) {
-                    live = false;
-                    emitter.emit('streamOffline');
-                }
-            });
-
-            emitter.on('hlsMediaAttaching', function() {
-                live = true;
-                events = [];
-                emitter.emit('streamOnline');
-            });
-
-            function beginBufferingEvent(type, done) {
-                var event = Object.assign(initEvent(), {
-                    type: type,
-                    start: Date.now(),
-                    cancelled: false
-                });
-
-                [
-                    'waiting',
-                    'loadstart',
-                    'loadedmetadata',
-                    'loadeddata',
-                    'canplay',
-                    'canplaythrough',
-                    'playing'
-                ].forEach(function(name) {
-                    emitter.one(name, function() {
-                        event[name] = Date.now() - event.start;
-                    });
-                });
-
-                function cancel() {
-                    event.cancelled = true;
-                    done(event);
-                }
-                emitter.one('pause', cancel);
-                emitter.one('streamOnline', cancel);
-
-                emitter.one('canplaythrough', function() {
-                    if (!event.cancelled) {
-                        emitter.off('pause', cancel);
-                        done(event);
-                    }
-                });
-
-                return event;
-            }
-
-            function handleBufferingEvent(type) {
-                if (active[type] === undefined) {
-                    active[type] = beginBufferingEvent(type, function(event) {
-                        if (!event.cancelled) {
-                            events.push(active[type])
-                        }
-                        if (active[type] === event) {
-                            delete active[type];
-                        }
-                    });
-                }
-            }
-
-            emitter.on('play', function() { handleBufferingEvent('play'); });
-            emitter.on('stalled', function() { handleBufferingEvent('stalled'); });
-            emitter.on('waiting', function() { handleBufferingEvent('waiting'); });
-
-            emitter.on('error', function() {
-                events.push({
-                    type: 'error',
-                    networkState: player.networkState(),
-                    error: player.error()
-                });
-            });
-
-            var tsPattern = /^https:\/\/([^\.]+).*\/([0-9]+)\.ts$/i
-            performance.clearResourceTimings();
-            setInterval(function() {
-                var timings = performance.getEntriesByType('resource');
-                performance.clearResourceTimings();
-
-                timings.forEach(function(t) {
-                    var match = t.name.match(tsPattern);
-                    if (match) {
-                        events.push(Object.assign(initEvent(), {
-                            type: 'resource',
-                            host: match[1],
-                            chunk: parseFloat(match[2]),
-                            redirect: Math.round(t.fetchStart - t.startTime),
-                            dns: Math.round(t.domainLookupEnd - t.domainLookupStart),
-                            connect: Math.round(t.connectEnd - t.connectStart),
-                            send: Math.round(t.responseStart - t.requestStart),
-                            receive: Math.round(t.responseEnd - t.responseStart),
-                            total: Math.round(t.duration),
-                            size: t.transferSize
-                        }));
-                    }
-                });
-            }, RESOURCE_TIMING_FLUSH_INTERVAL);
-        }
-
-        if (videojs.Html5Hlsjs) {
-            new Monitor(player);
-        }
 
         player.on('error', function(e) {
             if(player.error().code != 3) {
@@ -486,7 +224,7 @@
         async function getTiming(url) {
             var startTime = (new Date()).getTime();
             var elaspedTime = Infinity;
-            await axios({timeout: 5000, url: url + "random.png"})
+            await axios({timeout: 2000, url: url + "random.png"})
             .then(function (response) {
                 var endTime = (new Date()).getTime();
                 elaspedTime = endTime - startTime;
@@ -498,33 +236,48 @@
         }
 
         async function getServer() {
-            const responseTime = servers.map(async server => await getTiming(server));
+            var responseTime = servers.map(async server => await getTiming(server));
             var server;
             await Promise.all(responseTime).then((results) => {
                 server = servers[results.indexOf(Math.min.apply(null , results))];
                 console.log(server);
             });
             autoServer = server;
-            const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
-            lastKnownServer = 'Source (' + label + ')';
-            updateServer(lastKnownServer);
-            if(autoServer == null) { //find a fix if still undefined. possibly with servers?
-                autoServer = 'https://tor1.angelthump.com/';
-                console.log('autoServer was null, forced to tor1');
+            if(autoServer != null) {
+                const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
+                updateServer();
+                if(player.currentResolution().sources[0].label != 'Source (' + label + ')') {
+                    if(transcode) {
+                        updateTranscode();
+                    } else {
+                        startStream();
+                    }
+                }
             }
-            startStream();
         }
 
         function startStream() {
-            const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
             var sources = [];
-            sources.push(
-            {
-                type: "application/x-mpegURL",
-                src: autoServer + "hls/" + channel + "/index.m3u8",
-                label: 'Source (' + label + ')'
-            },
-            {
+            var label;
+            if(autoServer == null) {
+                randomServer = servers[Math.floor(Math.random() * servers.length)];
+                label = randomServer.substring(randomServer.indexOf('/') + 2, randomServer.indexOf('.'));
+                sources.push(
+                {
+                    type: "application/x-mpegURL",
+                    src: randomServer + "hls/" + channel + "/index.m3u8",
+                    label: 'Source (' + label + ')'
+                });
+            } else {
+                label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
+                sources.push(
+                {
+                    type: "application/x-mpegURL",
+                    src: autoServer + "hls/" + channel + "/index.m3u8",
+                    label: 'Source (' + label + ')'
+                });
+            }
+            sources.push({
                 type: "application/x-mpegURL",
                 src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
                 label: 'US-EAST-PREMIUM'
@@ -569,13 +322,27 @@
 
         function updateTranscode() {
             console.log("transcode enabled");
-            const label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
             var sources = [];
-            sources.push({
-                type: "application/x-mpegURL",
-                src: autoServer + "hls/" + channel + "/index.m3u8",
-                label: 'Source (' + label + ')'
-            },
+            var label;
+            if(autoServer == null) {
+                randomServer = servers[Math.floor(Math.random() * servers.length)];
+                label = randomServer.substring(randomServer.indexOf('/') + 2, randomServer.indexOf('.'));
+                sources.push(
+                {
+                    type: "application/x-mpegURL",
+                    src: randomServer + "hls/" + channel + "/index.m3u8",
+                    label: 'Source (' + label + ')'
+                });
+            } else {
+                label = autoServer.substring(autoServer.indexOf('/') + 2, autoServer.indexOf('.'));
+                sources.push(
+                {
+                    type: "application/x-mpegURL",
+                    src: autoServer + "hls/" + channel + "/index.m3u8",
+                    label: 'Source (' + label + ')'
+                });
+            }
+            sources.push(
             {
                 type: "application/x-mpegURL",
                 src: autoServer + "hls/" + channel + "_high/index.m3u8",
@@ -598,36 +365,45 @@
             },
             {
                 type: "application/x-mpegURL",
-                src: "https://nyc-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://nyc-patreon.angelthump.com/hls/" + channel + "_src/index.m3u8",
                 label: 'US-EAST-PREMIUM'
             },
             {
                 type: "application/x-mpegURL",
-                src: "https://tor-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://tor-patreon.angelthump.com/hls/" + channel + "_src/index.m3u8",
                 label: 'TORONTO-PREMIUM'
             },
             {
                 type: "application/x-mpegURL",
-                src: "https://sfo-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://sfo-patreon.angelthump.com/hls/" + channel + "_src/index.m3u8",
                 label: 'US-WEST-PREMIUM'
             },
             {
                 type: "application/x-mpegURL",
-                src: "https://lon-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://lon-patreon.angelthump.com/hls/" + channel + "_src/index.m3u8",
                 label: 'LONDON-PREMIUM'
             },
             {
                 type: "application/x-mpegURL",
-                src: "https://fra-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://fra-patreon.angelthump.com/hls/" + channel + "_src/index.m3u8",
                 label: 'GERMANY-PREMIUM'
             },
             {
                 type: "application/x-mpegURL",
-                src: "https://ams-patreon.angelthump.com/hls/" + channel + "/index.m3u8",
+                src: "https://ams-patreon.angelthump.com/hls/" + channel + "_src/index.m3u8",
                 label: 'AMSTERDAM-PREMIUM'
             });
             player.updateSrc(sources);
-            player.currentResolution(lastKnownServer);
+            var exists = false;
+            for(const source of sources) {
+                if(source.label == lastKnownServer) {
+                    player.currentResolution(lastKnownServer);
+                    exists = true;
+                }
+            }
+            if(!exists) {
+                player.currentResolution(sources[0].label);
+            }
         }
 
         function updateServer() {

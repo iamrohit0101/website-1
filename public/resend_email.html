@@ -17,20 +17,3 @@
 
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.js"></script>
-<script>
-  const socket = io();
-  const client = feathers();
-
-  client.configure(feathers.socketio(socket));
-  client.configure(feathers.authentication({
-    storage: window.localStorage
-  }));
-
-  client.authenticate()
-  .then(response => {
-    console.log('Authenticated!', response);
-  })
-  .catch(function(error){
-    window.location.href = '/login';
-  });
-</script>

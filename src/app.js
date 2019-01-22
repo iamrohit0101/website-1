@@ -36,20 +36,23 @@ app.use(helmet({
 }));
 app.use(compress());
 app.use(util.overrideContentType());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+var rawBodySaver = function (req, res, buf, encoding) {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString(encoding || 'utf8');
+  }
+}
+
+app.use(bodyParser.json({ verify: rawBodySaver }));
+app.use(bodyParser.urlencoded({ verify: rawBodySaver, extended: true }));
+app.use(bodyParser.raw({ verify: rawBodySaver, type: '*/*' }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
 
-//redirect root www to root non www
-app.get("/", function (req, res, next) {
-  if(!req.secure) {
-    res.redirect("https://angelthump.com");
-  } else {
-    res.sendFile('index.html', { root: path.join(__dirname, '../public/') });
-  }
-});
 app.use('/', express.static(app.get('public')));
+
+morgan.token('remote-addr', function (req) {
+  return requestIp.getClientIp(req);
+});
 
 //log to file
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] - :remote-addr - [:date[clf]]', {stream: accessLogStream, skip: function (req, res) { 
@@ -64,12 +67,6 @@ app.configure(socketio({
 
 app.configure(socketio(function(io) {
   app.set('socketio', io);
-  /*
-	io.on('connection', function(socket) {
-    socket.on('channel', function (channel) {
-      socket.join(channel);
-    });
-	});*/
 }))
 
 app.configure(authentication);

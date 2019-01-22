@@ -11,8 +11,11 @@ module.exports = function () {
   app.configure(jwt());
   app.configure(local(config.local));
   app.configure(local({ // support username
+    entity: "user",
+    service: "users",
     name: 'local-username',
-    usernameField: 'username'
+    usernameField: 'username',
+    passwordField: 'password'
   }));
 
   // The `authentication` service is used to create a JWT.

@@ -35,8 +35,10 @@ module.exports = function(app) {
     resetExpires: { type: Date },
     banned:    {type: Boolean, 'default': false},
     ifPatreon: {type: Boolean, 'default': false},
+    patronTier: {type: Number},
     partner: {type: Boolean, 'default': false},
     transcode: {type: Boolean, 'default': false},
+    playerTranscodeReady: {type:Boolean, 'default': false},
     streamPassword: {type: String},
     passwordProtected: {type: Boolean, 'default': false},
     title: {type: String},
@@ -45,7 +47,10 @@ module.exports = function(app) {
     streamCreatedAt: {type: Date, 'default': Date.now },
     streamUpdatedAt: {type: Date, 'default': Date.now },
     createdAt: { type: Date, 'default': Date.now },
-    updatedAt: { type: Date, 'default': Date.now }
+    updatedAt: { type: Date, 'default': Date.now },
+    patreonID: {type: String},
+    isPatron: {type: Boolean},
+    patronTier: {type: Number}
   });
 
   users.plugin(uniqueValidator);
