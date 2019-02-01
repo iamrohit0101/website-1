@@ -23,10 +23,10 @@ module.exports = function(app) {
   ];
   
   const users = new mongooseClient.Schema({
-    email: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: [validate({ validator: 'isEmail', msg: '{VALUE} is not a valid email!' })]},
-    username: { type: String, required: true, unique: true, dropDups: true, uniqueCaseInsensitive: true, validate: usernameValidator},
+    email: { type: String, required: true, unique: true, uniqueCaseInsensitive: true, validate: [validate({ validator: 'isEmail', msg: '{VALUE} is not a valid email!' })]},
+    username: { type: String, required: true, unique: true, uniqueCaseInsensitive: true, validate: usernameValidator},
     password: { type: String, required: true },
-    streamkey: { type: String, unique: true, dropDups: true, uniqueCaseInsensitive: true},
+    streamkey: { type: String},
     isVerified: { type: Boolean, default: false },
     verifyToken: { type: String },
     verifyExpires: { type: Date },
