@@ -10,7 +10,6 @@
     <link href="/css/vjs6/videojs-chromecast.min.css" rel="stylesheet">
     <link href="/css/vjs6/videojs.logobrand.min.css" rel="stylesheet">
     <link href="/css/vjs6/videojs-resolution-switcher.min.css" rel="stylesheet">
-    <link href="/css/vjs6/videojs-overlay.min.css" rel="stylesheet">
     <link rel="shortcut icon" href="/favicon.ico">
 </head>
 
@@ -37,12 +36,11 @@
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="/js/dep/core.min.js"></script>
     <script type="text/javascript" src="/js/dep/feathers.min.js"></script>
-    <script type="text/javascript" src="/js/dep/vjs6/videojs-overlay.min.js"></script>
     <script type="text/javascript" src="/js/dep/axios.min.js"></script>
 
     <script type="text/javascript">
         const host = 'https://viewer-api.angelthump.com', channel = "<%= username %>".toLowerCase(), poster = "<%= poster %>", servers = <%- JSON.stringify(servers) %>;
-        var socket, requestTime = 1000, lastKnownServer, autoServer, transcode = <%= transcode %>;
+        var socket, requestTime = 1000, lastKnownServer, autoServer, transcode = <%= transcode %>, live = <%= live %>;
         const freeServerLabels = ['https://nyc.angelthump.com/','https://sfo.angelthump.com/','https://tor.angelthump.com/','https://fra.angelthump.com/',
         'https://ams.angelthump.com/','https://lon.angelthump.com/','https://blr.angelthump.com/','https://sgp.angelthump.com/'];
         const patreonLabels = ['US-EAST-PREMIUM','TORONTO-PREMIUM','US-WEST-PREMIUM','AMSTERDAM-PREMIUM','GERMANY-PREMIUM','LONDON-PREMIUM'];
@@ -80,29 +78,20 @@
 
         var player = videojs('player', options);
         player.ready(function() {
-            //remove to show loading spinner at start while buffering for .ts files
-            //this.loadingSpinner.hide();
             canAutoplay.video().then(function(obj) {
                 if (obj.result === false) {
                     player.muted(true);
                 }
             });
-            this.poster(poster);
+            if(!live) {
+                this.poster(poster);
+            }
             this.logobrand({
                 image: "https://angelthump.com/assets/patreon.png",
                 destination: "https://patreon.com/angelthump"
             });
             this.persistvolume({
                 namespace: "volume"
-            });
-            this.overlay({
-                overlays: [{
-                    start: 1,
-                    end: 5,
-                    content: "<style>img{max-width:100%;}</style><a href='https://www.patreon.com/angelthump' target='_blank'><img src='/assets/patreon-overlay.png'></a>",
-                    align: "bottom",
-                    showBackground: false
-                }]
             });
             if(((lastKnownServer == null) && !patreonLabels.includes(lastKnownServer)) || (autoServer == null || !freeServerLabels.includes(autoServer))) {
                 //start stream with random edge in client's country, then update the src when getServer() is done
@@ -116,6 +105,9 @@
         });
         
         player.on("playing", function() {
+            if(!player.poster()) {
+                this.poster(poster);
+            }
             if(!socket.connected) {
                 connect();
             }
@@ -134,8 +126,9 @@
         
 
         player.on('error', function(e) {
+            socket.disconnect();
+            player.loadingSpinner.hide();
             if(player.error().code != 3) {
-                player.loadingSpinner.hide();
                 player.error(null);
                 retry();
             }

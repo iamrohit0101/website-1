@@ -31,13 +31,13 @@ module.exports = function(app) {
                                 res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                             } else {
                                 if(req.query.password == user.streamPassword) {
-                                    render(req, res, user, false, user.playerTranscodeReady);
+                                    render(req, res, user, false);
                                 } else {
                                     res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                                 }
                             }
                         } else {
-                            render(req, res, user, false, user.playerTranscodeReady);
+                            render(req, res, user, false);
                         }
                     }
                 }
@@ -79,13 +79,13 @@ module.exports.test = function(app) {
                                 res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                             } else {
                                 if(req.query.password == user.streamPassword) {
-                                    render(req, res, user, true, user.playerTranscodeReady);
+                                    render(req, res, user, true);
                                 } else {
                                     res.redirect('https://angelthump.com/checkPassword?streamname=' + requested_username.toLowerCase());
                                 }
                             }
                         } else {
-                            render(req, res, user, true, user.playerTranscodeReady);
+                            render(req, res, user, true);
                         }
                     }
                 }
@@ -98,7 +98,7 @@ module.exports.test = function(app) {
     };
 };
 
-function render(req, res, user, test, transcoding) {
+function render(req, res, user, test) {
     const ip = requestIp.getClientIp(req);
     const data = lookup.get(ip);
     var continent = null;
@@ -118,7 +118,6 @@ function render(req, res, user, test, transcoding) {
         'AN': ['ams', 'sgp'],
     };
     servers = (continentPoPs[continent] || allPoPs).map(formatHost);
-https://angelthump.sfo2.cdn.digitaloceanspaces.com
     var poster = user.poster;
     if(poster) {
         poster = "https://angelthump.sfo2.cdn.digitaloceanspaces.com/offline-screens/uploads/" + user.poster;
@@ -127,8 +126,8 @@ https://angelthump.sfo2.cdn.digitaloceanspaces.com
     }
 
     if(!test) {
-        res.render('embed', {username: req.params.username, poster: poster, servers: servers, transcode: transcoding});
+        res.render('embed', {username: user.username, live: user.live, poster: poster, servers: servers, transcode: user.playerTranscodeReady});
     } else {
-        res.render('embed-test', {username: req.params.username, poster: poster, servers: servers});
+        res.render('embed-test', {username: user.username, live: user.live, poster: poster, servers: servers, transcode: user.playerTranscodeReady});
     }
 }
