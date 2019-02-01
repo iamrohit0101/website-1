@@ -41,16 +41,16 @@ module.exports = function () {
   app.get('/tos', function(req, res, next){
     res.sendFile('tos.html', { root: path.join(__dirname, '../../public') });
   });
-  app.get('/dashboard', cookieParser(), auth.express.authenticate('jwt', { failureRedirect: '/login' }), function(req, res, next){
+  app.get('/dashboard', function(req, res, next){
     res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
   });
-  app.get('/settings', cookieParser(), auth.express.authenticate('jwt', { failureRedirect: '/login' }), function(req, res, next){
+  app.get('/settings', function(req, res, next){
     res.redirect(301, 'https://angelthump.com/dashboard/settings');
   });
-  app.get('/dashboard/settings', cookieParser(), auth.express.authenticate('jwt', { failureRedirect: '/login' }), function(req, res, next){
+  app.get('/dashboard/settings', function(req, res, next){
     res.sendFile('settings.html', { root: path.join(__dirname, '../../public') });
   });
-  app.get('/dashboard/patreon', cookieParser(), auth.express.authenticate('jwt', { failureRedirect: '/login' }), function(req, res, next){
+  app.get('/dashboard/patreon', function(req, res, next){
     res.sendFile('patreon.html', { root: path.join(__dirname, '../../public') });
   });
   app.get('/login', function(req, res, next){

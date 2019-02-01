@@ -1,8 +1,6 @@
 // Initializes the `upload` service on path `/uploads`
-const createService = require('./uploads.class.js');
 const hooks = require('./uploads.hooks');
 const BlobService = require('feathers-blob');
-const fs = require('fs-blob-store');
 const multer = require('multer');
 const store = require('s3-blob-store');
 const AWS = require('aws-sdk');
@@ -10,15 +8,18 @@ const AWS = require('aws-sdk');
 module.exports = function () {
   const app = this;
   const multipartMiddleware = multer();
-  
+
+  //Use digitalocean spaces instead
+  const spacesEndpoint = new AWS.Endpoint('sfo2.digitaloceanspaces.com');
   const s3 = new AWS.S3({
-    accessKeyId: app.get('awsAccessKey'),
-    secretAccessKey: app.get('awsSecretKey'),
+    accessKeyId: app.get('doSpacesAccessKey'),
+    secretAccessKey: app.get('doSpacesSecretKey'),
+    endpoint: spacesEndpoint
   });
 
   const blobStore = store({
     client: s3,
-    bucket: 'offlinescreen/uploads'
+    bucket: 'angelthump/offline-screens/uploads'
   });
 
 

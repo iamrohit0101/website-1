@@ -43,7 +43,7 @@ module.exports = function(app) {
     passwordProtected: {type: Boolean, 'default': false},
     title: {type: String},
     live: {type: Boolean, 'default': false},
-    poster: {type: String, 'default': "https://s3.amazonaws.com/offlinescreen/default_offline.jpg"},
+    poster: {type: String, 'default': ""},
     streamCreatedAt: {type: Date, 'default': Date.now },
     streamUpdatedAt: {type: Date, 'default': Date.now },
     createdAt: { type: Date, 'default': Date.now },

@@ -118,10 +118,17 @@ function render(req, res, user, test, transcoding) {
         'AN': ['ams', 'sgp'],
     };
     servers = (continentPoPs[continent] || allPoPs).map(formatHost);
+https://angelthump.sfo2.cdn.digitaloceanspaces.com
+    var poster = user.poster;
+    if(poster) {
+        poster = "https://angelthump.sfo2.cdn.digitaloceanspaces.com/offline-screens/uploads/" + user.poster;
+    } else {
+        poster = "https://angelthump.sfo2.cdn.digitaloceanspaces.com/offline-screens/default_offline.jpg";
+    }
 
     if(!test) {
-        res.render('embed', {username: req.params.username, poster: user.poster, servers: servers, transcode: transcoding});
+        res.render('embed', {username: req.params.username, poster: poster, servers: servers, transcode: transcoding});
     } else {
-        res.render('embed-test', {username: req.params.username, poster: user.poster, servers: servers});
+        res.render('embed-test', {username: req.params.username, poster: poster, servers: servers});
     }
 }

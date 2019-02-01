@@ -86,7 +86,7 @@ function hideDiv() {
 function patchUser(id) {
 	const userService = client.service('users');
 	userService.patch(client.get('user')._id, {
-		poster: "https://s3.amazonaws.com/offlinescreen/uploads/" + id
+		poster: id
 	}).then(user => {
 		window.location.reload();
 	});
@@ -94,7 +94,7 @@ function patchUser(id) {
 
 function getAPIData(user) {
 	axios
-		.get("https://angelthump.com/api/" + user.username)
+		.get("https://api.angelthump.com/v1/" + user.username)
 		.then(function(result) {    
 			data = result.data;
 			refresh(user);
@@ -409,10 +409,14 @@ class Patreon extends React.Component {
 
 class ImageUpload extends React.Component {
   constructor(props) {
-    super(props);
+		super(props);
+		let url;
+		if (props.url) {
+			url = "https://angelthump.sfo2.cdn.digitaloceanspaces.com/offline-screens/uploads/" + props.url;
+    }
 		this.state = {
 			file: '',
-			imagePreviewUrl: props.url,
+			imagePreviewUrl: url,
 			acceptedFileTypes: ['.jpg', '.jpeg', '.png'],
 			acceptedFileSize: 3242880
 		};
@@ -477,16 +481,18 @@ class ImageUpload extends React.Component {
 
   render() {
     let {imagePreviewUrl} = this.state;
-    let $imagePreview = null;
-    if (imagePreviewUrl) {
-      $imagePreview = (<img src={imagePreviewUrl} width="495" />);
+		let $imagePreview = null;
+		if (imagePreviewUrl) {
+      $imagePreview = (<img src={ imagePreviewUrl} width="495" />);
+    } else {
+      $imagePreview = (<div className="previewText">Please select an Image for Preview</div>);
     }
 
     return (
       <div className="cl-input-container">
       	<p>This is displayed on the player when your channel is offline.</p>
       	<div className="upload">
-      		{$imagePreview}
+					{$imagePreview}
 	        <div className="input file optional user_channel_offline_image">
 	        	<form onSubmit={(e)=>this._handleSubmit(e)}>
 							<input className="file optional" 

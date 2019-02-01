@@ -195,7 +195,7 @@
                 .then(user => {
                     app.set('user', user);
                     var user = app.get('user');
-                    if (user.ifPatreon) {
+                    if (user.isPatron) {
                         lastKnownServer = player.currentResolution().label;
                         updateServer();
                     } else {
