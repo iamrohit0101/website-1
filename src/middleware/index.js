@@ -116,7 +116,7 @@ module.exports = function () {
   app.get('/:username', embed(app)); // make a pretty page for follow/view player/see stats/and possibly chat via irc?
   app.get('/embed/:username', embed(app));
 
-  app.use(express.notFound({ verbose: true }));
+  app.use(express.notFound({ verbose: false }));
 
   app.use(express.errorHandler({
     html: function(error, req, res, next) {

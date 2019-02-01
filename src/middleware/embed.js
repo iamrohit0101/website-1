@@ -24,7 +24,7 @@ module.exports = function(app) {
                 } else {
                     const user = users.data[0];
                     if(user.banned) {
-                        res.render('errors.ejs', {code: 401, message: "User is banned"});
+                        res.status(401).render('errors.ejs', {code: 401, message: "User is banned"});
                     } else {
                         if(user.passwordProtected) {
                             if(req.query.password == null) {
@@ -42,10 +42,10 @@ module.exports = function(app) {
                     }
                 }
             } else {
-                res.render('errors.ejs', {code: 404, message: `there is no stream named: ${requested_username}`});
+                res.status(404).render('errors.ejs', {code: 404, message: `there is no stream named: ${requested_username}`});
             }
         }).catch((e) => {
-            res.render('errors.ejs', {code: 400, message: `wtf did u do? ` + e});
+            res.status(400).render('errors.ejs', {code: 400, message: `wtf did u do? ` + e});
         });
     };
 };
@@ -72,7 +72,7 @@ module.exports.test = function(app) {
                 } else {
                     const user = users.data[0];
                     if(user.banned) {
-                        res.render('errors.ejs', {code: 401, message: "User is banned"});
+                        res.status(401).render('errors.ejs', {code: 401, message: "User is banned"});
                     } else {
                         if(user.passwordProtected) {
                             if(req.query.password == null) {
@@ -90,10 +90,10 @@ module.exports.test = function(app) {
                     }
                 }
             } else {
-                res.render('errors.ejs', {code: 404, message: `there is no stream named: ${requested_username}`});
+                res.status(404).render('errors.ejs', {code: 404, message: `there is no stream named: ${requested_username}`});
             }
         }).catch((e) => {
-            res.render('errors.ejs', {code: 400, message: `wtf did u do? ` + e});
+            res.status(400).render('errors.ejs', {code: 400, message: `wtf did u do? ` + e});
         });
     };
 };
