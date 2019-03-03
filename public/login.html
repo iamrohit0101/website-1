@@ -24,7 +24,7 @@
 
 <script type="text/javascript" src="/js/dep/axios.min.js"></script>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<script src="//unpkg.com/@feathersjs/client@^3.0.0/dist/feathers.js"></script>
+<script type="text/javascript" src="/js/dep/feathers.min.js"></script>
 <script type="text/javascript">
   const socket = io();
   const client = feathers();
@@ -34,7 +34,7 @@
     storage: window.localStorage
   }));
 
-  
+  /*
   client.authenticate()
   .then(response => {
       console.log('Authenticated!');
@@ -44,7 +44,7 @@
       } else {
         window.location.href = '/dashboard';
       }
-  })
+  })*/
 
   function getCredentials() {
     var payload;
@@ -64,15 +64,28 @@
     return payload;
   }
 
-  function login() {
-    axios.post('/authentication', getCredentials())
+  function login(payload) {
+    axios.post('/authentication', payload)
     .then(function (response) {
-      const referrer = document.referrer;
-      if(referrer != null && referrer.includes('embed')) {
-        window.location.href = referrer;
-      } else {
-        window.location.href = '/dashboard';
-      }
+      console.log(response);
+      client.authenticate(payload)
+      .then(function(result) {
+        console.log('Authenticated!');
+        const referrer = document.referrer;
+        
+        if(referrer) {
+          if(referrer.includes('player.angelthump.com')) {
+            window.close();
+          } else if(referrer.includes('embed')) {
+            window.location.href = referrer;
+          } else {
+            window.location.href = '/dashboard';
+          }
+        }
+      }).catch(function(error) {
+          document.getElementById("error").style.display = 'block';
+          console.error('Error authenticating!', error);
+      });
     })
     .catch(function (error) {
       document.getElementById("error").style.display = 'block';
@@ -81,6 +94,6 @@
   }
 
   document.getElementById("login").addEventListener("click", function(){
-    login();
+    login(getCredentials());
   });
 </script>

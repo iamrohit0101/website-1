@@ -111,12 +111,32 @@ module.exports.passwordReset = function(app) {
 module.exports.emailChange = function(app) {
   return function(req, res, next) {
     const authManagement = app.service('authManagement');
-      authManagement.create({ action: 'identityChange',
-        value: {user: {email: req.body.email}, password: req.body.password, changes: {email: req.body.newEmail} },
-      }).then(x => {
-      res.render('success.ejs', {message: "Email sent to be confirmed!"});
-    }).catch(function(error){
-      res.render('errors.ejs', {code: error.code, message: error.message});
-    });;
+    app.service('users').find({
+      query: { email: req.body.email }
+    }).then(users => {
+      if(users.total > 0) {
+        app.service('users').find({
+          query: { email: req.body.newEmail }
+        }).then(users => {
+          if(users.total > 0) {
+            res.render('errors.ejs', {code: 404, message: 'new email already exists'});
+          } else {
+            authManagement.create({ action: 'identityChange',
+              value: {user: {email: req.body.email}, password: req.body.password, changes: {email: req.body.newEmail} },
+            }).then(x => {
+              res.render('success.ejs', {message: "Email sent to be confirmed!"});
+            }).catch(function(e){
+              res.render('errors.ejs', {code: e.code, message: e.message});
+            });
+          }
+        }).catch(e => {
+          res.render('errors.ejs', {code: e.code, message: e.message});
+        });
+      } else {
+        res.render('errors.ejs', {code: 404, message: 'no user found'});
+      }
+    }).catch(e => {
+      res.render('errors.ejs', {code: e.code, message: e.message});
+    });
   };
 };

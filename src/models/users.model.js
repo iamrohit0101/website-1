@@ -6,7 +6,6 @@
 // for more of what you can do here.
 module.exports = function(app) {
   const mongooseClient = app.get('mongooseClient'),
-  uniqueValidator = require('mongoose-unique-validator'),
   validate = require('mongoose-validator');
 
   var usernameValidator = [
@@ -26,7 +25,7 @@ module.exports = function(app) {
     email: { type: String, required: true, unique: true, uniqueCaseInsensitive: true, validate: [validate({ validator: 'isEmail', msg: '{VALUE} is not a valid email!' })]},
     username: { type: String, required: true, unique: true, uniqueCaseInsensitive: true, validate: usernameValidator},
     password: { type: String, required: true },
-    streamkey: { type: String},
+    streamkey: { type: String, unique: true},
     isVerified: { type: Boolean, default: false },
     verifyToken: { type: String },
     verifyExpires: { type: Date },
@@ -34,8 +33,6 @@ module.exports = function(app) {
     resetToken: { type: String },
     resetExpires: { type: Date },
     banned:    {type: Boolean, 'default': false},
-    ifPatreon: {type: Boolean, 'default': false},
-    patronTier: {type: Number},
     partner: {type: Boolean, 'default': false},
     transcode: {type: Boolean, 'default': false},
     playerTranscodeReady: {type:Boolean, 'default': false},
@@ -49,11 +46,11 @@ module.exports = function(app) {
     createdAt: { type: Date, 'default': Date.now },
     updatedAt: { type: Date, 'default': Date.now },
     patreonID: {type: String},
-    isPatron: {type: Boolean},
-    patronTier: {type: Number}
+    isPatron: {type: Boolean, 'default': false},
+    patronTier: {type: Number, 'default': 1},
+    ingestServer: {type: String},
+    ip_address: {type: String}
   });
-
-  users.plugin(uniqueValidator);
 
   return mongooseClient.model('users', users);
 };

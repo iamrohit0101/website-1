@@ -129,7 +129,7 @@ class Dashboard extends React.Component {
 
 	render() {
 		const user = this.props.user;
-		const src = "https://angelthump.com/embed/" + user.username;
+		const src = "https://angelthump.com/" + user.username + "/embed";
 		return <main>
 			<div className="wrapper c12 clearfix">
 				<WarningBanner warn={this.state.showWarning} email={user.email} />
@@ -170,7 +170,7 @@ class Dashboard extends React.Component {
 								<span id="channel_title">{data.title}</span>
 							</div>
 						</div>
-						<h3 className="text"><a href={'https://www.AngelThump.com/embed/' + user.username} target="_blank">Embed Player: https://angelthump.com/embed/{user.username}</a></h3>
+						<h3 className="text"><a href={'https://angelthump.com/' + user.username + '/embed'} target="_blank">Embed Player: https://angelthump.com/{user.username}/embed</a></h3>
 					</div>
 					<div className="dash-chat-column c5 last">
 						<ImageUpload url={user.poster}/>
@@ -326,7 +326,7 @@ class Patreon extends React.Component {
 	}
 
 	handleInputChange(event) {
-		if(this.props.user.ifPatreon && this.props.user.isVerified) {
+		if(this.props.user.isPatron && this.props.user.isVerified) {
 			const userService = client.service('users');
 	    	userService.patch(this.props.user._id, {
 	    		passwordProtected: !this.state.passwordProtected
@@ -347,7 +347,7 @@ class Patreon extends React.Component {
 	}
 
 	updatePassword() {
-		if(this.props.user.ifPatreon && this.props.user.isVerified) {
+		if(this.props.user.isPatron && this.props.user.isVerified) {
 			const userService = client.service('users');
 	    	userService.patch(this.props.user._id, {
 	    		streamPassword: document.getElementById('updatePassword').value
@@ -466,9 +466,13 @@ class ImageUpload extends React.Component {
 	}
 
 	reset() {
+		let url;
+		if (props.url) {
+			url = "https://angelthump.sfo2.cdn.digitaloceanspaces.com/offline-screens/uploads/" + props.url;
+    }
 		this.setState({
 			file: '',
-			imagePreviewUrl: this.props.url
+			imagePreviewUrl: url
 		});
 	}
 	
