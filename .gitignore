@@ -28,13 +28,8 @@ node_modules
 
 lib/
 data/
-public/embed-test*
 *.conf
-public/.old
 package-lock.json
-public/js/
-public/css/
-public/assets
 !.keep
 config/*
 nedb/
