@@ -29,8 +29,7 @@ For more information on AngelThump, join the Discord!
     cd path/to/AngelThump; npm install
     ```
 
-3. Comment out the `https` server in `src/index.js` or install letsencrypt
-5. Install redis-server
+3. Install redis-server
 4. Start your app
     
     ```
