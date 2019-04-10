@@ -29,7 +29,7 @@ const logger = winston.createLogger(
 );
 
 //force ipv4
-const httpServer = http.createServer(app).listen(port, "0.0.0.0");
+const httpServer = http.createServer(app).listen(port, 'localhost');
 
 // Call app.setup to initialize all services and SocketIO
 app.setup(httpServer);
