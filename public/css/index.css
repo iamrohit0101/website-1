@@ -81,6 +81,7 @@ html
   justify-content: center;
   align-items: center;
   text-align: center;
+  background-color: rgb(15, 14, 17);
 }
 .title
 {
@@ -88,7 +89,7 @@ html
   display: block;
   font-weight: 300;
   font-size: 100px;
-  color: #35495e;
+  color: #dad8de;
   letter-spacing: 1px;
 }
 .subtitle
@@ -103,7 +104,7 @@ html
 {
   font-weight: 300;
   font-size: 16px;
-  color: #526488;
+  color: #dad8de;
   word-spacing: 2px;
   padding-bottom: 15px;
 }
@@ -111,4 +112,18 @@ html
 {
   padding-top: 15px;
   padding-bottom: 15px;
+}
+
+a:link {
+  color: #dad8de;
+}
+
+/* visited link */
+a:visited {
+  color: #dad8de;
+}
+
+/* mouse over link */
+a:hover {
+  color: purple;
 }

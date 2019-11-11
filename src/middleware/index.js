@@ -45,6 +45,10 @@ module.exports = function () {
     res.redirect('/dashboard/settings');
   });
 
+  app.get('/admin', function(req,res,next) {
+    res.sendFile('admin.html', { root: path.join(__dirname, '../../public') });
+  });
+
   app.get('/dashboard/:page', function(req,res,next) {
     res.sendFile(req.params.page.toLowerCase() + '.html', { root: path.join(__dirname, '../../public') });
   })
@@ -54,10 +58,6 @@ module.exports = function () {
   });
   app.get('/signup', function(req, res, next){
     res.sendFile('signup.html', { root: path.join(__dirname, '../../public') });
-  });
-
-  app.get('/donate', function(req, res, next){
-    res.redirect(301, 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3VKPL7E8RSL38');
   });
 
   app.get('/reset_pass', function(req, res, next){

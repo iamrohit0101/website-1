@@ -9,8 +9,7 @@
 
 An open source live streaming website for the AngelThump streaming platform. The web framework is based on [feathersjs](http://feathersjs.com)
 
-## Donations
-I do not make any profit off of this. All donations will go to server costs and it will be appericated.
+## Patreon
 
 [Become a patreon](https://www.patreon.com/angelthump)
 

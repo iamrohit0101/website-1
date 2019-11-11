@@ -32,7 +32,8 @@ app.configure(configuration(path.join(__dirname, '..')));
 // Enable CORS, security, compression, favicon and body parsing
 app.use(cors());
 app.use(helmet({
-  frameguard: false
+  frameguard: false,
+  hsts: false
 }));
 app.use(compress());
 app.use(util.overrideContentType());

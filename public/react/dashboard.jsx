@@ -247,29 +247,39 @@ class Settings extends React.Component {
 		              {this.state.showStreamKey ? this.state.streamKey : ""}
 		            </p>
 					<h4>
-	            		<strong>US-EAST Ingest URL</strong>
-	            	</h4>
+						<strong>INGEST URL</strong>
+					</h4>
 					<h4>
-	            		<strong>rtmp://nyc-ingest.angelthump.com:1935/live</strong>
-	            	</h4>
+						<strong>rtmp://ingest.angelthump.com:1935/live</strong>
+					</h4>
+
 					<h4>
-	            		<strong>US-WEST Ingest URL</strong>
-	            	</h4>
+						<strong>Only use these RTMP URLS if the automatic one is not working well!</strong>
+					</h4>
 					<h4>
-	            		<strong>rtmp://sfo-ingest.angelthump.com:1935/live</strong>
-	            	</h4>
+						<strong>US-EAST Ingest URL</strong>
+					</h4>
 					<h4>
-								<strong>AMSTERDAM Ingest URL</strong>
-	            	</h4>
+						<strong>rtmp://nyc-ingest.angelthump.com:1935/live</strong>
+					</h4>
 					<h4>
-	            		<strong>rtmp://ams-ingest.angelthump.com:1935/live</strong>
-	            	</h4>
+						<strong>US-WEST Ingest URL</strong>
+					</h4>
 					<h4>
-								<strong>FRANKFURT (GERMANY) Ingest URL</strong>
-	            	</h4>
+						<strong>rtmp://sfo-ingest.angelthump.com:1935/live</strong>
+					</h4>
 					<h4>
-								<strong>rtmp://fra-ingest.angelthump.com:1935/live</strong>
-	            	</h4>
+						<strong>AMSTERDAM Ingest URL</strong>
+					</h4>
+					<h4>
+						<strong>rtmp://ams-ingest.angelthump.com:1935/live</strong>
+					</h4>
+					<h4>
+						<strong>FRANKFURT (GERMANY) Ingest URL</strong>
+					</h4>
+					<h4>
+						<strong>rtmp://fra-ingest.angelthump.com:1935/live</strong>
+					</h4>
 								
 					<img src="/assets/ingest.png" width="720">
 	            	</img>
@@ -277,7 +287,7 @@ class Settings extends React.Component {
 	            		<strong>OBS SETTINGS (VERY IMPORTANT)</strong>
 	            	</h4>
 	            	<h4>
-	            		<strong>Bitrate: 3500</strong>
+	            		<strong>Bitrate: 6000(MAX)</strong>
 	            	</h4>
 	            	<h4>
 	            		<strong>Keyframe Interval: 2</strong>

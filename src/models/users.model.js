@@ -41,13 +41,11 @@ module.exports = function(app) {
     title: {type: String},
     live: {type: Boolean, 'default': false},
     poster: {type: String, 'default': ""},
-    streamCreatedAt: {type: Date, 'default': Date.now },
-    streamUpdatedAt: {type: Date, 'default': Date.now },
+    streamCreatedAt: {type: Date, 'default': new Date(null) },
+    streamUpdatedAt: {type: Date, 'default': new Date(null) },
     createdAt: { type: Date, 'default': Date.now },
     updatedAt: { type: Date, 'default': Date.now },
-    patreonID: {type: String},
     isPatron: {type: Boolean, 'default': false},
-    patronTier: {type: Number, 'default': 1},
     ingestServer: {type: String},
     ip_address: {type: String}
   });

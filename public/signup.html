@@ -8,6 +8,9 @@
   <a href="/">
     <img src="/assets/small_logo.png" />
   </a>
+  <div class="error" id="error" style="text-align: center; display: none">
+    Sign Ups are disabled currently!
+  </div>
   <div class="warning" id="warning" style="text-align: center;">
     Reminder: You have to verify your email to stream!
   </div>
@@ -17,7 +20,7 @@
       <input type="username" name="username" placeholder="username"/>
       <input type="password" name="password" placeholder="password"/>
       <div class="g-recaptcha" data-sitekey="6Lf6TVgUAAAAAFfSioc-cykEjZnF7_ol0eXp2wKG"></div><br/>
-      <button>create</button>
+      <button #disabled="">create</button>
       <p class="message">Already registered? <a href="/login">Sign In</a></p>
     </form>
   </div>
