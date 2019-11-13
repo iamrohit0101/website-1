@@ -7,13 +7,10 @@
     <img src="/assets/small_logo.png" />
   </a>
   <div class="form">
-    <form class="reset-form" method="post" action="/resendVerification">
+    <form class="reset-form" method="post" action="https://sso.angelthump.com/resendVerification">
       <input id="email" type="email" name="email" placeholder="email"/>
       <div class="g-recaptcha" data-sitekey="6Lf6TVgUAAAAAFfSioc-cykEjZnF7_ol0eXp2wKG"></div><br/>
       <button type="submit" id="reset">Resend Email Verification</button>
     </form>
   </div>
 </div>
-
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<script type="text/javascript" src="/js/dep/feathers.min.js"></script>

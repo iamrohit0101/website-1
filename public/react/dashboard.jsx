@@ -1,42 +1,37 @@
-import feathers from '@feathersjs/client';
+import "babel-polyfill"
+import feathers from '@feathersjs/feathers';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import io from 'socket.io-client';
 import socketio from '@feathersjs/socketio-client';
 import authentication from '@feathersjs/authentication-client';
 
-const socket = io('https://angelthump.com');
+const socket = io('https://sso.angelthump.com');
 const client = feathers();
-var data = {};
 
 client.configure(socketio(socket));
 client.configure(authentication({
-  storage: window.localStorage
+	storage: localStorage
 }));
 
-client.authenticate()
-.then(response => {
-  return client.passport.verifyJWT(response.accessToken);
-})
-.then(payload => {
-	return client.service('users').get(payload.userId);
-})
-.then(user => {
-	client.set('user', user);
+client.reAuthenticate()
+.then(async () => {
+	const {user, accessToken} = await client.get('authentication');
 	if(window.location.pathname == "/dashboard" || window.location.pathname == "/dashboard/") {
-		getAPIData(client.get('user'));
-		setInterval(function(){getAPIData(client.get('user'))}, 30000);
+		getAPIData(user);
+		setInterval(function(){getAPIData(user)}, 30000);
 		ReactDOM.render(
-			<Dashboard user={client.get('user')} />,
+			<Dashboard user={user} />,
 			document.getElementById('dash_main')
 		);
 	} else if (window.location.pathname == "/dashboard/settings" || window.location.pathname == "/dashboard/settings/" ) {
 		ReactDOM.render(
-			<Settings user={client.get('user')} />,
+			<Settings user={user} />,
 			document.getElementById('settings')
 		);
 	} else if (window.location.pathname == "/dashboard/patreon" || window.location.pathname == "/dashboard/patreon/" ) {
 		ReactDOM.render(
-			<Patreon user={client.get('user')} />,
+			<Patreon user={user} accessToken={accessToken} />,
 			document.getElementById('patreon')
 		);
 	}
@@ -46,6 +41,8 @@ client.authenticate()
 		window.location.href = '/login';
 	}
 });
+
+let data = {};
 
 function refresh(updatedUser) {
 	ReactDOM.render(
@@ -83,25 +80,26 @@ function hideDiv() {
 	document.getElementById('titleSuccess').style.display='none';
 }
 
-function patchUser(id) {
+async function patchUser(id) {
 	const userService = client.service('users');
-	userService.patch(client.get('user')._id, {
+	const {user} = await client.get('authentication');
+	userService.patch(user._id, {
 		poster: id
-	}).then(user => {
+	}).then(() => {
 		window.location.reload();
 	});
 }
 
 function getAPIData(user) {
 	axios
-		.get("https://api.angelthump.com/v1/" + user.username)
-		.then(function(result) {    
-			data = result.data;
-			refresh(user);
-		})
-		.catch(function(error) {
-			console.log(error);
-		});
+	.get("https://api.angelthump.com/v1/" + user.username)
+	.then(function(result) {    
+		data = result.data;
+		refresh(user);
+	})
+	.catch(function(error) {
+		console.error(error);
+	});
 }
 
 class Dashboard extends React.Component {
@@ -124,7 +122,7 @@ class Dashboard extends React.Component {
 	}
 
 	logout() {
-		client.logout().then(() => window.location.href = '/logout');
+		client.logout().then(() => window.location.href = '/');
 	}
 
 	render() {
@@ -213,7 +211,7 @@ class Settings extends React.Component {
 	}
 
 	logout() {
-		client.logout().then(() => window.location.href = '/logout');
+		client.logout().then(() => window.location.href = '/');
 	}
 
 	render() {
@@ -329,6 +327,7 @@ class Patreon extends React.Component {
 		};
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.updatePassword = this.updatePassword.bind(this);
+		this.verifyPatreon = this.verifyPatreon.bind(this);
 	};
 
 	logout() {
@@ -340,7 +339,7 @@ class Patreon extends React.Component {
 			const userService = client.service('users');
 	    	userService.patch(this.props.user._id, {
 	    		passwordProtected: !this.state.passwordProtected
-	    	}).then(user => {
+	    	}).then(() => {
 	    		if(this.state.passwordProtected) {
 	    			alert("Stream is now Password Protected!");
 	    		} else {
@@ -361,7 +360,7 @@ class Patreon extends React.Component {
 			const userService = client.service('users');
 	    	userService.patch(this.props.user._id, {
 	    		streamPassword: document.getElementById('updatePassword').value
-	    	}).then(user => {
+	    	}).then(() => {
 	    		alert("Successfully Updated Stream Password");
 	    	});
 
@@ -373,8 +372,32 @@ class Patreon extends React.Component {
 		}
 	}
 
+	verifyPatreon() {
+		if(this.props.user.isPatreonLinked) {
+			axios({method:'post',url:'https://api.angelthump.com/v2/patreon/verify', headers: {Authorization: `Bearer ${this.props.accessToken}`}})
+			.then((result) => {
+				alert(result.data.message);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+		} else {
+			alert('Please link your patreon account before trying to verify!');
+		}
+	}
+
 	render() {
 		const user = this.props.user;
+		const isLinked = user.isPatreonLinked ? "Yes" : "No";
+		const status = user.isPatron ? "PATRON VERIFIED" : "NOT A PATRON";
+		let tier
+		if(user.isPatron) {
+			tier = user.patronTier == 1 ? "VIEWER" : "BROADCASTER";
+		} else {
+			tier = "NOT A PATRON";
+		}
+		const patreonLink = `https://sso.angelthump.com/oauth/patreon?feathers_token=${this.props.accessToken}`;
+
 		return <main>
 			<div className="wrapper c12 clearfix">
 				<WarningBanner warn={this.state.showWarning} email={user.email} />
@@ -390,7 +413,7 @@ class Patreon extends React.Component {
 					<h4>
 						<input className='checkbox' type="checkbox" checked={this.state.passwordProtected} onChange={this.handleInputChange} />
 						&nbsp;
-						Enable to password protect your stream!
+						Password Protection
 					</h4>
 					<h4>
 						<div id='form_submit'>
@@ -401,9 +424,23 @@ class Patreon extends React.Component {
 							</button>
 						</div>
 					</h4>
-					<a className="button--green" href="/patron">
+					<a className="button--green" href={patreonLink}>
 	            		Link account to patreon to use features!
 	            	</a>
+
+					<button className="button--red-smile" onClick={this.verifyPatreon}>
+	            		Verify your patreon status and tier.
+	            	</button>
+
+					<h4>
+						<strong>Patreon Linked: {isLinked}    </strong>
+					</h4>
+					<h4>
+						<strong>Patreon Status: {status}    </strong>
+					</h4>
+					<h4>
+						<strong>Patreon Tier: {tier} </strong>
+					</h4>
 				</div>
 			</div>
 			
@@ -436,13 +473,17 @@ class ImageUpload extends React.Component {
     e.preventDefault();
 		
 		if(this.state.file != '') {
-			const uploadService = client.service('uploads');
+			const imageSocket = io('https://api.angelthump.com');
+			const imageClient = feathers();
+			imageClient.configure(socketio(imageSocket));
+			const uploadService = imageClient.service('uploads');
 			uploadService
 			.create({uri: this.state.imagePreviewUrl})
 			.then(function(response){
 				patchUser(response.id);
+				imageSocket.disconnect()
 			}).catch(function(error) {
-				console.log(error);
+				console.error(error);
 			});
 		} else {
 			alert('choose a file');

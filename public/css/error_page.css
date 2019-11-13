@@ -1,6 +1,6 @@
 .error-page {
     color: #000;
-    background: #fff;
+    background: rgb(15, 14, 17);
     top: 0;
     bottom: 0;
     left: 0;
@@ -15,9 +15,10 @@
     font-size: 36px;
     font-weight: 500;
     vertical-align: top;
-    border-right: 1px solid rgba(0, 0, 0, 0.298039);
+    border-right: 1px solid white;
     margin: 0px 20px 0px 0px;
     padding: 10px 20px;
+    color: white;
   }
   .error-wrapper-message {
     display: inline-block;
@@ -31,6 +32,7 @@
     font-weight: normal;
     margin: 0px;
     padding: 0px;
+    color: white;
   }
   .error-link {
     color: #00BCD4;

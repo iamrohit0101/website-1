@@ -2,28 +2,22 @@ const path = require('path');
 const favicon = require('serve-favicon');
 const compress = require('compression');
 const cors = require('cors');
+const logger = require('./logger');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 
 const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
 const configuration = require('@feathersjs/configuration');
-const rest = require('@feathersjs/express/rest');
-const socketio = require('@feathersjs/socketio');
 
 const middleware = require('./middleware');
 const services = require('./services');
 const appHooks = require('./app.hooks');
 
-const authentication = require('./authentication');
-
-const mongodb = require('./mongodb');
-
 const fs = require('fs');
 const morgan = require('morgan');
 const requestIp = require('request-ip');
 const accessLogStream = fs.createWriteStream(path.join(__dirname, '../logs/access.log'), {flags: 'a'});
-const util = require('./middleware/util');
 
 const app = express(feathers());
 
@@ -36,7 +30,6 @@ app.use(helmet({
   hsts: false
 }));
 app.use(compress());
-app.use(util.overrideContentType());
 var rawBodySaver = function (req, res, buf, encoding) {
   if (buf && buf.length) {
     req.rawBody = buf.toString(encoding || 'utf8');
@@ -60,22 +53,16 @@ app.use(morgan(':method :url :status :response-time ms - :res[content-length] - 
 	return app.get('skipIPs').includes(requestIp.getClientIp(req));
 }}));
 
-app.configure(mongodb);
-app.configure(rest());
-app.configure(socketio({
-  wsEngine: 'uws'
-}));
-
-app.configure(socketio(function(io) {
-  app.set('socketio', io);
-}))
-
-app.configure(authentication);
 
 // Set up our services (see `services/index.js`)
 app.configure(services);
 // Configure middleware (see `middleware/index.js`) - always has to be last
 app.configure(middleware);
+
+// Configure a middleware for 404s and the error handler
+app.use(express.notFound());
+app.use(express.errorHandler({ logger }));
+
 app.hooks(appHooks);
 
 module.exports = app;

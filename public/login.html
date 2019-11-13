@@ -11,8 +11,8 @@
   </div>
   <div class="form">
     <form id="loginForm" class="login-form" onsubmit="return false">
-        <input id="strategy" type="hidden" name="strategy" value="local-username">
-        <input id="user" type="user" name="user" placeholder="username/email"/>
+        <input id="strategy" type="hidden" name="strategy" value="local">
+        <input id="user" type="user" name="user" placeholder="username"/>
         <input id="password" type="password" name="password" placeholder="password"/>
         <button type="submit" id="login">login</button>
         <p class="message">Not registered? <a href="/signup">Create an account</a></p>
@@ -22,11 +22,10 @@
   </div>
 </div>
 
-<script type="text/javascript" src="/js/dep/axios.min.js"></script>
-<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-<script type="text/javascript" src="/js/dep/feathers.min.js"></script>
+<script type="text/javascript" src="//www.unpkg.com/socket.io-client@2.3.0/dist/socket.io.slim.js"></script>
+<script type="text/javascript" src="//unpkg.com/@feathersjs/client@4.3.10/dist/feathers.min.js"></script>
 <script type="text/javascript">
-  const socket = io();
+  const socket = io('https://sso.angelthump.com');
   const client = feathers();
 
   client.configure(feathers.socketio(socket));
@@ -34,46 +33,10 @@
     storage: window.localStorage
   }));
 
-  /*
-  client.authenticate()
-  .then(response => {
+  /*client.reAuthenticate().then(response => {
       console.log('Authenticated!');
       const referrer = document.referrer;
-      if(referrer != null && referrer.includes('embed')) {
-        window.location.href = referrer;
-      } else {
-        window.location.href = '/dashboard';
-      }
-  })*/
-
-  function getCredentials() {
-    var payload;
-    if(document.getElementById('user').value.includes("@")) {
-      var user = {
-        email: document.getElementById('user').value,
-        password: document.getElementById('password').value
-      };
-      payload = user ? Object.assign({ strategy: 'local' }, user) : {};
-    } else {
-      var user = {
-        username: document.getElementById('user').value,
-        password: document.getElementById('password').value
-      };
-      payload = user ? Object.assign({ strategy: 'local-username' }, user) : {};
-    }
-    return payload;
-  }
-
-  function login(payload) {
-    axios.post('/authentication', payload)
-    .then(function (response) {
-      console.log(response);
-      client.authenticate(payload)
-      .then(function(result) {
-        console.log('Authenticated!');
-        const referrer = document.referrer;
-        
-        if(referrer) {
+      if(referrer) {
           if(referrer.includes('player.angelthump.com')) {
             window.close();
           } else if(referrer.includes('embed')) {
@@ -84,16 +47,38 @@
         } else {
           window.location.href = '/dashboard';
         }
-      }).catch(function(error) {
-          document.getElementById("error").style.display = 'block';
-          console.error('Error authenticating!', error);
-      });
-    })
-    .catch(function (error) {
-      document.getElementById("error").style.display = 'block';
-      console.log(error);
-    });
+  });*/
+
+  function getCredentials() {
+    var payload;
+    var user = {
+        username: document.getElementById('user').value,
+        password: document.getElementById('password').value
+    };
+    payload = user ? Object.assign({ strategy: 'local' }, user) : {};
+    return payload;
   }
+
+  function login(payload) {
+    client.authenticate(payload)
+    .then(function(result) {
+        const referrer = document.referrer;
+        if(referrer) {
+            if(referrer.includes('player.angelthump.com')) {
+            window.close();
+            } else if(referrer.includes('embed')) {
+            window.location.href = referrer;
+            } else {
+            window.location.href = '/dashboard';
+            }
+        } else {
+            window.location.href = '/dashboard';
+        }
+    }).catch(function(error) {
+        document.getElementById("error").style.display = 'block';
+        console.error('Error authenticating!', error);
+    });
+}
 
   document.getElementById("login").addEventListener("click", function(){
     login(getCredentials());
