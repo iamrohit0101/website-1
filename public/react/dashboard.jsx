@@ -250,34 +250,6 @@ class Settings extends React.Component {
 					<h4>
 						<strong>rtmp://ingest.angelthump.com:1935/live</strong>
 					</h4>
-
-					<h4>
-						<strong>Only use these RTMP URLS if the automatic one is not working well!</strong>
-					</h4>
-					<h4>
-						<strong>US-EAST Ingest URL</strong>
-					</h4>
-					<h4>
-						<strong>rtmp://nyc-ingest.angelthump.com:1935/live</strong>
-					</h4>
-					<h4>
-						<strong>US-WEST Ingest URL</strong>
-					</h4>
-					<h4>
-						<strong>rtmp://sfo-ingest.angelthump.com:1935/live</strong>
-					</h4>
-					<h4>
-						<strong>AMSTERDAM Ingest URL</strong>
-					</h4>
-					<h4>
-						<strong>rtmp://ams-ingest.angelthump.com:1935/live</strong>
-					</h4>
-					<h4>
-						<strong>FRANKFURT (GERMANY) Ingest URL</strong>
-					</h4>
-					<h4>
-						<strong>rtmp://fra-ingest.angelthump.com:1935/live</strong>
-					</h4>
 								
 					<img src="/assets/ingest.png" width="720">
 	            	</img>
@@ -285,7 +257,7 @@ class Settings extends React.Component {
 	            		<strong>OBS SETTINGS (VERY IMPORTANT)</strong>
 	            	</h4>
 	            	<h4>
-	            		<strong>Bitrate: 6000(MAX)</strong>
+	            		<strong>Bitrate: 3500(MAX)</strong>
 	            	</h4>
 	            	<h4>
 	            		<strong>Keyframe Interval: 2</strong>
@@ -388,8 +360,13 @@ class Patreon extends React.Component {
 
 	render() {
 		const user = this.props.user;
-		const isLinked = user.isPatreonLinked ? "Yes" : "No";
-		const status = user.isPatron ? "PATRON VERIFIED" : "NOT A PATRON";
+		const isPatreonLinked = user.isPatreonLinked ? "Yes" : "No";
+		const patreonStatus = user.isPatron ? "PATRON VERIFIED" : "NOT A PATRON";
+		const isTwitchLinked = user.isTwitchLinked ? "Yes" : "No";
+		let twitchChannel = null;
+		if(user.twitch) {
+			twitchChannel = user.twitch.channel;
+		}
 		let tier
 		if(user.isPatron) {
 			tier = user.patronTier == 1 ? "VIEWER" : "BROADCASTER";
@@ -397,6 +374,7 @@ class Patreon extends React.Component {
 			tier = "NOT A PATRON";
 		}
 		const patreonLink = `https://sso.angelthump.com/oauth/patreon?feathers_token=${this.props.accessToken}`;
+		const twitchLink = `https://sso.angelthump.com/oauth/twitch?feathers_token=${this.props.accessToken}`;
 
 		return <main>
 			<div className="wrapper c12 clearfix">
@@ -433,13 +411,24 @@ class Patreon extends React.Component {
 	            	</button>
 
 					<h4>
-						<strong>Patreon Linked: {isLinked}    </strong>
+						<strong>Patreon Linked: {isPatreonLinked}    </strong>
 					</h4>
 					<h4>
-						<strong>Patreon Status: {status}    </strong>
+						<strong>Patreon Status: {patreonStatus}    </strong>
 					</h4>
 					<h4>
 						<strong>Patreon Tier: {tier} </strong>
+					</h4>
+
+					<a className="button--green" href={twitchLink}>
+	            		Link Twitch account to use chat feature!
+	            	</a>
+
+					<h4>
+						<strong>Twitch Linked: {isTwitchLinked}    </strong>
+					</h4>
+					<h4>
+						<strong>Twitch channel: {twitchChannel}    </strong>
 					</h4>
 				</div>
 			</div>
@@ -475,7 +464,9 @@ class ImageUpload extends React.Component {
 		if(this.state.file != '') {
 			const imageSocket = io('https://api.angelthump.com');
 			const imageClient = feathers();
-			imageClient.configure(socketio(imageSocket));
+			imageClient.configure(socketio(imageSocket, {
+				timeout: 60000
+			}));
 			const uploadService = imageClient.service('uploads');
 			uploadService
 			.create({uri: this.state.imagePreviewUrl})

@@ -11,8 +11,8 @@ const express = require('@feathersjs/express');
 const configuration = require('@feathersjs/configuration');
 
 const middleware = require('./middleware');
-const services = require('./services');
 const appHooks = require('./app.hooks');
+const axios = require('axios');
 
 const fs = require('fs');
 const morgan = require('morgan');
@@ -53,9 +53,6 @@ app.use(morgan(':method :url :status :response-time ms - :res[content-length] - 
 	return app.get('skipIPs').includes(requestIp.getClientIp(req));
 }}));
 
-
-// Set up our services (see `services/index.js`)
-app.configure(services);
 // Configure middleware (see `middleware/index.js`) - always has to be last
 app.configure(middleware);
 

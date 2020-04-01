@@ -1,4 +1,5 @@
 const path = require('path');
+//const channel = require('./channel');
 
 module.exports = function () {
   const app = this;
@@ -13,6 +14,10 @@ module.exports = function () {
   app.get('/p/:page', function(req,res,next) {
     res.sendFile(req.params.page.toLowerCase() + '.html', { root: path.join(__dirname, '../../public') });
   })
+
+  app.get('/recovery', function(req, res, next){
+    res.sendFile('reset.html', { root: path.join(__dirname, '../../public') });
+  });
 
   app.get('/dashboard', function(req, res, next){
     res.sendFile('dashboard.html', { root: path.join(__dirname, '../../public') });
@@ -56,6 +61,8 @@ module.exports = function () {
   app.get('/:username', function(req, res, next){
     res.redirect(301, 'https://player.angelthump.com?channel=' + req.params.username.toLowerCase());
   });
+
+  //app.get('/:username/beta', channel(app));
 
   app.get('/:username/embed', function(req, res, next){
     res.redirect(301, 'https://player.angelthump.com?channel=' + req.params.username.toLowerCase());
