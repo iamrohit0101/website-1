@@ -7,7 +7,7 @@
 
 ## About
 
-An open source live streaming website for the AngelThump streaming platform. The web framework is based on [feathersjs](http://feathersjs.com)
+--> An open source live streaming website for the AngelThump streaming platform. The web framework is based on [feathersjs](http://feathersjs.com)
 
 ## Patreon
 
@@ -15,7 +15,7 @@ An open source live streaming website for the AngelThump streaming platform. The
 
 ## AngelThump Discord Support
 
-For more information on AngelThump, join the Discord! 
+For more information on AngelThump, join the Discord :) 
 
 [![](https://discordapp.com/api/guilds/440321871431598090/embed.png?style=banner2)](https://discord.gg/QGrZXNh)
 
@@ -34,3 +34,4 @@ For more information on AngelThump, join the Discord!
     ```
     npm start
     ```
+    Thanks for vistit our site :)
